@@ -16,7 +16,7 @@ user's experience...
 - after authenticating, user sees a confirmation message
 
 behind the scenes...
-- after user authenticates, app uses the josiah-patron-accounts code to place a millennium request on behalf of the user
+- after user authenticates, app uses the [josiah-patron-accounts](https://github.com/Brown-University-Library/josiah-patron-accounts) code to place a millennium request on behalf of the user
 - how:
     - the bibnum param is used to get a list of items
     - the barcode param is used to identify the item desired (and item-number is grabbed)
