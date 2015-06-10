@@ -17,8 +17,8 @@ shib_view_helper = models.ShibViewHelper()
 def info( request ):
     """ Returns info page. """
     context = {
-        u'email_general_help': os.environ[u'EZRQST__EMAIL_GENERAL_HELP'],
-        u'phone_general_help': os.environ[u'EZRQST__PHONE_GENERAL_HELP']
+        # u'email_general_help': os.environ[u'EZRQST__EMAIL_GENERAL_HELP'],
+        # u'phone_general_help': os.environ[u'EZRQST__PHONE_GENERAL_HELP']
         }
     return render( request, u'easyrequest_app_templates/info.html', context )
 
