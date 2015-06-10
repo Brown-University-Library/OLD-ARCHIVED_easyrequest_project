@@ -60,21 +60,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'easyrequest_config.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
+TEMPLATE_DIRS = json.loads( os.environ['EZRQST__TEMPLATE_DIRS'] )  # list
 
 WSGI_APPLICATION = 'easyrequest_config.wsgi.application'
 
@@ -146,7 +132,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'easyscan_app': {
+        'easyrequest_app': {
             'handlers': ['logfile'],
             'level': os.environ.get(u'EZRQST__LOG_LEVEL'),
         },
