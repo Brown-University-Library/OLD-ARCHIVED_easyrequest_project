@@ -9,7 +9,6 @@
 
 
 import os, pprint, sys
-from django.core.wsgi import get_wsgi_application
 
 
 ## become self-aware
@@ -23,7 +22,8 @@ SETTINGS_MODULE = u'easyrequest_config.settings'
 SITE_PACKAGES_DIR = os.path.abspath( u'%s/../../env_ezrqst/lib/python2.6/site-packages' % current_directory )
 
 ## virtualenv
-execfile( ACTIVATE_FILE, dict(__file__=ACTIVATE_FILE) )
+execfile( ACTIVATE_FILE, dict(__file__=ACTIVATE_FILE) )  # _now_ django is loaded into env, so following command will work
+from django.core.wsgi import get_wsgi_application
 
 ## sys.path additions
 for entry in [PROJECT_DIR, PROJECT_ENCLOSING_DIR, SITE_PACKAGES_DIR]:
@@ -34,5 +34,4 @@ for entry in [PROJECT_DIR, PROJECT_ENCLOSING_DIR, SITE_PACKAGES_DIR]:
 os.environ[u'DJANGO_SETTINGS_MODULE'] = SETTINGS_MODULE  # so django can access its settings
 
 ## gogogo
-# from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
