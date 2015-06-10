@@ -1,7 +1,7 @@
-{% extends "easyscan_app_templates/base.html" %}
+{% extends "easyrequest_app_templates/base.html" %}
 
 {% block page_title %}
-easyScan info
+easyRequest info
 {% endblock page_title %}
 
 
@@ -42,22 +42,10 @@ easyScan info
         margin-top: .5em; }
 </style>
 
- <h1>easyScan info</h1>
+ <h1>easyRequest info</h1>
 
 <div id="rules">
-  <p>This service permits scans of up to 50 pages, or one chapter, from non-special-collections materials located at the Annex (Brown's offsite Library storage facility).</p>
-  <p>In most cases material is scanned within 2 business days. Notification will be sent to your brown email address.</p>
-    <p>Other info....</p>
-    <p>Eventually this service will be hooked up to Brown's other discovery services, but for now, to use this service:</p>
-    <ul>
-        <li>Find an item from which you need a scan in Josiah. <a href="http://josiah.brown.edu/record=b4069600">Sample item</a></li>
-        <li>Click the 'Request Scan' link next to the item.</li>
-        <li>Log in.</li>
-        <li>Add citation/page-range information as needed.</li>
-        <li>Click the Submit button; that's it!</li>
-        <li>You'll see a confirmation web-page, and a confirmation email will be sent to you.</li>
-    </ul>
-    <p>If you have questions, feel free to email {{ email_general_help|urlize }} or call {{ phone_general_help }}.</p>
+  <p>See this project's <a href="https://github.com/birkin/easyrequest_project">github page</a> for more information.</p>
 </div>
 
 <hr/>
