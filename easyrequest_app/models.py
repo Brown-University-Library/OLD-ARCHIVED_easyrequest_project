@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
 # from django.conf import settings as project_settings
