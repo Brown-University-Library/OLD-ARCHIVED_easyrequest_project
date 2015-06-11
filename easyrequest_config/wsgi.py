@@ -19,7 +19,7 @@ ACTIVATE_FILE = os.path.abspath( u'%s/../../env_ezrqst/bin/activate_this.py' % c
 PROJECT_DIR = os.path.abspath( u'%s/../../easyrequest_project' % current_directory )
 PROJECT_ENCLOSING_DIR = os.path.abspath( u'%s/../..' % current_directory )
 SETTINGS_MODULE = u'easyrequest_config.settings'
-SITE_PACKAGES_DIR = os.path.abspath( u'%s/../../env_ezrqst/lib/python2.7/site-packages' % current_directory )
+SITE_PACKAGES_DIR = os.path.abspath( u'%s/../../env_ezrqst/lib/python*/site-packages' % current_directory )
 
 ## virtualenv
 execfile( ACTIVATE_FILE, dict(__file__=ACTIVATE_FILE) )  # _now_ django is loaded into env, so following command will work
