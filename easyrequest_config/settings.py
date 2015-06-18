@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'easyrequest_app',
+    'easyrequest_app',
 )
 
 MIDDLEWARE_CLASSES = (
