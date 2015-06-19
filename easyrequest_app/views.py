@@ -28,6 +28,7 @@ def info( request ):
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Asks user to confirm the request. """
+    log.debug( u'starting login()' )
     context = {
         }
     return HttpResonse( u'login page coming' )
