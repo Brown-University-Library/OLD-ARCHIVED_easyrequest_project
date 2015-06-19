@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import json, logging, os
+import json, logging, os, pprint
 import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
@@ -30,19 +30,69 @@ class ConfirmRequestGetHelper( object ):
 
     def __init__( self ):
         self.AVAILABILITY_API_URL_ROOT = os.environ[u'EZRQST__AVAILABILITY_API_URL_ROOT']
+        self.PHONE_AUTH_HELP = os.environ[u'EZRQST__PHONE_AUTH_HELP']
+        self.EMAIL_AUTH_HELP = os.environ[u'EZRQST__EMAIL_AUTH_HELP']
 
-    def get_title( self, bibnum ):
-        """ Hits availability-api with bib for title.
-            Called by check_title() """
-        title = u''
+    # def get_title( self, bibnum ):
+    #     """ Hits availability-api with bib for title.
+    #         Called by views.login() """
+    #     title = u''
+    #     try:
+    #         availability_api_url = u'%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+    #         r = requests.get( availability_api_url )
+    #         d = r.json()
+    #         log.debug( u'api-response, `%s`' % pprint.pformat(d) )
+    #         title = d[u'response'][u'backend_response'][0][u'title']
+    #     except Exception as e:
+    #         log.error( u'exception, %s' % unicode(repr(e)) )
+    #     return title
+
+    def get_item_info( self, bibnum, item_barcode ):
+        """ Hits availability-api.
+            Called by views.login() """
+        ( title, callnumber, item_id ) = ( '', '', '' )
+        api_dct = self.hit_availability_api( bibnum )
+        title = api_dct[u'response'][u'backend_response'][0][u'title']
+        log.debug( u'title, `%s`' % title )
+        ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
+        return ( title, callnumber, item_id )
+
+    def hit_availability_api( self, bibnum ):
+        """ Returns availability-api dict.
+            Called by get_item_info() """
+        dct = {}
         try:
             availability_api_url = u'%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
             r = requests.get( availability_api_url )
-            d = r.json()
-            title = d[u'response'][u'backend_response'][0][u'title']
+            dct = r.json()
+            log.debug( u'api-response, `%s`' % pprint.pformat(dct) )
         except Exception as e:
             log.error( u'exception, %s' % unicode(repr(e)) )
-        return title
+        return dct
+
+    def process_items( self, api_dct, item_barcode ):
+        """ Extracts the callnumber and item_id from availability-api response.
+            Called by get_item_info() """
+        ( callnumber, item_id ) = ( '', '' )
+        results = api_dct[u'response'][u'backend_response']
+        for result in results:
+            items = result['items_data']
+            for item in items:
+                if item_barcode == item['barcode']:
+                    callnumber = item['callnumber_interpreted']
+                    item_id = item['item_id']
+        log.debug( u'process_items result, `%s`' % unicode(repr(( callnumber, item_id ))) )
+        return ( callnumber, item_id )
+
+    def update_session( self, request, title, callnumber, item_id ):
+        """ Updates session.
+            Called by views.login() """
+        request.session['title'] = title
+        request.session['callnumber'] = callnumber
+        request.session['item_id'] = item_id
+        log.debug( u'session updated' )
+        return
+
 
     # def handle_get( self, request ):
     #     """ Handles request-page GET; returns response.
