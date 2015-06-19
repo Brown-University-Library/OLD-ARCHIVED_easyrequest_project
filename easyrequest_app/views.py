@@ -31,7 +31,7 @@ def login( request ):
     log.debug( u'starting login()' )
     context = {
         }
-    return HttpResonse( u'login page coming' )
+    return HttpResponse( u'login page coming' )
     # return render( request, u'easyrequest_app_templates/login.html', context )
 
 
