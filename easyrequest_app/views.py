@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime, logging, os, pprint
+import datetime, json, logging, os, pprint
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
@@ -29,12 +29,18 @@ def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Asks user to confirm the request. """
     log.debug( u'starting login()' )
+    # confirm_request_helper.validate_source( request )
     # confirm_request_helper.validate_params( request )
-    title = confirm_request_helper.get_title( request.GET['bibnum'] )
+    ( title, callnumber, item_id ) = confirm_request_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
+    confirm_request_helper.update_session( request, title, callnumber, item_id )
     context = {
+        'title': request.session['title'] ,
+        'callnumber': request.session['callnumber'],
+        'PHONE_AUTH_HELP': confirm_request_helper.PHONE_AUTH_HELP,
+        'EMAIL_AUTH_HELP': confirm_request_helper.EMAIL_AUTH_HELP
         }
-    return HttpResponse( u'login page coming for title `%s`' % title )
-    # return render( request, u'easyrequest_app_templates/login.html', context )
+    # return HttpResponse( u'login page coming for... `%s`' % json.dumps(context) )
+    return render( request, u'easyrequest_app_templates/login.html', context )
 
 
 # def shib_login( request ):

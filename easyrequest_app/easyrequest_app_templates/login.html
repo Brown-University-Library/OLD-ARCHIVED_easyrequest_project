@@ -1,7 +1,7 @@
 {% extends "easyrequest_app_templates/base.html" %}
 
 {% block page_title %}
-easyScan login
+easyRequest login
 {% endblock page_title %}
 
 
@@ -61,28 +61,20 @@ easyScan login
       width:100%; }
 </style>
 
- <h1>easyScan request</h1>
+ <h1>easyRequest item</h1>
 
  <div id="requested_item">
 
-    <p>You're requesting a scan for part of …</p>
+    <p>You're requesting the item …</p>
     <br/>
     <dl>
         <dt>title:</dt>
         <dd>{{ title }}</dd>
 
-        <dt>volume &amp; year:</dt>
-        <dd>{{ volume_year }}</dd>
-
         <dt>call number:</dt>
         <dd>{{ callnumber }}</dd>
     </dl>
 
-</div>
-
-<div id="rules">
-  <p>This service permits scans of up to 50 pages, or one chapter, from non-special-collections materials located at the Annex (Brown's offsite Library storage facility).</p>
-  <p>In most cases material is scanned within 2 business days. Notification will be sent to your brown email address.</p>
 </div>
 
 <div>
@@ -91,10 +83,10 @@ easyScan login
 
 <div id="forms">
 
-    <form id="shib_login" action="/easyscan/shib_login/" method="POST">{% csrf_token %}
+    <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
         {% if login_error %}
-        <p class="login_error">Problem: based on your login, it appears you're not authorized to request scans from the Annex.</p>
-        <p class="login_error">If you believe you should be able to request scans, please contact Library staff for assistance, either at 401/LIB-HELP, or at {{ "bart_hollingsworth@brown.edu"|urlize }}.</p>
+        <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
+        <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
         {% endif %}
         <input id="submit_button" type="submit" value="Log in">
     </form>
