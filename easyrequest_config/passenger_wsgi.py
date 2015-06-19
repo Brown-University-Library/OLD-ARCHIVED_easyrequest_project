@@ -16,8 +16,8 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 
 ## vars
 CONFIG_DIR = os.path.dirname( os.path.abspath(__file__) )
-PROJECT_DIR = os.path.dirname( CONFIG_DIR )
-PROJECT_STUFF_DIR = os.path.dirname( PROJECT_DIR )  # easyrequest_project
+PROJECT_DIR = os.path.dirname( CONFIG_DIR )  # easyrequest_project
+PROJECT_STUFF_DIR = os.path.dirname( PROJECT_DIR )
 SITE_PACKAGES_DIR = '%s/env_ezrqst/lib/python2.7/site-packages' % PROJECT_STUFF_DIR
 ACTIVATE_FILE = '%s/env_ezrqst/bin/activate_this.py' % PROJECT_STUFF_DIR
 SETTINGS_MODULE = 'easyrequest_config.settings'
