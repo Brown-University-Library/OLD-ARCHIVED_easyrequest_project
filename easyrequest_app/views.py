@@ -29,9 +29,11 @@ def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Asks user to confirm the request. """
     log.debug( u'starting login()' )
+    # confirm_request_helper.validate_params( request )
+    title = confirm_request_helper.get_title( request.GET['bibnum'] )
     context = {
         }
-    return HttpResponse( u'login page coming' )
+    return HttpResponse( u'login page coming for title `%s`' % title )
     # return render( request, u'easyrequest_app_templates/login.html', context )
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import json, logging, os
+import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
 # from django.conf import settings as project_settings
@@ -28,10 +29,20 @@ class ConfirmRequestGetHelper( object ):
     """ Contains helpers for views.request_def() for handling GET. """
 
     def __init__( self ):
-        self.AVAILABILITY_API_URL_ROOT = 'foo'
+        self.AVAILABILITY_API_URL_ROOT = os.environ[u'EZRQST__AVAILABILITY_API_URL_ROOT']
 
-    def handle_get( self, request ):
-        return 'foo'
+    def get_title( self, bibnum ):
+        """ Hits availability-api with bib for title.
+            Called by check_title() """
+        title = u''
+        try:
+            availability_api_url = u'%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+            r = requests.get( availability_api_url )
+            d = r.json()
+            title = d[u'response'][u'backend_response'][0][u'title']
+        except Exception as e:
+            log.error( u'exception, %s' % unicode(repr(e)) )
+        return title
 
     # def handle_get( self, request ):
     #     """ Handles request-page GET; returns response.
