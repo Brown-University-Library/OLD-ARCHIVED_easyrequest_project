@@ -24,6 +24,149 @@ log = logging.getLogger(__name__)
 ## non db models below  ##
 
 
+class ConfirmRequestGetHelper( object ):
+    """ Contains helpers for views.request_def() for handling GET. """
+
+    def __init__( self ):
+        self.AVAILABILITY_API_URL_ROOT = 'foo'
+
+    def handle_get( self, request ):
+        return 'foo'
+
+    # def handle_get( self, request ):
+    #     """ Handles request-page GET; returns response.
+    #         Called by views.confirm_request() """
+    #     log.debug( u'in models.RequestViewGetHelper.handle_get(); referrer, `%s`' % request.META.get(u'HTTP_REFERER', u'not_in_request_meta'), )
+    #     self.store_remote_source_url( request )
+    #     https_check = self.check_https( request.is_secure(), request.get_host(), request.get_full_path() )
+    #     if https_check[u'is_secure'] == False:
+    #         return HttpResponseRedirect( https_check[u'redirect_url'] )
+    #     title = self.check_title( request )
+    #     self.initialize_session( request, title )
+    #     return_response = self.build_response( request )
+    #     log.debug( u'in models.RequestViewGetHelper.handle_get(); returning' )
+    #     return return_response
+
+    # def store_remote_source_url( self, request ):
+    #     """ Stores http-refferer if from external domain.
+    #         Called by handle_get() """
+    #     log.debug( u'in models.RequestViewGetHelper.store_remote_source_url(); referrer, `%s`' % request.META.get(u'HTTP_REFERER', u'not_in_request_meta'), )
+    #     remote_referrer = request.META.get( u'HTTP_REFERER', u'' )
+    #     if not request.get_host() in remote_referrer:  # ignore same-domain and shib redirects
+    #         if not u'sso.brown.edu' in remote_referrer:
+    #             request.session[u'last_remote_referrer'] = remote_referrer
+    #     log.debug( u'in models.RequestViewGetHelper.store_remote_source_url(); session items, `%s`' % pprint.pformat(request.session.items()) )
+    #     return
+
+    # def check_https( self, is_secure, get_host, full_path ):
+    #     """ Checks for https; returns dict with result and redirect-url.
+    #         Called by handle_get() """
+    #     if (is_secure == False) and (get_host != u'127.0.0.1'):
+    #         redirect_url = u'https://%s%s' % ( get_host, full_path )
+    #         return_dict = { u'is_secure': False, u'redirect_url': redirect_url }
+    #     else:
+    #         return_dict = { u'is_secure': True, u'redirect_url': u'N/A' }
+    #     log.debug( u'in models.RequestViewGetHelper.check_https(); return_dict, `%s`' % return_dict )
+    #     return return_dict
+
+    # def check_title( self, request ):
+    #     """ Grabs and returns title from the availability-api if needed.
+    #         Called by handle_get() """
+    #     title = request.GET.get( u'title', u'' )
+    #     if title == u'null' or title == u'':
+    #         try: title = request.session[u'item_info'][u'title']
+    #         except: pass
+    #     if title == u'null' or title == u'':
+    #         bibnum = request.GET.get( u'bibnum', u'' )
+    #         if len( bibnum ) == 8:
+    #             title = self.hit_availability_api( bibnum )
+    #     log.debug( u'in models.RequestViewGetHelper.check_title(); title, %s' % title )
+    #     return title
+
+    # def hit_availability_api( self, bibnum ):
+    #     """ Hits availability-api with bib for title.
+    #         Called by check_title() """
+    #     try:
+    #         availability_api_url = u'%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+    #         r = requests.get( availability_api_url )
+    #         d = r.json()
+    #         title = d[u'response'][u'backend_response'][0][u'title']
+    #     except Exception as e:
+    #         log.debug( u'in models.RequestViewGetHelper.hit_availability_api(); exception, %s' % unicode(repr(e)) )
+    #         title = u''
+    #     return title
+
+    # def initialize_session( self, request, title ):
+    #     """ Initializes session vars if needed.
+    #         Called by handle_get() """
+    #     log.debug( u'in models.RequestViewGetHelper.initialize_session(); session items, `%s`' % pprint.pformat(request.session.items()) )
+    #     if not u'authz_info' in request.session:
+    #         request.session[u'authz_info'] = { u'authorized': False }
+    #     if not u'user_info' in request.session:
+    #         request.session[u'user_info'] = { u'name': u'', u'patron_barcode': u'', u'email': u'' }
+    #     self.update_session_iteminfo( request, title )
+    #     if not u'shib_login_error' in request.session:
+    #         request.session[u'shib_login_error'] = False
+    #     log.debug( u'in models.RequestViewGetHelper.initialize_session(); session initialized' )
+    #     return
+
+    # def update_session_iteminfo( self, request, title ):
+    #     """ Updates 'item_info' session key data.
+    #         Called by initialize_session() """
+    #     if not u'item_info' in request.session:
+    #         request.session[u'item_info'] = {
+    #         u'callnumber': u'', u'barcode': u'', u'title': u'', u'volume_year': u'', u'article_chapter_title': u'', u'page_range': u'', u'other': u'' }
+    #     for key in [ u'callnumber', u'barcode', u'volume_year' ]:  # ensures new url always updates session
+    #         value = request.GET.get( key, u'' )
+    #         if value:
+    #             request.session[u'item_info'][key] = value
+    #     request.session[u'item_info'][u'item_source_url'] = request.session.get( u'last_remote_referrer', u'not_in_request_meta' )
+    #     request.session[u'item_info'][u'title'] = title
+    #     log.debug( u'in models.RequestViewGetHelper.update_session_iteminfo(); request.session["item_info"], `%s`' % pprint.pformat(request.session[u'item_info']) )
+    #     return
+
+    # def build_response( self, request ):
+    #     """ Builds response.
+    #         Called by handle_get() """
+    #     if request.session[u'item_info'][u'barcode'] == u'':
+    #         return_response = HttpResponseRedirect( reverse(u'info_url') )
+    #     elif request.session[u'authz_info'][u'authorized'] == False:
+    #         return_response = render( request, u'easyscan_app_templates/request_login.html', self.build_data_dict(request) )
+    #     else:
+    #         return_response = self.handle_good_get( request )
+    #     log.debug( u'in models.RequestViewGetHelper.build_response(); returning' )
+    #     return return_response
+
+    # def handle_good_get( self, request ):
+    #     """ Builds response on good get.
+    #         Called by build_response() """
+    #     data_dict = self.build_data_dict( request )
+    #     form_data = request.session.get( u'form_data', None )
+    #     form = CitationForm( form_data )
+    #     form.is_valid() # to get errors in form
+    #     data_dict[u'form'] = form
+    #     return_response = render( request, u'easyscan_app_templates/request_form.html', data_dict )
+    #     return return_response
+
+    # def build_data_dict( self, request ):
+    #     """ Builds and returns data-dict for request page.
+    #         Called by handle_good_get() """
+    #     context = {
+    #         u'title': request.session[u'item_info'][u'title'],
+    #         u'callnumber': request.session[u'item_info'][u'callnumber'],
+    #         u'barcode': request.session[u'item_info'][u'barcode'],
+    #         u'volume_year': request.session[u'item_info'][u'volume_year'],
+    #         u'login_error': request.session[u'shib_login_error'],
+    #         }
+    #     if request.session[u'authz_info'][u'authorized']:
+    #         context[u'patron_name'] = request.session[u'user_info'][u'name']
+    #         context[u'logout_url'] = reverse( u'logout_url' )
+    #     log.debug( u'in models.RequestViewGetHelper.build_data_dict(); return_dict, `%s`' % pprint.pformat(context) )
+    #     return context
+
+    # end class ConfirmRequestGetHelper
+
+
 class ShibViewHelper( object ):
     """ Contains helpers for views.shib_login() """
 

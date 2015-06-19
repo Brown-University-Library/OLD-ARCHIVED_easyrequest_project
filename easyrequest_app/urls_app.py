@@ -8,6 +8,8 @@ urlpatterns = patterns('',
 
     url( r'^info/$',  'easyrequest_app.views.info', name=u'info_url' ),
 
+    url( r'^login/$',  'easyrequest_app.views.login', name=u'login_url' ),
+
     # url( r'^shib_login/$',  'easyrequest_app.views.shib_login', name=u'shib_login_url' ),
     # url( r'^logout/$',  'easyrequest_app.views.shib_logout', name=u'logout_url' ),
 

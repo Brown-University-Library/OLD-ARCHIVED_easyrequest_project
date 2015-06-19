@@ -11,6 +11,7 @@ from easyrequest_app import models
 
 
 log = logging.getLogger(__name__)
+confirm_request_helper = models.ConfirmRequestGetHelper()
 shib_view_helper = models.ShibViewHelper()
 
 
@@ -21,6 +22,15 @@ def info( request ):
         # u'phone_general_help': os.environ[u'EZRQST__PHONE_GENERAL_HELP']
         }
     return render( request, u'easyrequest_app_templates/info.html', context )
+
+
+def login( request ):
+    """ Stores referring url, bib, and item-barcode in session.
+        Asks user to confirm the request. """
+    context = {
+        }
+    return HttpResonse( u'login page coming' )
+    # return render( request, u'easyrequest_app_templates/login.html', context )
 
 
 # def shib_login( request ):
