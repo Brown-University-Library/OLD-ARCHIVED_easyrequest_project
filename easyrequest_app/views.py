@@ -13,6 +13,7 @@ from easyrequest_app import models
 log = logging.getLogger(__name__)
 confirm_request_helper = models.ConfirmRequestGetHelper()
 shib_view_helper = models.ShibViewHelper()
+processor_helper = models.Processor()
 
 
 def info( request ):
@@ -31,11 +32,12 @@ def login( request ):
     log.debug( u'starting login()' )
     # confirm_request_helper.validate_source( request )
     # confirm_request_helper.validate_params( request )
+    confirm_request_helper.initialize_session( request )
     ( title, callnumber, item_id ) = confirm_request_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     confirm_request_helper.update_session( request, title, callnumber, item_id )
     context = {
-        'title': request.session['title'] ,
-        'callnumber': request.session['callnumber'],
+        'title': request.session['item_title'] ,
+        'callnumber': request.session['item_callnumber'],
         'PHONE_AUTH_HELP': confirm_request_helper.PHONE_AUTH_HELP,
         'EMAIL_AUTH_HELP': confirm_request_helper.EMAIL_AUTH_HELP
         }
@@ -44,7 +46,7 @@ def login( request ):
 
 
 def shib_login( request ):
-    """ Examines shib headers, sets session-auth, & returns user to request page. """
+    """ Examines shib headers, sets session-auth, & sends user to confirmation page. """
     log.debug( u'starting shib_login()' )
     if request.method == u'POST':  # from login.html
         log.debug( u'post detected' )
@@ -57,8 +59,23 @@ def shib_login( request ):
     return return_response
 
 
-def confirmation( request ):
-    return HttpResponse( u'confirmation implemented soon' )
+def processor( request ):
+    """ Handles item request:,
+        - Ensures user is authenticated.
+        - Saves request.
+        - Places hold.
+        - Triggers logout. """
+    log.debug( u'session, `%s`' % pprint.pformat(request.session.items()) )
+    if processor_helper.check_request( request ) == False:
+        return HttpResponseRedirect( reverse(u'info_url') )
+    try:
+        processor_helper.save_data( request )
+        processor_helper.place_request( patron_barcode, item_id )
+    except Exception as e:
+        log.error( u'Exception, `%s`' % unicode(repr(e)) )
+    processor_helper.logout( request )  # session logout
+    return HttpResponse( 'processor response under construction' )
+    # return HttpResponseRedirect( reverse(u'logout_url') )  # shib logout
 
 
 # def confirmation( request ):
