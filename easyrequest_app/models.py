@@ -9,7 +9,7 @@ from django.conf import settings as project_settings
 # from django.core import serializers
 # from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-# from django.db import models
+from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 # from django.shortcuts import render
 # from django.utils.encoding import smart_unicode
@@ -20,6 +20,35 @@ log = logging.getLogger(__name__)
 
 
 ## db models ##
+
+
+class ItemRequest( models.Model ):
+    """ Contains user & item data.
+        Called by ProcessorHelper. """
+    item_title = models.CharField( blank=True, max_length=200 )
+    status = models.CharField( max_length=200 )
+    item_bib = models.CharField( blank=True, max_length=50 )
+    item_id = models.CharField( blank=True, max_length=50 )
+    item_barcode = models.CharField( blank=True, max_length=50 )
+    item_callnumber = models.CharField( blank=True, max_length=200 )
+    item_source_url = models.TextField( blank=True )
+    patron_name = models.CharField( blank=True, max_length=100 )
+    patron_barcode = models.CharField( blank=True, max_length=50 )
+    patron_email = models.CharField( blank=True, max_length=100 )
+    create_datetime = models.DateTimeField( auto_now_add=True, blank=True )  # blank=True for backward compatibility
+    admin_notes = models.TextField( blank=True )
+
+    def __unicode__(self):
+        return smart_unicode( u'id: %s || title: %s' % (self.id, self.item_title) , u'utf-8', u'replace' )
+
+    def jsonify(self):
+        """ Returns object data in json-compatible dict. """
+        jsn = serializers.serialize( u'json', [self] )  # json string is single-item list
+        lst = json.loads( jsn )
+        object_dct = lst[0]
+        return ItemRequest
+
+    # end class ScanRequest
 
 
 ## non db models below  ##
@@ -33,8 +62,23 @@ class ConfirmRequestGetHelper( object ):
         self.PHONE_AUTH_HELP = os.environ[u'EZRQST__PHONE_AUTH_HELP']
         self.EMAIL_AUTH_HELP = os.environ[u'EZRQST__EMAIL_AUTH_HELP']
 
+    def initialize_session( self, request ):
+        """ Initializes session.
+            Called by views.login() """
+        request.session['item_title'] = u''
+        request.session['item_bib'] = u''
+        request.session['item_id'] = u''
+        request.session['item_barcode'] = u''
+        request.session['item_callnumber'] = u''
+        request.session['user_name'] = u''
+        request.session['user_barcode'] = u''
+        request.session['user_email'] = u''
+        request.session['request_source_url'] = u''
+        return
+
     def get_item_info( self, bibnum, item_barcode ):
-        """ Hits availability-api.
+        """ Hits availability-api for bib-title, and item id and callnumber.
+            Bib title and item callnumber are just for user display; item id needed if user proceeds.
             Called by views.login() """
         ( title, callnumber, item_id ) = ( '', '', '' )
         api_dct = self.hit_availability_api( bibnum )
@@ -73,8 +117,8 @@ class ConfirmRequestGetHelper( object ):
     def update_session( self, request, title, callnumber, item_id ):
         """ Updates session.
             Called by views.login() """
-        request.session['title'] = title
-        request.session['callnumber'] = callnumber
+        request.session['item_title'] = title
+        request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
         log.debug( u'session updated' )
         return
@@ -232,7 +276,7 @@ class ShibViewHelper( object ):
             Called by views.shib_login() """
         self.update_session( request, validity, shib_dict )
         scheme = u'https' if request.is_secure() else u'http'
-        redirect_url = u'%s://%s%s' % ( scheme, request.get_host(), reverse(u'confirmation_url') )
+        redirect_url = u'%s://%s%s' % ( scheme, request.get_host(), reverse(u'processor_url') )
         return_response = HttpResponseRedirect( redirect_url )
         log.debug( u'returning shib response' )
         return return_response
@@ -246,17 +290,6 @@ class ShibViewHelper( object ):
             request.session[u'user_barcode'] = shib_dict[u'patron_barcode']
             request.session[u'shib_login_error'] = False
         return
-
-    # def update_session( self, request, validity, shib_dict ):
-    #     request.session[u'shib_login_error'] = validity  # boolean
-    #     request.session[u'shib_authorized'] = validity
-    #     if validity:
-    #         request.session[u'user_info'] = {
-    #             u'name': u'%s %s' % ( shib_dict[u'firstname'], shib_dict[u'lastname'] ),
-    #             u'email': shib_dict[u'email'],
-    #             u'patron_barcode': shib_dict[u'patron_barcode'] }
-    #         request.session[u'shib_login_error'] = False
-    #     return
 
     # end class ShibViewHelper
 
@@ -335,3 +368,71 @@ class ShibChecker( object ):
         return eresources_check
 
     # end class ShibChecker
+
+
+class Processor( object ):
+    """ Handles item-hold functions. """
+
+    def check_request( self, request ):
+        """ Ensures user has logged in.
+            Called by views.processor() """
+        log.debug( 'here-A' )
+        return_val = False
+        if 'shib_authorized' in request.session:
+            log.debug( 'here-B' )
+            if request.session['shib_authorized'] == True:
+                log.debug( 'here-C' )
+                return_val = True
+        log.debug( 'here-D' )
+        return return_val
+
+    def save_data( self, request ):
+        """ Saves data for 'try-again' feature.
+            Called by views.processor() """
+        itmrqst = ItemRequest()
+        itmrqst = self.save_item_data( itmrqst, request )
+        itmrqst = self.save_user_data( itmrqst, request )
+        itmrqst.source_url = request.session[u'source_url']
+        itmrqst.status = u'in_process'
+        return itmrqst
+
+    def save_item_data( self, itmrqst, request ):
+        """ Saves item datetimeta from session to db.
+            Called by save_data() """
+        try:
+            itmrqst.item_title = request.session[u'item_title']
+            itmrqst.item_bib = request.session[u'item_bib']
+            itmrqst.item_id = request.session[u'item_id']
+            itmrqst.item_barcode = request.session[u'item_barcode']
+            itmrqst.item_callnumber = request.session[u'item_callnumber']
+            itmrqst.save()
+        except Exception as e:
+            log.debug( u'session, `%s`' % pprint.pformat(request.session.items()) )
+            log.error( u'Exception, `%s`' % unicode(repr(e)) )
+        return itmrqst
+
+    def save_user_data( self, itmrqst, request ):
+        """ Saves item datetimeta from session to db.
+            Called by save_data() """
+        try:
+            itmrqst.user_name = request.session[u'user_name']
+            itmrqst.user_barcode = request.session[u'user_barcode']
+            itmrqst.user_email = request.session[u'user_email']
+            itmrqst.save()
+        except Exception as e:
+            log.debug( u'Exception, `%s`' % unicode(repr(e)) )
+        return itmrqst
+
+    def place_request( self, itmrqst ):
+        """ Will coordinate josiah-patron-account calls.
+            Called by views.processor() """
+        pass
+
+
+    def logout( self, request ):
+        """ Will log user out of session.
+            Called by views.processor() """
+        pass
+
+
+    # end class Processor
