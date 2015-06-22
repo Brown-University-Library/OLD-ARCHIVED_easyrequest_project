@@ -5,7 +5,7 @@ import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
 from django.conf import settings as project_settings
-# from django.contrib.auth import logout
+from django.contrib.auth import logout
 # from django.core import serializers
 # from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -14,6 +14,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 # from django.shortcuts import render
 # from django.utils.encoding import smart_unicode
 # from django.utils.http import urlquote
+from iii_account import IIIAccount
 
 
 log = logging.getLogger(__name__)
@@ -31,10 +32,10 @@ class ItemRequest( models.Model ):
     item_id = models.CharField( blank=True, max_length=50 )
     item_barcode = models.CharField( blank=True, max_length=50 )
     item_callnumber = models.CharField( blank=True, max_length=200 )
-    item_source_url = models.TextField( blank=True )
     patron_name = models.CharField( blank=True, max_length=100 )
     patron_barcode = models.CharField( blank=True, max_length=50 )
     patron_email = models.CharField( blank=True, max_length=100 )
+    source_url = models.TextField( blank=True )
     create_datetime = models.DateTimeField( auto_now_add=True, blank=True )  # blank=True for backward compatibility
     admin_notes = models.TextField( blank=True )
 
@@ -66,14 +67,14 @@ class ConfirmRequestGetHelper( object ):
         """ Initializes session.
             Called by views.login() """
         request.session['item_title'] = u''
-        request.session['item_bib'] = u''
+        request.session['item_bib'] = request.GET['bibnum']
         request.session['item_id'] = u''
-        request.session['item_barcode'] = u''
+        request.session['item_barcode'] = request.GET['barcode']
         request.session['item_callnumber'] = u''
         request.session['user_name'] = u''
         request.session['user_barcode'] = u''
         request.session['user_email'] = u''
-        request.session['request_source_url'] = u''
+        request.session['source_url'] = u''
         return
 
     def get_item_info( self, bibnum, item_barcode ):
@@ -376,14 +377,11 @@ class Processor( object ):
     def check_request( self, request ):
         """ Ensures user has logged in.
             Called by views.processor() """
-        log.debug( 'here-A' )
         return_val = False
         if 'shib_authorized' in request.session:
-            log.debug( 'here-B' )
             if request.session['shib_authorized'] == True:
-                log.debug( 'here-C' )
                 return_val = True
-        log.debug( 'here-D' )
+        log.debug( 'check_request() result, `%s`' % return_val )
         return return_val
 
     def save_data( self, request ):
@@ -423,16 +421,23 @@ class Processor( object ):
             log.debug( u'Exception, `%s`' % unicode(repr(e)) )
         return itmrqst
 
-    def place_request( self, itmrqst ):
+    def place_request( self, user_name, user_barcode, item_bib, item_id ):
         """ Will coordinate josiah-patron-account calls.
             Called by views.processor() """
-        pass
+        log.debug( u'user_name, `%s`; user_barcode, `%s`; item_bib, `%s`; item_id, `%s`' % (user_name, user_barcode, item_bib, item_id) )
+        jos_sess = IIIAccount( user_name, user_barcode )
+        jos_sess.login()
+        hold = jos_sess.place_hold( item_bib, item_id )
+        log.debug( u'hold, `%s`' % hold )
+        return
 
 
     def logout( self, request ):
         """ Will log user out of session.
             Called by views.processor() """
-        pass
+        request.session['shib_authorized'] = False
+        logout( request )  # from django.contrib.auth import logout
+        return
 
 
     # end class Processor

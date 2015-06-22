@@ -65,12 +65,13 @@ def processor( request ):
         - Saves request.
         - Places hold.
         - Triggers logout. """
-    log.debug( u'session, `%s`' % pprint.pformat(request.session.items()) )
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse(u'info_url') )
     try:
         processor_helper.save_data( request )
-        processor_helper.place_request( patron_barcode, item_id )
+        log.debug( u'session, `%s`' % pprint.pprint(request.session.items()) )
+        processor_helper.place_request(
+            request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
     except Exception as e:
         log.error( u'Exception, `%s`' % unicode(repr(e)) )
     processor_helper.logout( request )  # session logout
