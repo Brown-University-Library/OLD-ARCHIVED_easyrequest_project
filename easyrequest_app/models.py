@@ -4,13 +4,13 @@ import json, logging, os, pprint
 import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
-# from django.conf import settings as project_settings
+from django.conf import settings as project_settings
 # from django.contrib.auth import logout
 # from django.core import serializers
 # from django.core.mail import EmailMessage
-# from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse
 # from django.db import models
-# from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 # from django.shortcuts import render
 # from django.utils.encoding import smart_unicode
 # from django.utils.http import urlquote
@@ -32,20 +32,6 @@ class ConfirmRequestGetHelper( object ):
         self.AVAILABILITY_API_URL_ROOT = os.environ[u'EZRQST__AVAILABILITY_API_URL_ROOT']
         self.PHONE_AUTH_HELP = os.environ[u'EZRQST__PHONE_AUTH_HELP']
         self.EMAIL_AUTH_HELP = os.environ[u'EZRQST__EMAIL_AUTH_HELP']
-
-    # def get_title( self, bibnum ):
-    #     """ Hits availability-api with bib for title.
-    #         Called by views.login() """
-    #     title = u''
-    #     try:
-    #         availability_api_url = u'%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
-    #         r = requests.get( availability_api_url )
-    #         d = r.json()
-    #         log.debug( u'api-response, `%s`' % pprint.pformat(d) )
-    #         title = d[u'response'][u'backend_response'][0][u'title']
-    #     except Exception as e:
-    #         log.error( u'exception, %s' % unicode(repr(e)) )
-    #     return title
 
     def get_item_info( self, bibnum, item_barcode ):
         """ Hits availability-api.
@@ -237,7 +223,7 @@ class ShibViewHelper( object ):
         shib_checker = ShibChecker()
         shib_dict = shib_checker.grab_shib_info( request )
         validity = shib_checker.evaluate_shib_info( shib_dict )
-        log.debug( u'in models.ShibViewHelper.check_shib_headers(); returning validity `%s`' % validity )
+        log.debug( u'returning shib validity `%s`' % validity )
         return ( validity, shib_dict )
 
     def build_response( self, request, validity, shib_dict ):
@@ -246,21 +232,31 @@ class ShibViewHelper( object ):
             Called by views.shib_login() """
         self.update_session( request, validity, shib_dict )
         scheme = u'https' if request.is_secure() else u'http'
-        redirect_url = u'%s://%s%s' % ( scheme, request.get_host(), reverse(u'request_url') )
+        redirect_url = u'%s://%s%s' % ( scheme, request.get_host(), reverse(u'confirmation_url') )
         return_response = HttpResponseRedirect( redirect_url )
-        log.debug( u'in models.ShibViewHelper.build_response(); returning response' )
+        log.debug( u'returning shib response' )
         return return_response
 
     def update_session( self, request, validity, shib_dict ):
         request.session[u'shib_login_error'] = validity  # boolean
-        request.session[u'authz_info'][u'authorized'] = validity
+        request.session[u'shib_authorized'] = validity
         if validity:
-            request.session[u'user_info'] = {
-                u'name': u'%s %s' % ( shib_dict[u'firstname'], shib_dict[u'lastname'] ),
-                u'email': shib_dict[u'email'],
-                u'patron_barcode': shib_dict[u'patron_barcode'] }
+            request.session[u'user_name'] = u'%s %s' % ( shib_dict[u'firstname'], shib_dict[u'lastname'] )
+            request.session[u'user_email'] = shib_dict[u'email']
+            request.session[u'user_barcode'] = shib_dict[u'patron_barcode']
             request.session[u'shib_login_error'] = False
         return
+
+    # def update_session( self, request, validity, shib_dict ):
+    #     request.session[u'shib_login_error'] = validity  # boolean
+    #     request.session[u'shib_authorized'] = validity
+    #     if validity:
+    #         request.session[u'user_info'] = {
+    #             u'name': u'%s %s' % ( shib_dict[u'firstname'], shib_dict[u'lastname'] ),
+    #             u'email': shib_dict[u'email'],
+    #             u'patron_barcode': shib_dict[u'patron_barcode'] }
+    #         request.session[u'shib_login_error'] = False
+    #     return
 
     # end class ShibViewHelper
 
