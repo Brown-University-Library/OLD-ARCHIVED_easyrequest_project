@@ -43,17 +43,22 @@ def login( request ):
     return render( request, u'easyrequest_app_templates/login.html', context )
 
 
-# def shib_login( request ):
-#     """ Examines shib headers, sets session-auth, & returns user to request page. """
-#     log.debug( u'in views.shib_login(); starting' )
-#     if request.method == u'POST':  # from request_login.html
-#         log.debug( u'in views.shib_login(); post detected' )
-#         return HttpResponseRedirect( os.environ[u'EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
-#     request.session[u'shib_login_error'] = u''  # initialization; updated when response is built
-#     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
-#     return_response = shib_view_helper.build_response( request, validity, shib_dict )
-#     log.debug( u'in views.shib_login(); about to return response' )
-#     return return_response
+def shib_login( request ):
+    """ Examines shib headers, sets session-auth, & returns user to request page. """
+    log.debug( u'starting shib_login()' )
+    if request.method == u'POST':  # from login.html
+        log.debug( u'post detected' )
+        return HttpResponseRedirect( os.environ[u'EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
+    request.session[u'shib_login_error'] = u''  # initialization; updated when response is built
+    request.session[u'shib_authorized'] = False
+    ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
+    return_response = shib_view_helper.build_response( request, validity, shib_dict )
+    log.debug( u'about to return shib response' )
+    return return_response
+
+
+def confirmation( request ):
+    return HttpResponse( u'confirmation implemented soon' )
 
 
 # def confirmation( request ):
