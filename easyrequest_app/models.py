@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 class ItemRequest( models.Model ):
     """ Contains user & item data.
-        Called by ProcessorHelper. """
+        Called by Processor(). """
     item_title = models.CharField( blank=True, max_length=200 )
     status = models.CharField( max_length=200 )
     item_bib = models.CharField( blank=True, max_length=50 )
@@ -49,7 +49,7 @@ class ItemRequest( models.Model ):
         object_dct = lst[0]
         return ItemRequest
 
-    # end class ScanRequest
+    # end class ItemRequest
 
 
 ## non db models below  ##
@@ -111,7 +111,7 @@ class ConfirmRequestGetHelper( object ):
             for item in items:
                 if item_barcode == item['barcode']:
                     callnumber = item['callnumber_interpreted']
-                    item_id = item['item_id']
+                    item_id = item['item_id'][:-1]  # removes trailing check-digit
         log.debug( u'process_items result, `%s`' % unicode(repr(( callnumber, item_id ))) )
         return ( callnumber, item_id )
 
