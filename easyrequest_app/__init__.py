@@ -1,5 +1,4 @@
-# import pymysql
-# pymysql.install_as_MySQLdb()
+from __future__ import unicode_literals
 
 try:
     import pymysql
