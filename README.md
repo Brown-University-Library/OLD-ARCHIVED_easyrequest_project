@@ -3,7 +3,7 @@ overview
 
 (under development -- most urls not yet implemented)
 
-This code aims to improve the process of requesting items at the [Annex](http://library.brown.edu/about/annex/), the Library's offsite storage facility.
+This code aims to improve the process of requesting _items_ at the [Annex](http://library.brown.edu/about/annex/), the [Library's](http://library.brown.edu/) offsite storage facility. ([Other code](https://github.com/Brown-University-Library/easyscan) handles requesting _scans_ from the Annex.)
 
 The current system involves multiple steps and is confusing.
 
@@ -15,29 +15,32 @@ basic flow
 
 user's experience...
 - user clicks a 'request item' link that lands at this app
-- after authenticating, user sees a confirmation message
+- after authenticating, user sees a confirmation message and receives a confirmation email
 
-behind the scenes...
-- after user authenticates, app uses the [josiah-patron-accounts](https://github.com/Brown-University-Library/josiah-patron-accounts) code to place a millennium request on behalf of the user
-- how:
-    - the bibnum param is used to get a list of items
-    - the barcode param is used to identify the item desired (and item-number is grabbed)
-    - the item-number is used to place the request
+detail flow...
+- user initially lands at login page
+    - data from url stored to session
+    - item-id determined from submitted bib and item-barcode via availability-api call
+- user clicks 'login' button, accessing shib-protected view
+    - after passing shib, view captures shib-supplied user-barcode and email
+    - user redirected to hidden 'processing' page
+- processing page:
+    - uses the [josiah-patron-accounts](https://github.com/Brown-University-Library/josiah-patron-accounts) code to place a millennium request on behalf of the user
+    - sends user confirmation email
+    - redirects user to final summary page
 
 urls & params
 -------------
 
 - The root `scheme://host/easyrequest` will redirect to the info page at `scheme://host/easyrequest/info/`
-- The root request url: `scheme://host/easyrequest/item`
-- A typical url may look like: `scheme://host/easyrequest/item?bibnum=b12345678&barcode=31236090031116`
+- A typical url may look like: `scheme://host/easyrequest/login?bibnum=b12345678&barcode=31236090031116`
 - required params
     - `bibnum` -- used to get list of item records
-    - `barcode` -- (this is the item barcode) used to identify which item in list user wants
+    - `barcode` -- (this is the _item_ barcode) used to identify which item in list user wants
 
 contacts
 --------
 
 - birkin_diana at brown dot edu
-- ted_lawless at brown dot edu
 
 ---

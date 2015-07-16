@@ -42,7 +42,6 @@ def login( request ):
         'PHONE_AUTH_HELP': confirm_request_helper.PHONE_AUTH_HELP,
         'EMAIL_AUTH_HELP': confirm_request_helper.EMAIL_AUTH_HELP
         }
-    # return HttpResponse( 'login page coming for... `%s`' % json.dumps(context) )
     return render( request, 'easyrequest_app_templates/login.html', context )
 
 
