@@ -123,7 +123,7 @@ LOGGING = {
         'logfile': {
             'level':'DEBUG',
             'class':'logging.FileHandler',  # note: configure server to use system's log-rotate to avoid permissions issues
-            'filename': os.environ.get(u'EZRQST__LOG_PATH'),
+            'filename': os.environ.get('EZRQST__LOG_PATH'),
             'formatter': 'standard',
         },
         'console':{
@@ -135,7 +135,7 @@ LOGGING = {
     'loggers': {
         'easyrequest_app': {
             'handlers': ['logfile'],
-            'level': os.environ.get(u'EZRQST__LOG_LEVEL'),
+            'level': os.environ.get('EZRQST__LOG_LEVEL'),
         },
     }
 }

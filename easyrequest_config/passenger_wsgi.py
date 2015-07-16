@@ -31,7 +31,7 @@ for entry in [PROJECT_DIR, PROJECT_STUFF_DIR, SITE_PACKAGES_DIR]:
    sys.path.append( entry )
 
 ## environment additions
-os.environ[u'DJANGO_SETTINGS_MODULE'] = SETTINGS_MODULE  # so django can access its settings
+os.environ['DJANGO_SETTINGS_MODULE'] = SETTINGS_MODULE  # so django can access its settings
 
 ## gogogo
 from django.core.wsgi import get_wsgi_application

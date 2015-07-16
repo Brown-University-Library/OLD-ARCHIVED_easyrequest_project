@@ -56,7 +56,7 @@ class ItemRequest( models.Model ):
 ## non db models below  ##
 
 
-class ConfirmRequestGetHelper( object ):
+class LoginHelper( object ):
     """ Contains helpers for views.request_def() for handling GET. """
 
     def __init__( self ):
@@ -257,7 +257,7 @@ class ConfirmRequestGetHelper( object ):
     #     log.debug( 'in models.RequestViewGetHelper.build_data_dict(); return_dict, `%s`' % pprint.pformat(context) )
     #     return context
 
-    # end class ConfirmRequestGetHelper
+    # end class LoginHelper
 
 
 class ShibViewHelper( object ):
@@ -284,6 +284,8 @@ class ShibViewHelper( object ):
         return return_response
 
     def update_session( self, request, validity, shib_dict ):
+        """ Updates session with shib info.
+            Called by build_response() """
         request.session['shib_login_error'] = validity  # boolean
         request.session['shib_authorized'] = validity
         if validity:
@@ -432,13 +434,33 @@ class Processor( object ):
         log.debug( 'hold, `%s`' % hold )
         return
 
-
-    def logout( self, request ):
-        """ Will log user out of session.
-            Called by views.processor() """
-        request.session['shib_authorized'] = False
-        logout( request )  # from django.contrib.auth import logout
-        return
-
+    # def logout( self, request ):
+    #     """ Will log user out of session.
+    #         Called by views.processor() """
+    #     request.session['shib_authorized'] = False
+    #     logout( request )  # from django.contrib.auth import logout
+    #     return
 
     # end class Processor
+
+
+class ShibLogoutHelper( object ):
+    """ Assists shib_logout() view. """
+
+    def build_redirect_url( self, request ):
+        """ Returns initial redirect-url.
+            Called by views.shib_logout() """
+        scheme = 'https' if request.is_secure() else 'http'
+        item_title = request_session['item_title']
+        if len( item_title ) > 50:
+            item_title = '%s...' % item_title[0:45]
+        redirect_url = '%s://%s%s/?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s' % (
+            scheme, request.get_host(), reverse('summary_url'),
+            request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
+            request.session['user_name'], request.session['user_email']
+            )
+        log.debug( 'initial redirect_url, `%s`' % redirect_url )
+        return redirect_url
+
+
+    # end class ShibLogoutHelper
