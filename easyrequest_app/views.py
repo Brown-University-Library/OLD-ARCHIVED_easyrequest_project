@@ -64,7 +64,7 @@ def processor( request ):
         - Ensures user is authenticated.
         - Saves request.
         - Places hold.
-        - Triggers logout. """
+        - Triggers logout (which will trigger final summary page). """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse(u'info_url') )
     try:
@@ -74,14 +74,34 @@ def processor( request ):
             request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
     except Exception as e:
         log.error( 'Exception, `%s`' % unicode(repr(e)) )
-    processor_helper.logout( request )  # session logout
-    return HttpResponse( 'processor response under construction' )
-    # return HttpResponseRedirect( reverse(u'logout_url') )  # shib logout
+    # processor_helper.logout( request )  # session logout
+    # return HttpResponse( 'processor response under construction' )
+    return HttpResponseRedirect( reverse(u'logout_url') )  # session and shib logout
 
 
-# def confirmation( request ):
-#     """ Logs user out & displays confirmation screen after submission.
-#         TODO- refactor commonalities with shib_logout() """
+def shib_logout( request ):
+    """ Clears session, hits shib logout, and redirects user to landing page. """
+    request.session[u'authz_info'][u'authorized'] = False
+    logout( request )
+    scheme = 'https' if request.is_secure() else 'http'
+    redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse(u'summary_url') )
+    if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:  # eases local development
+        pass
+    else:
+        encoded_redirect_url =  urlquote( redirect_url )  # django's urlquote()
+        redirect_url = '%s?return=%s' % ( os.environ[u'EZRQST__SHIB_LOGOUT_URL_ROOT'], encoded_redirect_url )
+    log.debug( 'in views.shib_logout(); redirect_url, `%s`' % redirect_url )
+    return HttpResponseRedirect( redirect_url )
+
+
+def summary( request ):
+    """ Displays final summary screen. """
+    context = {}
+    return render( request, 'easyrequest_app_templates/summary.html', context )
+
+
+# def summary( request ):
+#     """ Displays final summary screen. """
 #     try:
 #         barcode = request.session[u'item_info'][u'barcode']
 #     except:
@@ -95,16 +115,3 @@ def processor( request ):
 #     return return_response
 
 
-# def shib_logout( request ):
-#     """ Clears session, hits shib logout, and redirects user to landing page. """
-#     request.session[u'authz_info'][u'authorized'] = False
-#     logout( request )
-#     scheme = 'https' if request.is_secure() else 'http'
-#     redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse(u'request_url') )
-#     if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:  # eases local development
-#         pass
-#     else:
-#         encoded_redirect_url =  urlquote( redirect_url )  # django's urlquote()
-#         redirect_url = '%s?return=%s' % ( os.environ[u'EZRQST__SHIB_LOGOUT_URL_ROOT'], encoded_redirect_url )
-#     log.debug( 'in views.shib_logout(); redirect_url, `%s`' % redirect_url )
-#     return HttpResponseRedirect( redirect_url )

@@ -1,7 +1,7 @@
 {% extends "easyrequest_app_templates/base.html" %}
 
 {% block page_title %}
-easyScan confirmation
+easyRequest summary
 {% endblock page_title %}
 
 
@@ -55,30 +55,22 @@ easyScan confirmation
       width:100%; }
 </style>
 
-<h1>easyScan confirmation</h1>
+<h1>easyRequest summary</h1>
 
  <div id="requested_item">
 
-    <p>You requested a scan for …</p>
+    <p>You requested the item …</p>
     <br/>
     <dl>
         <dt>title:</dt>
         <dd>{{ title }}</dd>
 
-        <dt>volume &amp; year:</dt>
-        <dd>{{ volume_year }}</dd>
-
         <dt>call number:</dt>
         <dd>{{ callnumber }}</dd>
 
-        <dt>chap/vol title:</dt>
-        <dd>{{ chap_vol_title }}</dd>
+        <dt>bibliographic &amp; item-numbers:</dt>
+        <dd>bib-number, {{ bib }}; item-number, {{ item_id }}</dd>
 
-        <dt>page range:</dt>
-        <dd>{{ page_range }}</dd>
-
-        <dt>other:</dt>
-        <dd>{{ other }}</dd>
     </dl>
 
 </div>
@@ -86,8 +78,8 @@ easyScan confirmation
 <h3 id="main_title">All set!</h3>
 
 <div id="info">
-<p>Your scan-request has been submitted, and you'll soon receive a confirmation email. In most cases material is scanned within 2 business days.</p>
-<p class="additional_lines">The scan will be emailed to &lt;<span id="email">{{ email }}</span>&gt;.</p>
+<p>Your request has been submitted, and you'll soon receive a confirmation email. In most cases the item will arrive on-campus within 1 business day.</p>
+<p class="additional_lines">When it arrives, you'll be emailed at &lt;<span id="email">{{ email }}</span>&gt;.</p>
 <p class="additional_lines">If you have questions, feel free to email {{ email_general_help|urlize }} or call {{ phone_general_help }}.</p>
 </div>
 
