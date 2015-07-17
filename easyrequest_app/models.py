@@ -272,8 +272,9 @@ class Processor( object ):
         return itmrqst
 
     def save_item_data( self, itmrqst, request ):
-        """ Saves item datetimeta from session to db.
+        """ Saves item data from session to db.
             Called by save_data() """
+        # log.debug( 'starting save_item_data() request.session, `%s`' % pprint.pformat(request.session.items()) )
         try:
             itmrqst.item_title = request.session['item_title']
             itmrqst.item_bib = request.session['item_bib']
@@ -288,27 +289,28 @@ class Processor( object ):
         return itmrqst
 
     def save_user_data( self, itmrqst, request ):
-        """ Saves item datetimeta from session to db.
+        """ Saves user data from session to db.
             Called by save_data() """
+        # log.debug( 'starting save_user_data() request.session, `%s`' % pprint.pformat(request.session.items()) )
         try:
-            itmrqst.user_name = request.session['user_name']
-            itmrqst.user_barcode = request.session['user_barcode']
-            itmrqst.user_email = request.session['user_email']
+            itmrqst.patron_name = request.session['user_name']
+            itmrqst.patron_barcode = request.session['user_barcode']
+            itmrqst.patron_email = request.session['user_email']
             itmrqst.save()
         except Exception as e:
             log.error( 'Exception, `%s`' % unicode(repr(e)) )
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
-    def place_request( self, user_name, user_barcode, item_bib, item_id ):
+    def place_request( self, itmrqst ):
         """ Will coordinate josiah-patron-account calls.
             Called by views.processor() """
-        log.debug( 'user_name, `%s`; user_barcode, `%s`; item_bib, `%s`; item_id, `%s`' % (user_name, user_barcode, item_bib, item_id) )
-        jos_sess = IIIAccount( user_name, user_barcode )
+        jos_sess = IIIAccount( itmrqst.patron_name, itmrqst.patron_barcode )
         jos_sess.login()
-        hold = jos_sess.place_hold( item_bib, item_id )
+        hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
         log.debug( 'hold, `%s`' % hold )
-        return
+        itmrqst.status = 'request_placed'
+        return itmrqst
 
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
         """ Emails patron confirmation.

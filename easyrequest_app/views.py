@@ -5,7 +5,7 @@ import datetime, json, logging, os, pprint
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render
 from django.utils.http import urlquote
 from easyrequest_app import models
@@ -43,6 +43,7 @@ def login( request ):
         'PHONE_AUTH_HELP': login_helper.PHONE_AUTH_HELP,
         'EMAIL_AUTH_HELP': login_helper.EMAIL_AUTH_HELP
         }
+    log.debug( 'session, `%s`' % pprint.pformat(request.session.items()) )
     return render( request, 'easyrequest_app_templates/login.html', context )
 
 
@@ -67,20 +68,15 @@ def processor( request ):
         - Saves request.
         - Places hold.
         - Triggers shib_logout() view. """
-    log.debug( 'starting views.processor()' )
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
+    itmrqst = processor_helper.save_data( request )
     try:
-        itmrqst = processor_helper.save_data( request )
-        log.debug( 'session, `%s`' % pprint.ppformat(request.session.items()) )
-        # processor_helper.place_request(
-        #     request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
-        processor_helper.place_request(
-            itmrqst.patron_name, itmrqst.patron_barcode, itmrqst.item_bib, itmrqst.item_id )
-        # processor_helper.email_user( patron_email, patron_name, title, callnumber, bibnum, itemnum, user_barcode, item_barcode )
-        processor_helper.email_user( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode )
+        processor_helper.place_request( itmrqst )
     except Exception as e:
-        log.error( 'Exception, `%s`' % unicode(repr(e)) )
+        log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
+        return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
+    processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode )
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
 
@@ -114,17 +110,3 @@ def summary( request ):
         'phone_general_help': PHONE
         }
     return render( request, 'easyrequest_app_templates/summary.html', context )
-
-# def summary( request ):
-#     """ Displays final summary screen. """
-#     try:
-#         barcode = request.session['item_info']['barcode']
-#     except:
-#         scheme = 'https' if request.is_secure() else 'http'
-#         redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse('info_url') )
-#         return HttpResponseRedirect( redirect_url )
-#     if request.session['authz_info']['authorized'] == True:  # always true initially
-#         return_response = confirmation_vew_helper.handle_authorized( request )
-#     else:  # False is set by handle_authorized()
-#         return_response = confirmation_vew_helper.handle_non_authorized( request )
-#     return return_response
