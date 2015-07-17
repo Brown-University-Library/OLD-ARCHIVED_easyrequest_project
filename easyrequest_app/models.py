@@ -246,8 +246,8 @@ class Processor( object ):
     """ Handles item-hold and email functions. """
 
     def __init__( self ):
-        self.EMAIL_FROM = os.environ[u'EZRQST__EMAIL_FROM']
-        self.EMAIL_REPLY_TO = os.environ[u'EZRQST__EMAIL_REPLY_TO']
+        self.EMAIL_FROM = os.environ['EZRQST__EMAIL_FROM']
+        self.EMAIL_REPLY_TO = os.environ['EZRQST__EMAIL_REPLY_TO']
 
     def check_request( self, request ):
         """ Ensures user has logged in.
@@ -316,11 +316,11 @@ class Processor( object ):
         """ Emails patron confirmation.
             Called by views.processor() """
         try:
-            subject = u'Brown University Library - Item Request Confirmation'
-            body = self.build_email_body( patron_name, title, callnumber, bibnum, itemnum, user_barcode, item_barcode )
+            subject = 'Brown University Library - Item Request Confirmation'
+            body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode )
             ffrom = self.EMAIL_FROM  # `from` reserved
             to = [ patron_email ]
-            extra_headers = { u'Reply-To': self.EMAIL_REPLY_TO }
+            extra_headers = { 'Reply-To': self.EMAIL_REPLY_TO }
             email = EmailMessage( subject, body, ffrom, to, headers=extra_headers )
             email.send()
             log.debug( 'mail sent' )
