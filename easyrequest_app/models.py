@@ -312,6 +312,7 @@ class Processor( object ):
         hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
         log.debug( 'hold, `%s`' % hold )
         itmrqst.status = 'request_placed'
+        itmrqst.save()
         return itmrqst
 
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
