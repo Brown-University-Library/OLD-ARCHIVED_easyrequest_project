@@ -267,6 +267,8 @@ class Processor( object ):
         itmrqst = self.save_user_data( itmrqst, request )
         itmrqst.source_url = request.session['source_url']
         itmrqst.status = 'in_process'
+        itmrqst.save()
+        log.debug( 'data saved' )
         return itmrqst
 
     def save_item_data( self, itmrqst, request ):
@@ -280,8 +282,9 @@ class Processor( object ):
             itmrqst.item_callnumber = request.session['item_callnumber']
             itmrqst.save()
         except Exception as e:
-            log.debug( 'session, `%s`' % pprint.pformat(request.session.items()) )
+            log.debug( 'Exception; session, `%s`' % pprint.pformat(request.session.items()) )
             log.error( 'Exception, `%s`' % unicode(repr(e)) )
+            raise Exception( 'Unable to save item-data.' )
         return itmrqst
 
     def save_user_data( self, itmrqst, request ):
@@ -293,7 +296,8 @@ class Processor( object ):
             itmrqst.user_email = request.session['user_email']
             itmrqst.save()
         except Exception as e:
-            log.debug( 'Exception, `%s`' % unicode(repr(e)) )
+            log.error( 'Exception, `%s`' % unicode(repr(e)) )
+            raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
     def place_request( self, user_name, user_barcode, item_bib, item_id ):
