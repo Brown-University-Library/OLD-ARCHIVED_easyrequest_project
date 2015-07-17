@@ -70,10 +70,14 @@ def processor( request ):
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     try:
-        processor_helper.save_data( request )
+        itmrqst = processor_helper.save_data( request )
         log.debug( 'session, `%s`' % pprint.pprint(request.session.items()) )
+        # processor_helper.place_request(
+        #     request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
         processor_helper.place_request(
-            request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
+            itmrqst.patron_name, itmrqst.patron_barcode, itmrqst.item_bib, itmrqst.item_id )
+        # processor_helper.email_user( patron_email, patron_name, title, callnumber, bibnum, itemnum, user_barcode, item_barcode )
+        processor_helper.email_user( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode )
     except Exception as e:
         log.error( 'Exception, `%s`' % unicode(repr(e)) )
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view

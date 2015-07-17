@@ -8,7 +8,7 @@ import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
 # from django.core import serializers
-# from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
@@ -124,138 +124,6 @@ class LoginHelper( object ):
         request.session['item_id'] = item_id
         log.debug( 'session updated' )
         return
-
-
-    # def handle_get( self, request ):
-    #     """ Handles request-page GET; returns response.
-    #         Called by views.confirm_request() """
-    #     log.debug( 'in models.RequestViewGetHelper.handle_get(); referrer, `%s`' % request.META.get('HTTP_REFERER', 'not_in_request_meta'), )
-    #     self.store_remote_source_url( request )
-    #     https_check = self.check_https( request.is_secure(), request.get_host(), request.get_full_path() )
-    #     if https_check['is_secure'] == False:
-    #         return HttpResponseRedirect( https_check['redirect_url'] )
-    #     title = self.check_title( request )
-    #     self.initialize_session( request, title )
-    #     return_response = self.build_response( request )
-    #     log.debug( 'in models.RequestViewGetHelper.handle_get(); returning' )
-    #     return return_response
-
-    # def store_remote_source_url( self, request ):
-    #     """ Stores http-refferer if from external domain.
-    #         Called by handle_get() """
-    #     log.debug( 'in models.RequestViewGetHelper.store_remote_source_url(); referrer, `%s`' % request.META.get('HTTP_REFERER', 'not_in_request_meta'), )
-    #     remote_referrer = request.META.get( 'HTTP_REFERER', '' )
-    #     if not request.get_host() in remote_referrer:  # ignore same-domain and shib redirects
-    #         if not 'sso.brown.edu' in remote_referrer:
-    #             request.session['last_remote_referrer'] = remote_referrer
-    #     log.debug( 'in models.RequestViewGetHelper.store_remote_source_url(); session items, `%s`' % pprint.pformat(request.session.items()) )
-    #     return
-
-    # def check_https( self, is_secure, get_host, full_path ):
-    #     """ Checks for https; returns dict with result and redirect-url.
-    #         Called by handle_get() """
-    #     if (is_secure == False) and (get_host != '127.0.0.1'):
-    #         redirect_url = 'https://%s%s' % ( get_host, full_path )
-    #         return_dict = { 'is_secure': False, 'redirect_url': redirect_url }
-    #     else:
-    #         return_dict = { 'is_secure': True, 'redirect_url': 'N/A' }
-    #     log.debug( 'in models.RequestViewGetHelper.check_https(); return_dict, `%s`' % return_dict )
-    #     return return_dict
-
-    # def check_title( self, request ):
-    #     """ Grabs and returns title from the availability-api if needed.
-    #         Called by handle_get() """
-    #     title = request.GET.get( 'title', '' )
-    #     if title == 'null' or title == '':
-    #         try: title = request.session['item_info']['title']
-    #         except: pass
-    #     if title == 'null' or title == '':
-    #         bibnum = request.GET.get( 'bibnum', '' )
-    #         if len( bibnum ) == 8:
-    #             title = self.hit_availability_api( bibnum )
-    #     log.debug( 'in models.RequestViewGetHelper.check_title(); title, %s' % title )
-    #     return title
-
-    # def hit_availability_api( self, bibnum ):
-    #     """ Hits availability-api with bib for title.
-    #         Called by check_title() """
-    #     try:
-    #         availability_api_url = '%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
-    #         r = requests.get( availability_api_url )
-    #         d = r.json()
-    #         title = d['response']['backend_response'][0]['title']
-    #     except Exception as e:
-    #         log.debug( 'in models.RequestViewGetHelper.hit_availability_api(); exception, %s' % unicode(repr(e)) )
-    #         title = ''
-    #     return title
-
-    # def initialize_session( self, request, title ):
-    #     """ Initializes session vars if needed.
-    #         Called by handle_get() """
-    #     log.debug( 'in models.RequestViewGetHelper.initialize_session(); session items, `%s`' % pprint.pformat(request.session.items()) )
-    #     if not 'authz_info' in request.session:
-    #         request.session['authz_info'] = { 'authorized': False }
-    #     if not 'user_info' in request.session:
-    #         request.session['user_info'] = { 'name': '', 'patron_barcode': '', 'email': '' }
-    #     self.update_session_iteminfo( request, title )
-    #     if not 'shib_login_error' in request.session:
-    #         request.session['shib_login_error'] = False
-    #     log.debug( 'in models.RequestViewGetHelper.initialize_session(); session initialized' )
-    #     return
-
-    # def update_session_iteminfo( self, request, title ):
-    #     """ Updates 'item_info' session key data.
-    #         Called by initialize_session() """
-    #     if not 'item_info' in request.session:
-    #         request.session['item_info'] = {
-    #         'callnumber': '', 'barcode': '', 'title': '', 'volume_year': '', 'article_chapter_title': '', 'page_range': '', 'other': '' }
-    #     for key in [ 'callnumber', 'barcode', 'volume_year' ]:  # ensures new url always updates session
-    #         value = request.GET.get( key, '' )
-    #         if value:
-    #             request.session['item_info'][key] = value
-    #     request.session['item_info']['item_source_url'] = request.session.get( 'last_remote_referrer', 'not_in_request_meta' )
-    #     request.session['item_info']['title'] = title
-    #     log.debug( 'in models.RequestViewGetHelper.update_session_iteminfo(); request.session["item_info"], `%s`' % pprint.pformat(request.session['item_info']) )
-    #     return
-
-    # def build_response( self, request ):
-    #     """ Builds response.
-    #         Called by handle_get() """
-    #     if request.session['item_info']['barcode'] == '':
-    #         return_response = HttpResponseRedirect( reverse('info_url') )
-    #     elif request.session['authz_info']['authorized'] == False:
-    #         return_response = render( request, 'easyscan_app_templates/request_login.html', self.build_data_dict(request) )
-    #     else:
-    #         return_response = self.handle_good_get( request )
-    #     log.debug( 'in models.RequestViewGetHelper.build_response(); returning' )
-    #     return return_response
-
-    # def handle_good_get( self, request ):
-    #     """ Builds response on good get.
-    #         Called by build_response() """
-    #     data_dict = self.build_data_dict( request )
-    #     form_data = request.session.get( 'form_data', None )
-    #     form = CitationForm( form_data )
-    #     form.is_valid() # to get errors in form
-    #     data_dict['form'] = form
-    #     return_response = render( request, 'easyscan_app_templates/request_form.html', data_dict )
-    #     return return_response
-
-    # def build_data_dict( self, request ):
-    #     """ Builds and returns data-dict for request page.
-    #         Called by handle_good_get() """
-    #     context = {
-    #         'title': request.session['item_info']['title'],
-    #         'callnumber': request.session['item_info']['callnumber'],
-    #         'barcode': request.session['item_info']['barcode'],
-    #         'volume_year': request.session['item_info']['volume_year'],
-    #         'login_error': request.session['shib_login_error'],
-    #         }
-    #     if request.session['authz_info']['authorized']:
-    #         context['patron_name'] = request.session['user_info']['name']
-    #         context['logout_url'] = reverse( 'logout_url' )
-    #     log.debug( 'in models.RequestViewGetHelper.build_data_dict(); return_dict, `%s`' % pprint.pformat(context) )
-    #     return context
 
     # end class LoginHelper
 
@@ -375,7 +243,11 @@ class ShibChecker( object ):
 
 
 class Processor( object ):
-    """ Handles item-hold functions. """
+    """ Handles item-hold and email functions. """
+
+    def __init__( self ):
+        self.EMAIL_FROM = os.environ[u'EZRQST__EMAIL_FROM']
+        self.EMAIL_REPLY_TO = os.environ[u'EZRQST__EMAIL_REPLY_TO']
 
     def check_request( self, request ):
         """ Ensures user has logged in.
@@ -434,6 +306,54 @@ class Processor( object ):
         log.debug( 'hold, `%s`' % hold )
         return
 
+    def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
+        """ Emails patron confirmation.
+            Called by views.processor() """
+        try:
+            subject = u'Brown University Library - Item Request Confirmation'
+            body = self.build_email_body( patron_name, title, callnumber, bibnum, itemnum, user_barcode, item_barcode )
+            ffrom = self.EMAIL_FROM  # `from` reserved
+            to = [ patron_email ]
+            extra_headers = { u'Reply-To': self.EMAIL_REPLY_TO }
+            email = EmailMessage( subject, body, ffrom, to, headers=extra_headers )
+            email.send()
+            log.debug( 'mail sent' )
+        except Exception as e:
+            log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
+        return
+
+    def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
+        """ Prepares and returns email body.
+            Called by email_patron().
+            TODO: use render_to_string & template. """
+        body = '''Greetings %s,
+
+This is a confirmation of your request for the item...
+
+Title: %s
+Call Number: %s
+
+Items are generally available in 1 business day. When available, you'll be notified at this email address.
+
+If you have questions, feel free to email %s or call %s, and reference...
+
+- Bibliographic #: "%s"
+- Item #: "%s"
+- User barcode: "%s"
+- Item barcode: "%s"
+''' % (
+            patron_name,
+            item_title,
+            item_callnumber,
+            self.EMAIL_GENERAL_HELP,
+            self.PHONE_GENERAL_HELP,
+            item_bib,
+            item_id,
+            patron_barcode,
+            item_barcode
+            )
+        return body
+
     # end class Processor
 
 
@@ -454,6 +374,5 @@ class ShibLogoutHelper( object ):
             )
         log.debug( 'initial redirect_url, `%s`' % redirect_url )
         return redirect_url
-
 
     # end class ShibLogoutHelper
