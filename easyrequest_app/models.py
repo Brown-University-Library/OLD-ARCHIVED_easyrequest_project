@@ -248,6 +248,8 @@ class Processor( object ):
     def __init__( self ):
         self.EMAIL_FROM = os.environ['EZRQST__EMAIL_FROM']
         self.EMAIL_REPLY_TO = os.environ['EZRQST__EMAIL_REPLY_TO']
+        self.EMAIL_GENERAL_HELP = os.environ['EZRQST__EMAIL_GENERAL_HELP']
+        self.PHONE_GENERAL_HELP = os.environ['EZRQST__PHONE_GENERAL_HELP']
 
     def check_request( self, request ):
         """ Ensures user has logged in.
