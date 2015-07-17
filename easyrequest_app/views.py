@@ -67,11 +67,12 @@ def processor( request ):
         - Saves request.
         - Places hold.
         - Triggers shib_logout() view. """
+    log.debug( 'starting views.processor()' )
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     try:
         itmrqst = processor_helper.save_data( request )
-        log.debug( 'session, `%s`' % pprint.pprint(request.session.items()) )
+        log.debug( 'session, `%s`' % pprint.ppformat(request.session.items()) )
         # processor_helper.place_request(
         #     request.session['user_name'], request.session['user_barcode'], request.session['item_bib'], request.session['item_id'] )
         processor_helper.place_request(
