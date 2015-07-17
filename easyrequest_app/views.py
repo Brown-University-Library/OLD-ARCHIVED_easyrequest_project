@@ -96,6 +96,8 @@ def shib_logout( request ):
 
 def summary( request ):
     """ Displays final summary screen. """
+    EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
+    PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
     context = {
         'bib': request.GET['bib'],
         'callnumber': request.GET['callnumber'],
@@ -103,6 +105,8 @@ def summary( request ):
         'title': request.GET['title'],
         'user_name': request.GET['user_name'],
         'user_email': request.GET['user_email'],
+        'email_general_help': EMAIL,
+        'phone_general_help': PHONE
         }
     return render( request, 'easyrequest_app_templates/summary.html', context )
 

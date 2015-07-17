@@ -434,13 +434,6 @@ class Processor( object ):
         log.debug( 'hold, `%s`' % hold )
         return
 
-    # def logout( self, request ):
-    #     """ Will log user out of session.
-    #         Called by views.processor() """
-    #     request.session['shib_authorized'] = False
-    #     logout( request )  # from django.contrib.auth import logout
-    #     return
-
     # end class Processor
 
 
@@ -451,10 +444,10 @@ class ShibLogoutHelper( object ):
         """ Returns initial redirect-url.
             Called by views.shib_logout() """
         scheme = 'https' if request.is_secure() else 'http'
-        item_title = request_session['item_title']
+        item_title = request.session['item_title']
         if len( item_title ) > 50:
             item_title = '%s...' % item_title[0:45]
-        redirect_url = '%s://%s%s/?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s' % (
+        redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s' % (
             scheme, request.get_host(), reverse('summary_url'),
             request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
             request.session['user_name'], request.session['user_email']
