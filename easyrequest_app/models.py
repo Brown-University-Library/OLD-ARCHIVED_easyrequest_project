@@ -73,6 +73,8 @@ class LoginHelper( object ):
             return_val = True
         if request.get_host() in self.LEGIT_SOURCES:
             return_val = True
+        else:
+            log.debug( 'request.get_host(), `%s`' % request.get_host() )
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
 
