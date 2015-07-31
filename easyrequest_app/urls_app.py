@@ -9,7 +9,7 @@ urlpatterns = patterns('',
 
     url( r'^info/$',  'easyrequest_app.views.info', name='info_url' ),
 
-    url( r'^login/$',  'easyrequest_app.views.login', name='login_url' ),
+    url( r'^login/$',  'easyrequest_app.views.login', name='login_url' ),  # main landing page
 
     url( r'^shib_login/$',  'easyrequest_app.views.shib_login', name='shib_login_url' ),
     url( r'^logout/$',  'easyrequest_app.views.shib_logout', name='logout_url' ),

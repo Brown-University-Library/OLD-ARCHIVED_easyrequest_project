@@ -64,6 +64,16 @@ class LoginHelper( object ):
         self.PHONE_AUTH_HELP = os.environ['EZRQST__PHONE_AUTH_HELP']
         self.EMAIL_AUTH_HELP = os.environ['EZRQST__EMAIL_AUTH_HELP']
 
+    def validate_source( self ):
+        """ Ensures app is accessed from legit source.
+            Called by views.login() """
+        pass
+
+    def validate_params( self ):
+        """ Checks params.
+            Called by views.login() """
+        pass
+
     def initialize_session( self, request ):
         """ Initializes session.
             Called by views.login() """
