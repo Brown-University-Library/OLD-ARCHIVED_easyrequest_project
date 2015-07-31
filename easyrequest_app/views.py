@@ -32,19 +32,12 @@ def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Asks user to log in, which hands off to shib_login() view. """
     log.debug( 'starting login()' )
-    log.debug( 'source-url, `%s`' % request.META.get('HTTP_REFERER', u'not_in_request_meta') )
     if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     login_helper.update_session( request, title, callnumber, item_id )
-    context = {
-        'title': request.session['item_title'] ,
-        'callnumber': request.session['item_callnumber'],
-        'PHONE_AUTH_HELP': login_helper.PHONE_AUTH_HELP,
-        'EMAIL_AUTH_HELP': login_helper.EMAIL_AUTH_HELP
-        }
-    log.debug( 'session, `%s`' % pprint.pformat(request.session.items()) )
+    context = login_helper.prepare_context( request )
     return render( request, 'easyrequest_app_templates/login.html', context )
 
 

@@ -79,7 +79,11 @@ class LoginHelper( object ):
     def validate_params( self, request ):
         """ Checks params.
             Called by views.login() """
-        pass
+        return_val = False
+        if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
+            return_val = True
+        log.debug( 'return_val, `%s`' % return_val )
+        return return_val
 
     def initialize_session( self, request ):
         """ Initializes session.
@@ -139,8 +143,20 @@ class LoginHelper( object ):
         request.session['item_title'] = title
         request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
+        request.session['source_url'] = request.META.get( 'HTTP_REFERER', u'unavailable' )
         log.debug( 'session updated' )
         return
+
+    def prepare_context( self, request ):
+        """ Prepares vars for template.
+            Called by views.login() """
+        context = {
+            'title': request.session['item_title'] ,
+            'callnumber': request.session['item_callnumber'],
+            'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
+            'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP
+            }
+        return context
 
     # end class LoginHelper
 
