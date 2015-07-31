@@ -134,7 +134,7 @@ class LoginHelper( object ):
                 if item_barcode == item['barcode']:
                     callnumber = item['callnumber_interpreted']
                     item_id = item['item_id'][:-1]  # removes trailing check-digit
-        log.debug( 'process_items result, `%s`' % unicode(repr(( callnumber, item_id ))) )
+        log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
         return ( callnumber, item_id )
 
     def update_session( self, request, title, callnumber, item_id ):
