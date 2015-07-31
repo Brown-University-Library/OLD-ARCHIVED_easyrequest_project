@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import json, logging, os, pprint
+import json, logging, os, pprint, urlparse
 import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
@@ -71,12 +71,21 @@ class LoginHelper( object ):
         return_val = False
         if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:
             return_val = True
+        host = self.get_referrer_host( request.META.get('HTTP_REFERER', 'unavailable') )
         if request.get_host() in self.LEGIT_SOURCES:
             return_val = True
         else:
-            log.debug( 'request.get_host(), `%s`' % request.get_host() )
+            log.debug( 'host, `%s`' % host )
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
+
+    def get_referrer_host( self, referrer_url ):
+        """ Extracts host from referrer_url.
+            Called by validate_source() """
+        output = urlparse.urlparse( referrer_url )
+        host = output.netloc
+        log.debug( 'referrer host, `%s`' % host )
+        return host
 
     def validate_params( self, request ):
         """ Checks params.
@@ -145,7 +154,7 @@ class LoginHelper( object ):
         request.session['item_title'] = title
         request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
-        request.session['source_url'] = request.META.get( 'HTTP_REFERER', u'unavailable' )
+        request.session['source_url'] = request.META.get( 'HTTP_REFERER', u'unavailable' ).strip()
         log.debug( 'session updated' )
         return
 
