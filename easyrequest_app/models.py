@@ -63,13 +63,20 @@ class LoginHelper( object ):
         self.AVAILABILITY_API_URL_ROOT = os.environ['EZRQST__AVAILABILITY_API_URL_ROOT']
         self.PHONE_AUTH_HELP = os.environ['EZRQST__PHONE_AUTH_HELP']
         self.EMAIL_AUTH_HELP = os.environ['EZRQST__EMAIL_AUTH_HELP']
+        self.LEGIT_SOURCES = json.loads( os.environ['EZRQST__LEGIT_SOURCES_JSON'] )
 
-    def validate_source( self ):
+    def validate_source( self, request ):
         """ Ensures app is accessed from legit source.
             Called by views.login() """
-        pass
+        return_val = False
+        if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:
+            return_val = True
+        if request.get_host() in self.LEGIT_SOURCES:
+            return_val = True
+        log.debug( 'return_val, `%s`' % return_val )
+        return return_val
 
-    def validate_params( self ):
+    def validate_params( self, request ):
         """ Checks params.
             Called by views.login() """
         pass
