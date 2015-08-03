@@ -106,9 +106,9 @@ class LoginHelper( object ):
         request.session['user_barcode'] = ''
         request.session['user_email'] = ''
         request.session['source_url'] = ''
-        request.session['shib_login_error'] = ''
+        # request.session['shib_login_error'] = ''
         request.session['shib_authorized'] = False
-        request.session['barcode_login_error'] = False
+        # request.session['barcode_login_error'] = False
         request.session['barcode_authorized'] = False
         return
 
