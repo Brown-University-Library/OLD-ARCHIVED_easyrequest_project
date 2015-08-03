@@ -101,15 +101,25 @@ class LoginHelper( object ):
     def initialize_session( self, request ):
         """ Initializes session.
             Called by views.login() """
+        self._initialize_session_item_info( request )
+        request.session['user_name'] = ''
+        request.session['user_barcode'] = ''
+        request.session['user_email'] = ''
+        request.session['source_url'] = ''
+        request.session['shib_login_error'] = ''
+        request.session['shib_authorized'] = False
+        request.session['barcode_login_error'] = False
+        request.session['barcode_authorized'] = False
+        return
+
+    def _initialize_session_item_info( self, request ):
+        """ Initializes session item info.
+            Called by initialize_session() """
         request.session['item_title'] = ''
         request.session['item_bib'] = request.GET['bibnum']
         request.session['item_id'] = ''
         request.session['item_barcode'] = request.GET['barcode']
         request.session['item_callnumber'] = ''
-        request.session['user_name'] = ''
-        request.session['user_barcode'] = ''
-        request.session['user_email'] = ''
-        request.session['source_url'] = ''
         return
 
     def get_item_info( self, bibnum, item_barcode ):
