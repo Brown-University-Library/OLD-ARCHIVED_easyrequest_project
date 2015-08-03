@@ -48,8 +48,8 @@ def shib_login( request ):
     if request.method == 'POST':  # from login.html
         log.debug( 'post detected' )
         return HttpResponseRedirect( os.environ['EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
-    request.session['shib_login_error'] = ''  # initialization; updated when response is built
-    request.session['shib_authorized'] = False
+    # request.session['shib_login_error'] = ''  # initialization; updated when response is built
+    # request.session['shib_authorized'] = False
     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
     return_response = shib_view_helper.build_response( request, validity, shib_dict )
     log.debug( 'about to return shib response' )
