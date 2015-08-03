@@ -56,6 +56,13 @@ def shib_login( request ):
     return return_response
 
 
+def barcode_login_handler( request ):
+    """ Handles barcode login.
+        On success, user to non-seen processor() view. """
+    log.debug( 'starting barcode_login_handler()' )
+    return HttpResponse( 'coming' )
+
+
 def processor( request ):
     """ Handles item request:,
         - Ensures user is authenticated.

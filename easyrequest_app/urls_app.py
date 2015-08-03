@@ -14,6 +14,8 @@ urlpatterns = patterns('',
     url( r'^shib_login/$',  'easyrequest_app.views.shib_login', name='shib_login_url' ),
     url( r'^logout/$',  'easyrequest_app.views.shib_logout', name='logout_url' ),
 
+    url( r'^barcode_login_handler/$',  'easyrequest_app.views.barcode_login_handler', name='barcode_login_handler_url' ),
+
     url( r'^processor/$',  'easyrequest_app.views.processor', name='processor_url' ),
     url( r'^summary/$',  'easyrequest_app.views.summary', name='summary_url' ),
 
