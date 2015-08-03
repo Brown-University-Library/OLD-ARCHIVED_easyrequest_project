@@ -75,7 +75,7 @@ class LoginHelper( object ):
         if referrer_host in self.LEGIT_SOURCES:
             return_val = True
         else:
-            log.debug( 'host, `%s`' % host )
+            log.debug( 'referrer_host, `%s`' % referrer_host )
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
 
