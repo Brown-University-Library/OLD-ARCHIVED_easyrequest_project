@@ -16,6 +16,7 @@ login_helper = models.LoginHelper()
 shib_view_helper = models.ShibViewHelper()
 processor_helper = models.Processor()
 shib_logout_helper = models.ShibLogoutHelper()
+barcode_login_view_helper = models.BarcodeLoginViewHelper()
 
 
 def info( request ):
@@ -48,8 +49,6 @@ def shib_login( request ):
     if request.method == 'POST':  # from login.html
         log.debug( 'post detected' )
         return HttpResponseRedirect( os.environ['EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
-    # request.session['shib_login_error'] = ''  # initialization; updated when response is built
-    # request.session['shib_authorized'] = False
     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
     return_response = shib_view_helper.build_response( request, validity, shib_dict )
     log.debug( 'about to return shib response' )
@@ -60,6 +59,7 @@ def barcode_login_handler( request ):
     """ Handles barcode login.
         On success, user to non-seen processor() view. """
     log.debug( 'starting barcode_login_handler()' )
+    validity = barcode_login_view_helper.check_params( request )
     return HttpResponse( 'coming' )
 
 

@@ -184,6 +184,21 @@ class LoginHelper( object ):
     # end class LoginHelper
 
 
+class BarcodeLoginViewHelper( object ):
+    """ Contains helpers for views.barcode_login_handler() """
+
+    def check_params( self, request ):
+        """ Validates params.
+            Returns boolean. """
+        return_val = False
+        log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
+        if sorted( request.POST.keys() ) == ['csrfmiddlewaretoken', 'name', 'patron_barcode']:
+            if len(request.POST['name']) > 0 and len(request.POST['patron_barcode']) > 13:
+                return_val = True
+        log.debug( 'return_val, `%s`' % return_val )
+        return return_val
+
+
 class ShibViewHelper( object ):
     """ Contains helpers for views.shib_login() """
 
