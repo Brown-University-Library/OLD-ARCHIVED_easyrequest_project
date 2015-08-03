@@ -89,10 +89,12 @@ class LoginHelper( object ):
 
     def validate_params( self, request ):
         """ Checks params.
-            Called by views.login() """
+            Called by views.login()
+            Note: `barcode` here is the item-barcode. """
         return_val = False
         if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
-            return_val = True
+            if len(request.GET['bibnum']) == 8 and len(request.GET['barcode']) == 14:
+                return_val = True
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
 
