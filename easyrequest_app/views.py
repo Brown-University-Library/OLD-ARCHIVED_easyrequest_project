@@ -62,7 +62,7 @@ def barcode_login_handler( request ):
     validity = barcode_login_view_helper.check_params( request )
     if not validity:
         request.session[]
-        resp = HttpResponseRedirect( 'foo' )
+        resp = HttpResponseRedirect( reverse('login_url') )
     return HttpResponse( 'coming' )
 
 
@@ -71,7 +71,10 @@ def processor( request ):
         - Ensures user is authenticated.
         - Saves request.
         - Places hold.
-        - Triggers shib_logout() view. """
+        - Triggers shib_logout() view.
+        Note: login_error vars can't be set in login-session-initialization. """
+    request.session['shib_login_error'] = ''
+    request.session['barcode_login_error'] = ''
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
@@ -100,12 +103,9 @@ def shib_logout( request ):
 
 
 def summary( request ):
-    """ Displays final summary screen.
-        Note: login_error vars can't be set in login-session-initialization. """
+    """ Displays final summary screen. """
     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
-    request.session['shib_login_error'] = ''
-    request.session['barcode_login_error'] = ''
     context = {
         'bib': request.GET['bib'],
         'callnumber': request.GET['callnumber'],
