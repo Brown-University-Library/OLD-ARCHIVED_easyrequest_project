@@ -237,7 +237,7 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'barcode login check, `%s`' % return_val )
         return return_val
 
-    def prep_login_redirect( self, request ):
+    def prep_processor_redirect( self, request ):
         """ Prepares redirect response-object to views.process() on good login.
             Called by views.barcode_handler() """
         resp = HttpResponse( 'coming' )
