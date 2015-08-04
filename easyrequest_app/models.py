@@ -214,14 +214,28 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
 
-    def prep_redirect_response( self, request ):
-        """ Prepares redirect to views.login() on bad params.
+    def prep_login_redirect( self, request ):
+        """ Prepares redirect response-object to views.login() on bad params.
             Called by views.barcode_handler() """
         request.session['barcode_login_error'] = 'Problem with username and password.'
         redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
         log.debug( 'redirect_url, `%s`' % redirect_url )
         resp = HttpResponseRedirect( redirect_url )
         return resp
+
+    def authenticate( self, request ):
+        """ Checks submitted login-name and login-barcode; returns boolean.
+            Called by views.barcode_handler() """
+        return False
+
+    def prep_login_redirect( self, request ):
+        """ Prepares redirect response-object to views.process() on good login.
+            Called by views.barcode_handler() """
+        resp = HttpResponse( 'coming' )
+        return resp
+
+    # end class BarcodeHandlerHelper
+
 
 class ShibViewHelper( object ):
     """ Contains helpers for views.shib_login() """

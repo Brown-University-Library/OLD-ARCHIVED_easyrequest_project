@@ -61,9 +61,13 @@ def barcode_handler( request ):
     log.debug( 'starting barcode_login_handler()' )
     validity = barcode_handler_helper.validate_params( request )
     if not validity:
-        resp = barcode_handler_helper.prep_redirect_response( request )
-    else:
-        resp = HttpResponse( 'coming' )
+        resp = barcode_handler_helper.prep_login_redirect( request )
+        return resp
+    login_check = barcode_handler_helper.authenticate( request )
+    if not login_valid:
+        resp = barcode_handler_helper.prep_login_redirect( request )
+        return resp
+    resp = barcode_handler_helper.prep_processor_redirect( request )
     return resp
 
 
