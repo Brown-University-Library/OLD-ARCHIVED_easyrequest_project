@@ -58,6 +58,7 @@ easyRequest login
         /*clear:left;*/
         font-size: 1.5em;
         color: maroon;
+        margin-bottom: .5em;
         /*margin-top: 4em;*/ }
     p#name_field_label {
         margin-top: 1.5em;
@@ -73,7 +74,6 @@ easyRequest login
         float:left;
         clear:left;
         margin-top: 2em; }
-
     p.login_error {
       color: red;
       margin-bottom: .25em; }
@@ -105,7 +105,7 @@ easyRequest login
 
     <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
         <h3 id="please_shib">Please log in via Shib...</h3>
-        {% if login_error %}
+        {% if shib_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
         {% endif %}
@@ -114,17 +114,16 @@ easyRequest login
 
     <form id="barcode_login" action="/easyrequest/barcode_login_handler/" method="POST">{% csrf_token %}
         <h3 id="please_barcode">...or via your patron barcode</h3>
-        {% if login_error %}
+        {% if barcode_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
         {% endif %}
         <p id="name_field_label">First or Last Name:</p>
-        <input id="name_field_input" type="text" name="name" value="{{ login_name }}">
+        <input id="name_field_input" type="text" name="barcode_login_name" value="{{ barcode_login_name }}">
         <br/>
         <br/>
         <p id="barcode_field_label">Barcode (14-digit barcode, beginning with 21236...):</p>
-        <!-- <p id="barcode_help">( 14-digit barcode, beginning with 21236... )</p> -->
-        <input id="barcode_field_input" type="text" name="patron_barcode">
+        <input id="barcode_field_input" type="text" name="barcode_login_barcode" value="{{ barcode_login_barcode }}">
         <input id="barcode_login_button" type="submit" value="Log in">
     </form>
 

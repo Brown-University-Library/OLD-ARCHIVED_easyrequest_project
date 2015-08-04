@@ -60,6 +60,7 @@ class LoginHelper( object ):
     """ Contains helpers for views.request_def() for handling GET. """
 
     def __init__( self ):
+        """ Holds env-vars. """
         self.AVAILABILITY_API_URL_ROOT = os.environ['EZRQST__AVAILABILITY_API_URL_ROOT']
         self.PHONE_AUTH_HELP = os.environ['EZRQST__PHONE_AUTH_HELP']
         self.EMAIL_AUTH_HELP = os.environ['EZRQST__EMAIL_AUTH_HELP']
@@ -101,25 +102,32 @@ class LoginHelper( object ):
     def initialize_session( self, request ):
         """ Initializes session.
             Called by views.login() """
+        log.debug( 'request.session before initialize, `%s`' % pprint.pformat(request.session.items()) )
         self._initialize_session_item_info( request )
         request.session['user_name'] = ''
         request.session['user_barcode'] = ''
         request.session['user_email'] = ''
         request.session['source_url'] = ''
-        # request.session['shib_login_error'] = ''
+        request.session.setdefault( 'shib_login_error', False )
         request.session['shib_authorized'] = False
-        # request.session['barcode_login_error'] = False
+        request.session.setdefault( 'barcode_login_name', '' )
+        request.session.setdefault( 'barcode_login_barcode', '' )
+        request.session.setdefault( 'barcode_login_error', False)
         request.session['barcode_authorized'] = False
+        log.debug( 'request.session after initialize, `%s`' % pprint.pformat(request.session.items()) )
         return
 
     def _initialize_session_item_info( self, request ):
         """ Initializes session item info.
             Called by initialize_session() """
-        request.session['item_title'] = ''
+        # request.session['item_title'] = ''
+        request.session.setdefault( 'item_title', '' )
         request.session['item_bib'] = request.GET['bibnum']
-        request.session['item_id'] = ''
+        # request.session['item_id'] = ''
+        request.session.setdefault( 'item_id', '' )
         request.session['item_barcode'] = request.GET['barcode']
-        request.session['item_callnumber'] = ''
+        # request.session['item_callnumber'] = ''
+        request.session.setdefault( 'item_callnumber', '' )
         return
 
     def get_item_info( self, bibnum, item_barcode ):
@@ -167,7 +175,7 @@ class LoginHelper( object ):
         request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
         request.session['source_url'] = request.META.get( 'HTTP_REFERER', u'unavailable' ).strip()
-        log.debug( 'session updated' )
+        log.debug( 'request.session after update, `%s`' % pprint.pformat(request.session.items()) )
         return
 
     def prepare_context( self, request ):
@@ -176,6 +184,9 @@ class LoginHelper( object ):
         context = {
             'title': request.session['item_title'] ,
             'callnumber': request.session['item_callnumber'],
+            'barcode_login_name': request.session['barcode_login_name'],
+            'barcode_login_barcode': request.session['barcode_login_barcode'],
+            'barcode_login_error': request.session['barcode_login_error'],
             'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
             'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP
             }
@@ -192,8 +203,10 @@ class BarcodeLoginViewHelper( object ):
             Returns boolean. """
         return_val = False
         log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
-        if sorted( request.POST.keys() ) == ['csrfmiddlewaretoken', 'name', 'patron_barcode']:
-            if len(request.POST['name']) > 0 and len(request.POST['patron_barcode']) > 13:
+        if sorted( request.POST.keys() ) == ['barcode_login_barcode', 'barcode_login_name', 'csrfmiddlewaretoken']:
+            request.session['barcode_login_name'] = request.POST['barcode_login_name']
+            request.session['barcode_login_barcode'] = request.POST['barcode_login_barcode']
+            if len(request.POST['barcode_login_name']) > 0 and len(request.POST['barcode_login_barcode']) > 13:
                 return_val = True
         log.debug( 'return_val, `%s`' % return_val )
         return return_val

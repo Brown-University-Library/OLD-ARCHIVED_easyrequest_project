@@ -33,8 +33,10 @@ def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
     log.debug( 'starting login()' )
-    if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
+    if not login_helper.validate_source(request):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+    # if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
+    #     return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     login_helper.update_session( request, title, callnumber, item_id )
@@ -61,9 +63,13 @@ def barcode_login_handler( request ):
     log.debug( 'starting barcode_login_handler()' )
     validity = barcode_login_view_helper.check_params( request )
     if not validity:
-        request.session[]
-        resp = HttpResponseRedirect( reverse('login_url') )
-    return HttpResponse( 'coming' )
+        request.session['barcode_login_error'] = 'Problem with username and password.'
+        redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
+        log.debug( 'redirect_url, `%s`' % redirect_url )
+        resp = HttpResponseRedirect( redirect_url )
+    else:
+        resp = HttpResponse( 'coming' )
+    return resp
 
 
 def processor( request ):
