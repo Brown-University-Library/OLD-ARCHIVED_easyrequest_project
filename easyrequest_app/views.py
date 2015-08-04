@@ -16,7 +16,7 @@ login_helper = models.LoginHelper()
 shib_view_helper = models.ShibViewHelper()
 processor_helper = models.Processor()
 shib_logout_helper = models.ShibLogoutHelper()
-barcode_login_view_helper = models.BarcodeLoginViewHelper()
+barcode_handler_helper = models.BarcodeHandlerHelper()
 
 
 def info( request ):
@@ -55,11 +55,11 @@ def shib_login( request ):
     return return_response
 
 
-def barcode_login_handler( request ):
+def barcode_handler( request ):
     """ Handles barcode login.
         On success, user to non-seen processor() view. """
     log.debug( 'starting barcode_login_handler()' )
-    validity = barcode_login_view_helper.check_params( request )
+    validity = barcode_login_view_helper.validate_params( request )
     if not validity:
         request.session['barcode_login_error'] = 'Problem with username and password.'
         redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )

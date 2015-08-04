@@ -197,10 +197,10 @@ class LoginHelper( object ):
     # end class LoginHelper
 
 
-class BarcodeLoginViewHelper( object ):
-    """ Contains helpers for views.barcode_login_handler() """
+class BarcodeHandlerHelper( object ):
+    """ Contains helpers for views.barcode_handler() """
 
-    def check_params( self, request ):
+    def validate_params( self, request ):
         """ Validates params.
             Returns boolean. """
         return_val = False

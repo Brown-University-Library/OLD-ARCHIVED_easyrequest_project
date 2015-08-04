@@ -111,7 +111,7 @@ easyRequest login
         <input id="shib_login_button" type="submit" value="Log in">
     </form>
 
-    <form id="barcode_login" action="/easyrequest/barcode_login_handler/" method="POST">{% csrf_token %}
+    <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
         <h3 id="please_barcode">...or via your patron barcode</h3>
         {% if barcode_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
