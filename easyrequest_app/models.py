@@ -102,11 +102,8 @@ class LoginHelper( object ):
     def initialize_session( self, request ):
         """ Initializes session.
             Called by views.login() """
-        log.debug( 'request.session before initialize, `%s`' % pprint.pformat(request.session.items()) )
         self._initialize_session_item_info( request )
-        request.session['user_name'] = ''
-        request.session['user_barcode'] = ''
-        request.session['user_email'] = ''
+        self._initialize_session_user_info( request )
         request.session['source_url'] = ''
         request.session.setdefault( 'shib_login_error', False )
         request.session['shib_authorized'] = False
@@ -120,14 +117,19 @@ class LoginHelper( object ):
     def _initialize_session_item_info( self, request ):
         """ Initializes session item info.
             Called by initialize_session() """
-        # request.session['item_title'] = ''
         request.session.setdefault( 'item_title', '' )
         request.session['item_bib'] = request.GET['bibnum']
-        # request.session['item_id'] = ''
         request.session.setdefault( 'item_id', '' )
         request.session['item_barcode'] = request.GET['barcode']
-        # request.session['item_callnumber'] = ''
         request.session.setdefault( 'item_callnumber', '' )
+        return
+
+    def _initialize_session_item_info( self, request ):
+        """ Initializes session item info.
+            Called by initialize_session() """
+        request.session['user_name'] = ''
+        request.session['user_barcode'] = ''
+        request.session['user_email'] = ''
         return
 
     def get_item_info( self, bibnum, item_barcode ):
@@ -338,6 +340,8 @@ class Processor( object ):
     def check_request( self, request ):
         """ Ensures user has logged in.
             Called by views.processor() """
+        request.session['shib_login_error'] = False  # reset
+        request.session['barcode_login_error'] = False  # reset
         return_val = False
         if 'shib_authorized' in request.session:
             if request.session['shib_authorized'] == True:

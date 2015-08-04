@@ -77,8 +77,6 @@ def processor( request ):
         - Places hold.
         - Triggers shib_logout() view.
         Note: login_error vars can't be set in login-session-initialization. """
-    request.session['shib_login_error'] = ''
-    request.session['barcode_login_error'] = ''
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
