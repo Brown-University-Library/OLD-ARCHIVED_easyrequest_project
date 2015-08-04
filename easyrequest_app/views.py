@@ -33,10 +33,8 @@ def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
     log.debug( 'starting login()' )
-    if not login_helper.validate_source(request):
+    if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
-    # if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
-    #     return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     login_helper.update_session( request, title, callnumber, item_id )
