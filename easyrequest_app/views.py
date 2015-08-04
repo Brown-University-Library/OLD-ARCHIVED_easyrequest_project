@@ -59,12 +59,9 @@ def barcode_handler( request ):
     """ Handles barcode login.
         On success, user to non-seen processor() view. """
     log.debug( 'starting barcode_login_handler()' )
-    validity = barcode_login_view_helper.validate_params( request )
+    validity = barcode_handler_helper.validate_params( request )
     if not validity:
-        request.session['barcode_login_error'] = 'Problem with username and password.'
-        redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
-        log.debug( 'redirect_url, `%s`' % redirect_url )
-        resp = HttpResponseRedirect( redirect_url )
+        resp = barcode_handler_helper.prep_redirect_response( request )
     else:
         resp = HttpResponse( 'coming' )
     return resp

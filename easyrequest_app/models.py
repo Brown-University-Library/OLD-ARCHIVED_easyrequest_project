@@ -124,7 +124,7 @@ class LoginHelper( object ):
         request.session.setdefault( 'item_callnumber', '' )
         return
 
-    def _initialize_session_item_info( self, request ):
+    def _initialize_session_user_info( self, request ):
         """ Initializes session item info.
             Called by initialize_session() """
         request.session['user_name'] = ''
@@ -202,7 +202,8 @@ class BarcodeHandlerHelper( object ):
 
     def validate_params( self, request ):
         """ Validates params.
-            Returns boolean. """
+            Returns boolean.
+            Called by views.barcode_handler() """
         return_val = False
         log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
         if sorted( request.POST.keys() ) == ['barcode_login_barcode', 'barcode_login_name', 'csrfmiddlewaretoken']:
@@ -213,6 +214,14 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'return_val, `%s`' % return_val )
         return return_val
 
+    def prep_redirect_response( self, request ):
+        """ Prepares redirect to views.login() on bad params.
+            Called by views.barcode_handler() """
+        request.session['barcode_login_error'] = 'Problem with username and password.'
+        redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
+        log.debug( 'redirect_url, `%s`' % redirect_url )
+        resp = HttpResponseRedirect( redirect_url )
+        return resp
 
 class ShibViewHelper( object ):
     """ Contains helpers for views.shib_login() """
