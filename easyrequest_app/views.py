@@ -63,7 +63,7 @@ def barcode_handler( request ):
     if not validity:
         resp = barcode_handler_helper.prep_login_redirect( request )
         return resp
-    login_check = barcode_handler_helper.authenticate( request )
+    login_check = barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] )
     if not login_valid:
         resp = barcode_handler_helper.prep_login_redirect( request )
         return resp

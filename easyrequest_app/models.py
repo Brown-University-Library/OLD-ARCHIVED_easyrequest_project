@@ -223,10 +223,19 @@ class BarcodeHandlerHelper( object ):
         resp = HttpResponseRedirect( redirect_url )
         return resp
 
-    def authenticate( self, request ):
+    def authenticate( self, barcode_login_name, barcode_login_barcode ):
         """ Checks submitted login-name and login-barcode; returns boolean.
             Called by views.barcode_handler() """
-        return False
+        return_val = False
+        jos_sess = IIIAccount( barcode_login_name, barcode_login_barcode )
+        try:
+            jos_sess.login()
+            return_val = True
+            jos_sess.logout()
+        except Exception as e:
+            log.debug( 'exception on login-try, `%s`' % unicode(repr(e)) )
+        log.debug( 'barcode login check, `%s`' % return_val )
+        return return_val
 
     def prep_login_redirect( self, request ):
         """ Prepares redirect response-object to views.process() on good login.
@@ -416,11 +425,12 @@ class Processor( object ):
         return itmrqst
 
     def place_request( self, itmrqst ):
-        """ Will coordinate josiah-patron-account calls.
+        """ Coordinates josiah-patron-account calls.
             Called by views.processor() """
         jos_sess = IIIAccount( itmrqst.patron_name, itmrqst.patron_barcode )
         jos_sess.login()
         hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
+        jos_sess.logout()
         log.debug( 'hold, `%s`' % hold )
         itmrqst.status = 'request_placed'
         itmrqst.save()
