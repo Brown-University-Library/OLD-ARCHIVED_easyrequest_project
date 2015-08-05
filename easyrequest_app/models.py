@@ -240,7 +240,11 @@ class BarcodeHandlerHelper( object ):
     def prep_processor_redirect( self, request ):
         """ Prepares redirect response-object to views.process() on good login.
             Called by views.barcode_handler() """
-        resp = HttpResponse( 'coming' )
+        scheme = 'https' if request.is_secure() else 'http'
+        redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse('processor_url') )
+        log.debug( 'redirect_url, `%s`' % redirect_url )
+        resp = HttpResponseRedirect( redirect_url )
+        log.debug( 'returning barcode_handler response' )
         return resp
 
     # end class BarcodeHandlerHelper
@@ -259,8 +263,7 @@ class ShibViewHelper( object ):
         return ( validity, shib_dict )
 
     def build_response( self, request, validity, shib_dict ):
-        """ Sets session vars and redirects to the request page,
-              which will show the citation form on login-success, and a helpful error message on login-failure.
+        """ Sets session vars and redirects to the hidden processor page.
             Called by views.shib_login() """
         self.update_session( request, validity, shib_dict )
         scheme = 'https' if request.is_secure() else 'http'
@@ -375,11 +378,22 @@ class Processor( object ):
         request.session['shib_login_error'] = False  # reset
         request.session['barcode_login_error'] = False  # reset
         return_val = False
-        if 'shib_authorized' in request.session:
-            if request.session['shib_authorized'] == True:
-                return_val = True
+        if ( request.session.get('shib_authorized', False) is True ) or ( request.session.get('barcode_authorized', False) is True ):
+            return_val = True
         log.debug( 'check_request() result, `%s`' % return_val )
         return return_val
+
+    # def check_request( self, request ):
+    #     """ Ensures user has logged in.
+    #         Called by views.processor() """
+    #     request.session['shib_login_error'] = False  # reset
+    #     request.session['barcode_login_error'] = False  # reset
+    #     return_val = False
+    #     if 'shib_authorized' in request.session:
+    #         if request.session['shib_authorized'] == True:
+    #             return_val = True
+    #     log.debug( 'check_request() result, `%s`' % return_val )
+    #     return return_val
 
     def save_data( self, request ):
         """ Saves data for 'try-again' feature.
