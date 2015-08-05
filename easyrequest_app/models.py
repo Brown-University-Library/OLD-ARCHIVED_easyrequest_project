@@ -230,6 +230,7 @@ class BarcodeHandlerHelper( object ):
         jos_sess = IIIAccount( barcode_login_name, barcode_login_barcode )
         try:
             jos_sess.login()
+            request.session['barcode_authorized'] = True
             return_val = True
             jos_sess.logout()
         except Exception as e:
@@ -382,18 +383,6 @@ class Processor( object ):
             return_val = True
         log.debug( 'check_request() result, `%s`' % return_val )
         return return_val
-
-    # def check_request( self, request ):
-    #     """ Ensures user has logged in.
-    #         Called by views.processor() """
-    #     request.session['shib_login_error'] = False  # reset
-    #     request.session['barcode_login_error'] = False  # reset
-    #     return_val = False
-    #     if 'shib_authorized' in request.session:
-    #         if request.session['shib_authorized'] == True:
-    #             return_val = True
-    #     log.debug( 'check_request() result, `%s`' % return_val )
-    #     return return_val
 
     def save_data( self, request ):
         """ Saves data for 'try-again' feature.
