@@ -57,18 +57,18 @@ def shib_login( request ):
 
 def barcode_handler( request ):
     """ Handles barcode login.
-        On success, user to non-seen processor() view. """
+        On success, redirects user to non-seen views.processor()
+        On failure, redirects back to views.login() """
     log.debug( 'starting barcode_login_handler()' )
-    validity = barcode_handler_helper.validate_params( request )
+    validity = barcode_handler_helper.validate_params( request )  # puts param values in session
     if validity is not True:
-        resp = barcode_handler_helper.prep_login_redirect( request )
-        return resp
+        return barcode_handler_helper.prep_login_redirect( request )
     login_check = barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] )
     if login_check is not True:  # if login fails, redirect user back to login page with error messages that will display
-        resp = barcode_handler_helper.prep_login_redirect( request )
-        return resp
-    resp = barcode_handler_helper.prep_processor_redirect( request )
-    return resp
+        return barcode_handler_helper.prep_login_redirect( request )
+    barcode_handler_helper.update_session( request )
+    processor_redirect_resp = barcode_handler_helper.prep_processor_redirect( request )
+    return processor_redirect_resp
 
 
 def processor( request ):
@@ -76,13 +76,12 @@ def processor( request ):
         - Ensures user is authenticated.
         - Saves request.
         - Places hold.
-        - Triggers shib_logout() view.
-        Note: login_error vars can't be set in login-session-initialization. """
+        - Triggers shib_logout() view. """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
     try:
-        processor_helper.place_request( itmrqst )
+        processor_helper.place_request( itmrqst, request.session['josiah_api_name'] )
     except Exception as e:
         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )

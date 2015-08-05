@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import json, logging, os, pprint, urlparse
+import json, logging, os, pprint, time, urlparse
 import requests
 # import csv, datetime, json, logging, os, pprint, StringIO
 # import requests
@@ -33,7 +33,7 @@ class ItemRequest( models.Model ):
     item_id = models.CharField( blank=True, max_length=50 )
     item_barcode = models.CharField( blank=True, max_length=50 )
     item_callnumber = models.CharField( blank=True, max_length=200 )
-    patron_name = models.CharField( blank=True, max_length=100 )
+    patron_name = models.CharField( blank=True, max_length=100 )  # patron full name
     patron_barcode = models.CharField( blank=True, max_length=50 )
     patron_email = models.CharField( blank=True, max_length=100 )
     source_url = models.TextField( blank=True )
@@ -107,11 +107,9 @@ class LoginHelper( object ):
         request.session['source_url'] = ''
         request.session.setdefault( 'shib_login_error', False )
         request.session['shib_authorized'] = False
-        request.session.setdefault( 'barcode_login_name', '' )
-        request.session.setdefault( 'barcode_login_barcode', '' )
         request.session.setdefault( 'barcode_login_error', False)
         request.session['barcode_authorized'] = False
-        log.debug( 'request.session after initialize, `%s`' % pprint.pformat(request.session.items()) )
+        log.debug( 'request.session after initialization, `%s`' % pprint.pformat(request.session.items()) )
         return
 
     def _initialize_session_item_info( self, request ):
@@ -127,9 +125,13 @@ class LoginHelper( object ):
     def _initialize_session_user_info( self, request ):
         """ Initializes session item info.
             Called by initialize_session() """
-        request.session['user_name'] = ''
-        request.session['user_barcode'] = ''
+        request.session['user_full_name'] = ''  # for email
+        request.session['user_last_name'] = ''  # for possible second josiah-api attempt if default shib firstname fails
         request.session['user_email'] = ''
+        request.session.setdefault( 'barcode_login_name', '' )  # for barcode login form
+        request.session.setdefault( 'barcode_login_barcode', '' )  # for barcode login form
+        request.session['josiah_api_barcode'] = ''  # for josiah-patron-accounts call
+        request.session['josiah_api_name'] = ''  # for josiah-patron-accounts call
         return
 
     def get_item_info( self, bibnum, item_barcode ):
@@ -151,7 +153,7 @@ class LoginHelper( object ):
             availability_api_url = '%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
             r = requests.get( availability_api_url )
             dct = r.json()
-            log.debug( 'api-response, `%s`' % pprint.pformat(dct) )
+            log.debug( 'partial availability-api-response, `%s`' % pprint.pformat(dct)[0:200] )
         except Exception as e:
             log.error( 'exception, %s' % unicode(repr(e)) )
         return dct
@@ -189,6 +191,7 @@ class LoginHelper( object ):
             'barcode_login_name': request.session['barcode_login_name'],
             'barcode_login_barcode': request.session['barcode_login_barcode'],
             'barcode_login_error': request.session['barcode_login_error'],
+            'shib_login_error': request.session['shib_login_error'],
             'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
             'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP
             }
@@ -230,13 +233,19 @@ class BarcodeHandlerHelper( object ):
         jos_sess = IIIAccount( barcode_login_name, barcode_login_barcode )
         try:
             jos_sess.login()
-            request.session['barcode_authorized'] = True
             return_val = True
             jos_sess.logout()
         except Exception as e:
             log.debug( 'exception on login-try, `%s`' % unicode(repr(e)) )
         log.debug( 'barcode login check, `%s`' % return_val )
         return return_val
+
+    def update_session( self, request ):
+        """ Updates session before redirecting to views.processor() """
+        request.session['barcode_authorized'] = True
+        request.session['josiah_api_name'] = request.session['barcode_login_name']
+        request.session['josiah_api_barcode'] = request.session['barcode_login_barcode']
+        return
 
     def prep_processor_redirect( self, request ):
         """ Prepares redirect response-object to views.process() on good login.
@@ -279,10 +288,12 @@ class ShibViewHelper( object ):
         request.session['shib_login_error'] = validity  # boolean
         request.session['shib_authorized'] = validity
         if validity:
-            request.session['user_name'] = '%s %s' % ( shib_dict['firstname'], shib_dict['lastname'] )
+            request.session['user_full_name'] = '%s %s' % ( shib_dict['firstname'], shib_dict['lastname'] )
+            request.session['user_last_name'] = shib_dict['lastname']
             request.session['user_email'] = shib_dict['email']
-            request.session['user_barcode'] = shib_dict['patron_barcode']
             request.session['shib_login_error'] = False
+            request.session['josiah_api_name'] = shib_dict['firstname']
+            request.session['josiah_api_barcode'] = shib_dict['patron_barcode']
         return
 
     # end class ShibViewHelper
@@ -416,10 +427,9 @@ class Processor( object ):
     def save_user_data( self, itmrqst, request ):
         """ Saves user data from session to db.
             Called by save_data() """
-        # log.debug( 'starting save_user_data() request.session, `%s`' % pprint.pformat(request.session.items()) )
         try:
-            itmrqst.patron_name = request.session['user_name']
-            itmrqst.patron_barcode = request.session['user_barcode']
+            itmrqst.patron_name = request.session['user_full_name']
+            itmrqst.patron_barcode = request.session['josiah_api_barcode']
             itmrqst.patron_email = request.session['user_email']
             itmrqst.save()
         except Exception as e:
@@ -427,10 +437,10 @@ class Processor( object ):
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
-    def place_request( self, itmrqst ):
+    def place_request( self, itmrqst, josiah_api_name ):
         """ Coordinates josiah-patron-account calls.
             Called by views.processor() """
-        jos_sess = IIIAccount( itmrqst.patron_name, itmrqst.patron_barcode )
+        jos_sess = IIIAccount( josiah_api_name, itmrqst.patron_barcode )
         jos_sess.login()
         hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
         jos_sess.logout()
@@ -505,7 +515,7 @@ class ShibLogoutHelper( object ):
         redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s' % (
             scheme, request.get_host(), reverse('summary_url'),
             request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
-            request.session['user_name'], request.session['user_email']
+            request.session['user_full_name'], request.session['user_email']
             )
         log.debug( 'initial redirect_url, `%s`' % redirect_url )
         return redirect_url
