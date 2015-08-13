@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 """ Prepares application environment.
     Variables assume project setup like:
     easyrequest_stuff
@@ -7,7 +11,6 @@
         env_ezrqst
      """
 
-from __future__ import unicode_literals
 import os, pprint, sys
 
 
@@ -32,6 +35,13 @@ for entry in [PROJECT_DIR, PROJECT_STUFF_DIR, SITE_PACKAGES_DIR]:
 
 ## environment additions
 os.environ['DJANGO_SETTINGS_MODULE'] = SETTINGS_MODULE  # so django can access its settings
+
+## load up env vars
+SETTINGS_FILE = os.environ['EZRQST__SETTINGS_PATH']  # set in activate_this.py, and activated above
+import shellvars
+var_dct = shellvars.get_vars( SETTINGS_FILE )
+for ( key, val ) in var_dct.items():
+    os.environ[key] = val
 
 ## gogogo
 from django.core.wsgi import get_wsgi_application
