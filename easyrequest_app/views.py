@@ -66,7 +66,8 @@ def barcode_handler( request ):
     login_check = barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] )
     if login_check is not True:  # if login fails, redirect user back to login page with error messages that will display
         return barcode_handler_helper.prep_login_redirect( request )
-    barcode_handler_helper.update_session( request )
+    ( patron_name, patron_email ) = barcode_handler_helper.enhance_user_info( request.session['barcode_login_barcode'] )
+    barcode_handler_helper.update_session( request, patron_name, patron_email )
     processor_redirect_resp = barcode_handler_helper.prep_processor_redirect( request )
     return processor_redirect_resp
 
@@ -76,6 +77,7 @@ def processor( request ):
         - Ensures user is authenticated.
         - Saves request.
         - Places hold.
+        - Emails patron.
         - Triggers shib_logout() view. """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )

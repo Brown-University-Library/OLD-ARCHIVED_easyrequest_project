@@ -3,19 +3,14 @@
 from __future__ import unicode_literals
 import json, logging, os, pprint, time, urlparse
 import requests
-# import csv, datetime, json, logging, os, pprint, StringIO
-# import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
-# from django.core import serializers
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
-# from django.shortcuts import render
-# from django.utils.encoding import smart_unicode
-# from django.utils.http import urlquote
 from iii_account import IIIAccount
+from requests.auth import HTTPBasicAuth
 
 
 log = logging.getLogger(__name__)
@@ -203,6 +198,11 @@ class LoginHelper( object ):
 class BarcodeHandlerHelper( object ):
     """ Contains helpers for views.barcode_handler() """
 
+    def __init__( self ):
+        self.PATRON_API_URL = os.environ['EZRQST__PAPI_URL']
+        self.PATRON_API_BASIC_AUTH_USERNAME = os.environ['EZRQST__PAPI_BASIC_AUTH_USERNAME']
+        self.PATRON_API_BASIC_AUTH_PASSWORD = os.environ['EZRQST__PAPI_BASIC_AUTH_PASSWORD']
+
     def validate_params( self, request ):
         """ Validates params.
             Returns boolean.
@@ -240,11 +240,25 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'barcode login check, `%s`' % return_val )
         return return_val
 
-    def update_session( self, request ):
+    def enhance_user_info( self, patron_barcode ):
+        """ Hits patron-api service; returns patron name and email address.
+            Called by views.barcode_handler() """
+        payload = { 'patron_barcode': patron_barcode }
+        r = requests.get(
+            self.PATRON_API_URL, params=payload, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+        dct = r.json()
+        patron_name = dct['response']['patrn_name']  # last, first middle
+        patron_email = dct['response']['e-mail'].lower()
+        log.debug( '( patron_name, patron_email ), `%s`' % (patron_name, patron_email) )
+        return ( patron_name, patron_email )
+
+    def update_session( self, request, patron_name, patron_email ):
         """ Updates session before redirecting to views.processor() """
         request.session['barcode_authorized'] = True
         request.session['josiah_api_name'] = request.session['barcode_login_name']
         request.session['josiah_api_barcode'] = request.session['barcode_login_barcode']
+        request.session['user_full_name'] = patron_name
+        request.session['user_email'] = patron_email
         return
 
     def prep_processor_redirect( self, request ):
