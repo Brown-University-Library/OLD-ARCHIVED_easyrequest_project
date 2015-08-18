@@ -245,7 +245,7 @@ class BarcodeHandlerHelper( object ):
             Called by views.barcode_handler() """
         payload = { 'patron_barcode': patron_barcode }
         try:
-            r = requests.get( self.PATRON_API_URL, params=payload, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+            r = requests.get( self.PATRON_API_URL, params=payload, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
         except Exception as e:
             log.error( 'exception, `%s`' % unicode(repr(e)) )
             raise Exception( 'problem getting necessary patron information; please try again later' )
