@@ -57,8 +57,8 @@ def shib_login( request ):
 
 def barcode_handler( request ):
     """ Handles barcode login.
-        On success, redirects user to non-seen views.processor()
-        On failure, redirects back to views.login() """
+        On auth success, redirects user to non-seen views.processor()
+        On auth failure, redirects back to views.login() """
     log.debug( 'starting barcode_login_handler()' )
     if barcode_handler_helper.validate_params(request) is not True:  # puts param values in session
         return barcode_handler_helper.prep_login_redirect( request )
@@ -69,26 +69,6 @@ def barcode_handler( request ):
         return HttpResponseServerError( 'Problem getting required patron info; please try again in a few minutes.' )
     barcode_handler_helper.update_session( request, patron_info_dct )
     return barcode_handler_helper.prep_processor_redirect( request )
-
-
-# def barcode_handler( request ):
-#     """ Handles barcode login.
-#         On success, redirects user to non-seen views.processor()
-#         On failure, redirects back to views.login() """
-#     log.debug( 'starting barcode_login_handler()' )
-#     validity = barcode_handler_helper.validate_params( request )  # puts param values in session
-#     if validity is not True:
-#         return barcode_handler_helper.prep_login_redirect( request )
-#     login_check = barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] )
-#     if login_check is not True:  # if login fails, redirect user back to login page with error messages that will display
-#         return barcode_handler_helper.prep_login_redirect( request )
-#     try:
-#         ( patron_name, patron_email ) = barcode_handler_helper.enhance_user_info( request.session['barcode_login_barcode'] )
-#     except Exception as e:
-#         return HttpResponseServerError( 'Problem getting required patron info; please try again in a few minutes.' )
-#     barcode_handler_helper.update_session( request, patron_name, patron_email )
-#     processor_redirect_resp = barcode_handler_helper.prep_processor_redirect( request )
-#     return processor_redirect_resp
 
 
 def processor( request ):

@@ -255,13 +255,13 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
         return patron_info_dct
 
-    def update_session( self, request, patron_name, patron_email ):
+    def update_session( self, request, patron_info_dct ):
         """ Updates session before redirecting to views.processor() """
         request.session['barcode_authorized'] = True
         request.session['josiah_api_name'] = request.session['barcode_login_name']
         request.session['josiah_api_barcode'] = request.session['barcode_login_barcode']
-        request.session['user_full_name'] = patron_name
-        request.session['user_email'] = patron_email
+        request.session['user_full_name'] = patron_info_dct['patron_name']
+        request.session['user_email'] = patron_info_dct['patron_email']
         return
 
     def prep_processor_redirect( self, request ):
