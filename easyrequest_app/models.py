@@ -247,9 +247,10 @@ class BarcodeHandlerHelper( object ):
         r = requests.get(
             self.PATRON_API_URL, params=payload, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
         dct = r.json()
-        patron_name = dct['response']['patrn_name']  # last, first middle
-        patron_email = dct['response']['e-mail'].lower()
-        log.debug( '( patron_name, patron_email ), `%s`' % (patron_name, patron_email) )
+        # log.debug( 'dct, `%s`' % pprint.pformat(dct) )
+        patron_name = dct['response']['patrn_name']['value']  # last, first middle
+        patron_email = dct['response']['e-mail']['value'].lower()
+        log.debug( 'patron_name, `%s`; patron_email, `%s`' % (patron_name, patron_email) )
         return ( patron_name, patron_email )
 
     def update_session( self, request, patron_name, patron_email ):
