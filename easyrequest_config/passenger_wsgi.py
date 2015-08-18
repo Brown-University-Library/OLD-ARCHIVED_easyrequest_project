@@ -45,4 +45,7 @@ for ( key, val ) in var_dct.items():
 
 ## gogogo
 from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
+try:
+    application = get_wsgi_application()
+except Exception as e:
+    print 'passenger_wsgi.py exception...'; print unicode(repr(e))
