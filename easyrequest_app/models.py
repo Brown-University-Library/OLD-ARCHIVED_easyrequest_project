@@ -247,10 +247,13 @@ class BarcodeHandlerHelper( object ):
         payload = { 'patron_barcode': patron_barcode }
         try:
             r = requests.get( self.PATRON_API_URL, params=payload, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+            r.raise_for_status()  # will raise an http_error
         except Exception as e:
             log.error( 'exception, `%s`' % unicode(repr(e)) )
             raise Exception( 'problem getting necessary patron information; please try again later' )
+        log.debug( 'request attempted' )
         dct = r.json()
+        log.debug( 'dct, `%s`' % pprint.pformat(dct) )
         patron_name = dct['response']['patrn_name']['value']  # last, first middle
         patron_email = dct['response']['e-mail']['value'].lower()
         log.debug( 'patron_name, `%s`; patron_email, `%s`' % (patron_name, patron_email) )
