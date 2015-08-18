@@ -240,24 +240,20 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'barcode login check, `%s`' % return_val )
         return return_val
 
-    def enhance_user_info( self, patron_barcode ):
+    def enhance_patron_info( self, patron_barcode ):
         """ Hits patron-api service; returns patron name and email address.
             Called by views.barcode_handler() """
-        log.debug( 'starting enhance_user_info()' )
-        payload = { 'patron_barcode': patron_barcode }
         try:
-            r = requests.get( self.PATRON_API_URL, params=payload, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+            r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
             r.raise_for_status()  # will raise an http_error
         except Exception as e:
             log.error( 'exception, `%s`' % unicode(repr(e)) )
-            raise Exception( 'problem getting necessary patron information; please try again later' )
-        log.debug( 'request attempted' )
-        dct = r.json()
-        log.debug( 'dct, `%s`' % pprint.pformat(dct) )
-        patron_name = dct['response']['patrn_name']['value']  # last, first middle
-        patron_email = dct['response']['e-mail']['value'].lower()
-        log.debug( 'patron_name, `%s`; patron_email, `%s`' % (patron_name, patron_email) )
-        return ( patron_name, patron_email )
+            return False
+        patron_info_dct = {
+            'patron_name': r.json()['response']['patrn_name']['value'],  # last, first middle,
+            'patron_email': r.json()['response']['e-mail']['value'].lower() }
+        log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
+        return patron_info_dct
 
     def update_session( self, request, patron_name, patron_email ):
         """ Updates session before redirecting to views.processor() """
