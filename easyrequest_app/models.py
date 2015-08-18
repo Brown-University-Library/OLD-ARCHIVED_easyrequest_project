@@ -243,6 +243,7 @@ class BarcodeHandlerHelper( object ):
     def enhance_user_info( self, patron_barcode ):
         """ Hits patron-api service; returns patron name and email address.
             Called by views.barcode_handler() """
+        log.debug( 'starting enhance_user_info()' )
         payload = { 'patron_barcode': patron_barcode }
         try:
             r = requests.get( self.PATRON_API_URL, params=payload, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
