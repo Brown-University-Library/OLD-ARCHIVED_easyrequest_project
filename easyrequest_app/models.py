@@ -244,10 +244,11 @@ class BarcodeHandlerHelper( object ):
         """ Hits patron-api service; returns patron name and email address.
             Called by views.barcode_handler() """
         payload = { 'patron_barcode': patron_barcode }
-        r = requests.get(
-            self.PATRON_API_URL, params=payload, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+        try:
+            r = requests.get( self.PATRON_API_URL, params=payload, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+        except Exception as e:
+            raise Exception( 'problem getting necessary patron information; please try again later' )
         dct = r.json()
-        # log.debug( 'dct, `%s`' % pprint.pformat(dct) )
         patron_name = dct['response']['patrn_name']['value']  # last, first middle
         patron_email = dct['response']['e-mail']['value'].lower()
         log.debug( 'patron_name, `%s`; patron_email, `%s`' % (patron_name, patron_email) )
