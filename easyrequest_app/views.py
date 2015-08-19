@@ -49,6 +49,7 @@ def shib_login( request ):
     log.debug( 'starting shib_login()' )
     if request.method == 'POST':  # from login.html
         log.debug( 'post detected' )
+        request.session['pickup_location'] = request.POST['pickup_location']
         return HttpResponseRedirect( os.environ['EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
     return_response = shib_view_helper.build_response( request, validity, shib_dict )

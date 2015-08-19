@@ -219,10 +219,11 @@ class BarcodeHandlerHelper( object ):
             Called by views.barcode_handler() """
         return_val = False
         log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
+        log.debug( "request.POST['pickup_location'], `%s`" % pprint.pformat(request.POST['pickup_location']) )
         if sorted( request.POST.keys() ) == ['barcode_login_barcode', 'barcode_login_name', 'csrfmiddlewaretoken', 'pickup_location']:
             request.session['barcode_login_name'] = request.POST['barcode_login_name']
             request.session['barcode_login_barcode'] = request.POST['barcode_login_barcode']
-            request.session['pickup_location'] = request.POST['pickup_location'][0]
+            request.session['pickup_location'] = request.POST['pickup_location']
             if len(request.POST['barcode_login_name']) > 0 and len(request.POST['barcode_login_barcode']) > 13:
                 return_val = True
         log.debug( 'return_val, `%s`' % return_val )
@@ -267,7 +268,8 @@ class BarcodeHandlerHelper( object ):
         return patron_info_dct
 
     def update_session( self, request, patron_info_dct ):
-        """ Updates session before redirecting to views.processor() """
+        """ Updates session before redirecting to views.processor()
+            Called by views.barcode_handler() """
         request.session['barcode_authorized'] = True
         request.session['josiah_api_name'] = request.session['barcode_login_name']
         request.session['josiah_api_barcode'] = request.session['barcode_login_barcode']
@@ -313,6 +315,7 @@ class ShibViewHelper( object ):
     def update_session( self, request, validity, shib_dict ):
         """ Updates session with shib info.
             Called by build_response() """
+        log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
         request.session['shib_login_error'] = validity  # boolean
         request.session['shib_authorized'] = validity
         if validity:
