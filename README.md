@@ -19,11 +19,11 @@ user's experience...
 
 detail flow...
 - user initially lands at login page
-    - data from url stored to session
-    - item-id determined from submitted bib and item-barcode via availability-api call
-- user clicks 'login' button, accessing shib-protected view
-    - after passing shib, view captures shib-supplied user name, barcode, and email
-    - user redirected to hidden 'processing' page
+    - data from url is stored to session
+    - item-id is determined from submitted bib and item-barcode via a call to an [availability-api](https://github.com/Brown-University-Library/availability-service) (a different availability-api may ultimately be called)
+- user logs in, either via shib or via the old-school [barcode+name method](https://josiah.brown.edu/patroninfo)
+    - if logging in via barcode+name method, a lookup is also done on a [patron-api](https://github.com/birkin/patron_api_web) web-service to get name and email info
+    - user is redirected to hidden 'processing' page
 - processing page:
     - uses the [josiah-patron-accounts](https://github.com/Brown-University-Library/josiah-patron-accounts) code to place a millennium request on behalf of the user
     - sends user confirmation email
@@ -37,10 +37,6 @@ urls & params
 - required params
     - `bibnum` -- used to get list of item records
     - `barcode` -- (this is the _item_ barcode) used to identify which item in list user wants
-
-geek tech
----------
-- the `requirements.txt` [shellvars-py](https://github.com/aneilbaboo/shellvars-py) import isn't strictly necessary, but it nicely allows env/bin/activate and env/bin/activate_this.py to access the same local_settings.sh file.
 
 contacts
 --------
