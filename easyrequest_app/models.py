@@ -116,6 +116,7 @@ class LoginHelper( object ):
         request.session.setdefault( 'item_id', '' )
         request.session['item_barcode'] = request.GET['barcode']
         request.session.setdefault( 'item_callnumber', '' )
+        request.session.setdefault( 'pickup_location', '' )
         return
 
     def _initialize_session_user_info( self, request ):
@@ -218,12 +219,14 @@ class BarcodeHandlerHelper( object ):
             Called by views.barcode_handler() """
         return_val = False
         log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
-        if sorted( request.POST.keys() ) == ['barcode_login_barcode', 'barcode_login_name', 'csrfmiddlewaretoken']:
+        if sorted( request.POST.keys() ) == ['barcode_login_barcode', 'barcode_login_name', 'csrfmiddlewaretoken', 'pickup_location']:
             request.session['barcode_login_name'] = request.POST['barcode_login_name']
             request.session['barcode_login_barcode'] = request.POST['barcode_login_barcode']
+            request.session['pickup_location'] = request.POST['pickup_location'][0]
             if len(request.POST['barcode_login_name']) > 0 and len(request.POST['barcode_login_barcode']) > 13:
                 return_val = True
         log.debug( 'return_val, `%s`' % return_val )
+        return False
         return return_val
 
     def prep_login_redirect( self, request ):

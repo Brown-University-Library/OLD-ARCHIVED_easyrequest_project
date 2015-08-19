@@ -86,7 +86,7 @@ def processor( request ):
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
     try:
-        processor_helper.place_request( itmrqst, request.session['josiah_api_name'], pic_loc_helper.pickup_location_dct['ROCK']['code'] )
+        processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
     except Exception as e:
         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
