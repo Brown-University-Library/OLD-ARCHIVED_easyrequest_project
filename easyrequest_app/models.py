@@ -226,7 +226,6 @@ class BarcodeHandlerHelper( object ):
             if len(request.POST['barcode_login_name']) > 0 and len(request.POST['barcode_login_barcode']) > 13:
                 return_val = True
         log.debug( 'return_val, `%s`' % return_val )
-        return False
         return return_val
 
     def prep_login_redirect( self, request ):
@@ -479,6 +478,7 @@ class Processor( object ):
     def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
         """ Coordinates josiah-patron-account calls.
             Called by views.processor() """
+        log.debug( 'pickup_location_code, `%s`' % pickup_location_code )
         jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
         jos_sess.login()
         hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
@@ -487,18 +487,6 @@ class Processor( object ):
         itmrqst.status = 'request_placed'
         itmrqst.save()
         return itmrqst
-
-    # def place_request( self, itmrqst, josiah_api_name ):
-    #     """ Coordinates josiah-patron-account calls.
-    #         Called by views.processor() """
-    #     jos_sess = IIIAccount( josiah_api_name, itmrqst.patron_barcode )
-    #     jos_sess.login()
-    #     hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
-    #     jos_sess.logout()
-    #     log.debug( 'hold, `%s`' % hold )
-    #     itmrqst.status = 'request_placed'
-    #     itmrqst.save()
-    #     return itmrqst
 
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
         """ Emails patron confirmation.
