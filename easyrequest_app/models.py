@@ -315,7 +315,6 @@ class ShibViewHelper( object ):
     def update_session( self, request, validity, shib_dict ):
         """ Updates session with shib info.
             Called by build_response() """
-        log.debug( 'request.POST, `%s`' % pprint.pformat(request.POST) )
         request.session['shib_login_error'] = validity  # boolean
         request.session['shib_authorized'] = validity
         if validity:
