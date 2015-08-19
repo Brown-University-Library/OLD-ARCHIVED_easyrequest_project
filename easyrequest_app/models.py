@@ -519,7 +519,7 @@ Call Number: %s
 
 Items are generally available in 1 business day. When available, you'll be notified at this email address.
 
-If you have questions, feel free to email %s or call %s, and reference...
+If you have questions, feel free to email %s or call %s, and refer to...
 
 - Bibliographic #: "%s"
 - Item #: "%s"
