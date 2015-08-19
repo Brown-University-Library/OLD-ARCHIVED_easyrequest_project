@@ -8,6 +8,7 @@ easyRequest login
 {% block content %}
 
 <style>
+
     h1 {
         font-size: 2.5em;
         margin-top: 2em;
@@ -32,56 +33,75 @@ easyRequest login
         font-size: 125%; }
 
     div#forms {
-        margin-top: 6em; }
+        margin-top: 6em;
+        }
 
+    /* shib form */
     form#shib_login {
-        margin-top: 2em; }
+        margin-top: 2em;
+        }
     h3#please_shib {
         float:left;
         clear:left;
         font-size: 1.5em;
         color: maroon;
-        margin-top: 1.5em; }
+        margin-top: 1.5em;
+        }
+    select#shib_location {
+        float:left;
+        clear:left;
+        margin-top: 1.5em;
+        }
     input#shib_login_button {
         float:left;
         clear:left;
-        margin-top: 1.5em; }
+        margin-top: 1.5em;
+        }
 
+    /* barcode form */
     form#barcode_login {
         float:left;
         clear:left;
-        margin-left: 25em;
-        margin-top: -4.9em;
-        /*margin-left: 3em;*/ }
+        margin-left: 35em;
+        margin-top: -8.4em;
+        }
     h3#please_barcode {
-        /*float:left;*/
-        /*clear:left;*/
         font-size: 1.5em;
         color: maroon;
         margin-bottom: .5em;
-        /*margin-top: 4em;*/ }
+        }
+    select#barcode_location {
+        float:left;
+        clear:left;
+        margin-top: .75em;
+        }
     p#name_field_label {
-        margin-top: 1.5em;
+        margin-top: 4.25em;
         }
     p#barcode_field_label {
         margin-top: .5em;
         }
     input#barcode_field_input {
         float:left;
-        /*clear:left;*/
-        margin-top: 0em; }
+        margin-top: 0em;
+        }
     input#barcode_login_button {
         float:left;
         clear:left;
-        margin-top: 2em; }
+        margin-top: 2em;
+        }
+
     p.login_error {
-      color: red;
-      margin-bottom: .25em; }
+        color: red;
+        margin-bottom: .25em;
+        }
     hr {
-      float:left;
-      clear:left;
-      margin-top: 2em;
-      width:100%; }
+        float:left;
+        clear:left;
+        margin-top: 2em;
+        width:100%;
+        }
+
 </style>
 
  <h1>easyRequest item</h1>
@@ -103,7 +123,13 @@ easyRequest login
 <div id="forms">
 
     <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
-        <h3 id="please_shib">Please log in via Shib...</h3>
+        <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3>
+        <select name=locx00 id=shib_location>
+            <option value="r0001" selected="selected">Rockefeller Library</option>
+            <option value="sci  " >Sciences Library</option>
+            <option value="h0001" >John Hay Library</option>
+            <option value="orwig" >Orwig Music Library</option>
+        </select>
         {% if shib_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
@@ -113,6 +139,12 @@ easyRequest login
 
     <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
         <h3 id="please_barcode">...or via your patron barcode</h3>
+        <select name=locx00 id=barcode_location>
+            <option value="r0001" selected="selected">Rockefeller Library</option>
+            <option value="sci  " >Sciences Library</option>
+            <option value="h0001" >John Hay Library</option>
+            <option value="orwig" >Orwig Music Library</option>
+        </select>
         {% if barcode_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
