@@ -17,6 +17,7 @@ shib_view_helper = models.ShibViewHelper()
 processor_helper = models.Processor()
 shib_logout_helper = models.ShibLogoutHelper()
 barcode_handler_helper = models.BarcodeHandlerHelper()
+pic_loc_helper = models.PickupLocation()
 
 
 def info( request ):
@@ -77,12 +78,15 @@ def processor( request ):
         - Saves request.
         - Places hold.
         - Emails patron.
-        - Triggers shib_logout() view. """
+        - Triggers shib_logout() view.
+        TODO: add to barcode_handler() required request-parameter of `selected pickup location`,
+              and put that in the session,
+              and grab it here from the session. """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
     try:
-        processor_helper.place_request( itmrqst, request.session['josiah_api_name'] )
+        processor_helper.place_request( itmrqst, request.session['josiah_api_name'], pic_loc_helper.pickup_location_dct['ROCK']['code'] )
     except Exception as e:
         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )

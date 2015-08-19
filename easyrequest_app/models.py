@@ -392,6 +392,15 @@ class ShibChecker( object ):
     # end class ShibChecker
 
 
+class PickupLocation( object ):
+    """ Holds pickup-location info for display, and submitted codes. """
+
+    def __init__( self ):
+        self.pickup_location_dct = json.loads( os.environ['EZRQST__PICKUP_LOCATION_JSON'] )
+
+    # end class PickupLocation
+
+
 class Processor( object ):
     """ Handles item-hold and email functions. """
 
@@ -454,17 +463,29 @@ class Processor( object ):
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
-    def place_request( self, itmrqst, josiah_api_name ):
+    def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
         """ Coordinates josiah-patron-account calls.
             Called by views.processor() """
-        jos_sess = IIIAccount( josiah_api_name, itmrqst.patron_barcode )
+        jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
         jos_sess.login()
-        hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
+        hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
         jos_sess.logout()
         log.debug( 'hold, `%s`' % hold )
         itmrqst.status = 'request_placed'
         itmrqst.save()
         return itmrqst
+
+    # def place_request( self, itmrqst, josiah_api_name ):
+    #     """ Coordinates josiah-patron-account calls.
+    #         Called by views.processor() """
+    #     jos_sess = IIIAccount( josiah_api_name, itmrqst.patron_barcode )
+    #     jos_sess.login()
+    #     hold = jos_sess.place_hold( itmrqst.item_bib, itmrqst.item_id )
+    #     jos_sess.logout()
+    #     log.debug( 'hold, `%s`' % hold )
+    #     itmrqst.status = 'request_placed'
+    #     itmrqst.save()
+    #     return itmrqst
 
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
         """ Emails patron confirmation.
