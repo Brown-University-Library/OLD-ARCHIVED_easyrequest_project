@@ -393,9 +393,10 @@ class ShibChecker( object ):
 
 
 class PickupLocation( object ):
-    """ Holds pickup-location info for display, and submitted codes. """
+    """ Holds pickup-location info for display, and for placing hold. """
 
     def __init__( self ):
+        """ dct structure example: { 'ROCK': {'code': 'r0001', 'display': 'Rockefeller Library'}, etc... } """
         self.pickup_location_dct = json.loads( os.environ['EZRQST__PICKUP_LOCATION_JSON'] )
 
     # end class PickupLocation
