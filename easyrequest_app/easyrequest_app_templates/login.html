@@ -125,8 +125,8 @@ easyRequest login
     <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
         <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3>
         <select name=locx00 id=shib_location>
-            <option value="r0001" selected="selected">Rockefeller Library</option>
-            <option value="sci  " >Sciences Library</option>
+            <option value="zr0001" selected="selected">zRockefeller Library</option>
+            <option value="sci" >Sciences Library</option>
             <option value="h0001" >John Hay Library</option>
             <option value="orwig" >Orwig Music Library</option>
         </select>
@@ -140,8 +140,8 @@ easyRequest login
     <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
         <h3 id="please_barcode">...or via your patron barcode</h3>
         <select name=locx00 id=barcode_location>
-            <option value="r0001" selected="selected">Rockefeller Library</option>
-            <option value="sci  " >Sciences Library</option>
+            <option value="{{ rock_code }}" selected="selected">{{ rock_display }}</option>
+            <option value="sci" >Sciences Library</option>
             <option value="h0001" >John Hay Library</option>
             <option value="orwig" >Orwig Music Library</option>
         </select>

@@ -14,6 +14,7 @@ from requests.auth import HTTPBasicAuth
 
 
 log = logging.getLogger(__name__)
+pic_loc_helper = models.PickupLocation()
 
 
 ## db models ##
@@ -183,12 +184,14 @@ class LoginHelper( object ):
         context = {
             'title': request.session['item_title'] ,
             'callnumber': request.session['item_callnumber'],
+            'rock_code': pic_loc_helper['ROCK']['code'],
+            'rock_display': pic_loc_helper['ROCK']['display'],
             'barcode_login_name': request.session['barcode_login_name'],
             'barcode_login_barcode': request.session['barcode_login_barcode'],
             'barcode_login_error': request.session['barcode_login_error'],
             'shib_login_error': request.session['shib_login_error'],
             'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
-            'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP
+            'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP,
             }
         return context
 
