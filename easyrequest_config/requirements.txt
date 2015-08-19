@@ -1,4 +1,4 @@
 Django==1.8.2
-git+https://github.com/Brown-University-Library/josiah-patron-accounts
+git+https://github.com/Brown-University-Library/josiah-patron-accounts@0.6-dev
 PyMySQL==0.6.6
 shellvars-py==0.1.2  # for env settings management
