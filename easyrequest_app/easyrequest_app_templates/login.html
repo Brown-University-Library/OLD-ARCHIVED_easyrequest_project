@@ -124,7 +124,7 @@ easyRequest login
 
     <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
         <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3>
-        <select name=locx00 id=shib_location>
+        <select name="pickup_location" id="shib_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
             <option value="{{ HAY_code }}" >{{ HAY_display }}</option>
@@ -139,7 +139,7 @@ easyRequest login
 
     <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
         <h3 id="please_barcode">...or via your patron barcode</h3>
-        <select name=locx00 id=barcode_location>
+        <select name="pickup_location" id="barcode_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
             <option value="{{ HAY_code }}" >{{ HAY_display }}</option>
