@@ -127,7 +127,7 @@ easyRequest login
         <select name="pickup_location" id="shib_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
-            <option value="{{ HAY_code }}" >{{ HAY_display }}</option>
+            <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
             <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
         </select>
         {% if shib_login_error %}
@@ -142,7 +142,7 @@ easyRequest login
         <select name="pickup_location" id="barcode_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
-            <option value="{{ HAY_code }}" >{{ HAY_display }}</option>
+            <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
             <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
         </select>
         {% if barcode_login_error %}
