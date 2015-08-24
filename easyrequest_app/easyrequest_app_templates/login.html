@@ -122,7 +122,7 @@ easyRequest login
 
 <div id="forms">
 
-    <form id="shib_login" action="/easyrequest/shib_login/" method="POST">{% csrf_token %}
+    <form id="shib_login" action="/easyrequest/shib_handler/" method="POST">{% csrf_token %}
         <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3>
         <select name="pickup_location" id="shib_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>

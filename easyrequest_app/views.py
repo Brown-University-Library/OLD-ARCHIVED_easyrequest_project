@@ -43,20 +43,6 @@ def login( request ):
     return render( request, 'easyrequest_app_templates/login.html', context )
 
 
-def shib_login( request ):
-    """ Examines shib headers, sets session-auth.
-        Redirects user to non-seen processor() view. """
-    log.debug( 'starting shib_login()' )
-    if request.method == 'POST':  # from login.html
-        log.debug( 'post detected' )
-        request.session['pickup_location'] = request.POST['pickup_location']
-        return HttpResponseRedirect( os.environ['EZRQST__SHIB_LOGIN_URL'] )  # forces reauth if user clicked logout link
-    ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
-    return_response = shib_view_helper.build_response( request, validity, shib_dict )
-    log.debug( 'about to return shib response' )
-    return return_response
-
-
 def barcode_handler( request ):
     """ Handles barcode login.
         On auth success, redirects user to non-seen views.processor()
@@ -71,6 +57,29 @@ def barcode_handler( request ):
         return HttpResponseServerError( 'Problem getting required patron info; please try again in a few minutes.' )
     barcode_handler_helper.update_session( request, patron_info_dct )
     return barcode_handler_helper.prep_processor_redirect( request )
+
+
+def shib_handler( request ):
+    """ Stores pickup location to session and redirects to shib_login() """
+    log.debug( 'starting shib_handler()' )
+    if request.method == 'POST':  # from login.html
+        log.debug( 'post detected' )
+        request.session['pickup_location'] = request.POST['pickup_location']
+        log.debug( 'redirect url will be, `%s`' % reverse('shib_login_url') )
+        return HttpResponseRedirect( reverse('shib_login_url') )
+    else:
+        log.info( 'non-post detected, returning 400/bad-request' )
+        return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+
+
+def shib_login( request ):
+    """ Examines shib headers, sets session-auth.
+        Redirects user to non-seen processor() view. """
+    log.debug( 'starting shib_login()' )
+    ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
+    return_response = shib_view_helper.build_response( request, validity, shib_dict )
+    log.debug( 'about to return shib response' )
+    return return_response
 
 
 def processor( request ):
