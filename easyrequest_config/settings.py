@@ -63,7 +63,7 @@ ROOT_URLCONF = 'easyrequest_config.urls'
 
 TEMPLATE_DIRS = json.loads( os.environ['EZRQST__TEMPLATE_DIRS'] )  # list
 
-WSGI_APPLICATION = 'easyrequest_config.wsgi.application'
+WSGI_APPLICATION = 'easyrequest_config.passenger_wsgi.application'
 
 
 # Database
