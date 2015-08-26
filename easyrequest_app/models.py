@@ -9,6 +9,7 @@ from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.encoding import smart_text
 from iii_account import IIIAccount
 from requests.auth import HTTPBasicAuth
 
@@ -36,7 +37,7 @@ class ItemRequest( models.Model ):
     admin_notes = models.TextField( blank=True )
 
     def __unicode__(self):
-        return smart_unicode( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
+        return smart_text( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
 
     def jsonify(self):
         """ Returns object data in json-compatible dict. """
