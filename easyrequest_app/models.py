@@ -126,7 +126,7 @@ class LoginHelper( object ):
         request.session['user_last_name'] = ''  # for possible second josiah-api attempt if default shib firstname fails
         request.session['user_email'] = ''
         request.session.setdefault( 'barcode_login_name', '' )  # for barcode login form
-        request.session.setdefault( 'barcode_login_barcode', '' )  # for barcode login form
+        request.session.setdefault( 'barcode_login_barcode', '21236' )  # for barcode login form
         request.session['josiah_api_barcode'] = ''  # for josiah-patron-accounts call
         request.session['josiah_api_name'] = ''  # for josiah-patron-accounts call
         return
