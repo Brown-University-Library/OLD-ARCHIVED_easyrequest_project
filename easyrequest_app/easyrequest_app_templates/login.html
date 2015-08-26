@@ -7,6 +7,7 @@ easyRequest login
 
 {% block content %}
 
+<!--
 <style>
 
     h1 {
@@ -103,6 +104,108 @@ easyRequest login
         }
 
 </style>
+-->
+
+<style>
+
+    h1 {
+        font-size: 2.5em;
+        margin-top: 2em;
+        text-transform: none }
+    p {
+        margin-bottom: .5em;
+        font-size: 125%; }
+    div#requested_item {
+        margin-top: 4em; }
+    dt, dd {
+        font-family:sans-serif;
+        margin-top: .5em; }
+    dt {
+        float:left;
+        clear:left;
+        text-align:right;
+        width:15%;
+        font-size: 125%; }
+    dd {
+        float:left;
+        margin-left:2em;
+        font-size: 125%; }
+
+    div#forms {
+        width: 80%;
+        height: 250px;
+        /*background: aqua;*/
+        margin: auto;
+        margin-left: 0;
+        margin-top: 6em;
+        padding: 10px;
+        }
+
+    /* shib form */
+    form#shib_login {
+        width: 50%;
+        height: 250px;
+        /*background: red;*/
+        float: left;
+        }
+    h3#please_shib {
+        font-size: 1.5em;
+        color: maroon;
+        /*margin-top: 1.5em;*/
+        }
+    select#shib_location {
+        float:left;
+        }
+    input#shib_login_button {
+        float:left;
+        clear:left;
+        margin-top: 1.5em;
+        }
+
+    /* barcode form */
+    form#barcode_login {
+        margin-left: 15%;
+        height: 250px;
+        /*background: green;*/
+        }
+    h3#please_barcode {
+        font-size: 1.5em;
+        color: maroon;
+        /*margin-bottom: .5em;*/
+        }
+    select#barcode_location {
+        float:left;
+        }
+    p#name_field_label {
+        margin-top: 3.5em;
+        }
+    p#barcode_field_label {
+        margin-top: 1em;
+        }
+    input#barcode_field_input {
+        float:left;
+        margin-top: 0em;
+        }
+    input#barcode_login_button {
+        /*float:left;*/
+        display: block;
+        margin-top: 2.75em;
+        }
+
+    /* other */
+    p.form_pickup_label {
+        margin-top: 1.5em;
+        }
+    p.login_error {
+        color: red;
+        margin-bottom: .25em;
+        }
+    hr {
+        margin-top: 2em;
+        width:100%;
+        }
+
+</style>
 
  <h1>easyRequest item</h1>
 
@@ -123,7 +226,9 @@ easyRequest login
 <div id="forms">
 
     <form id="shib_login" action="/easyrequest/shib_handler/" method="POST">{% csrf_token %}
-        <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3>
+        <!-- <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3> -->
+        <h3 id="please_shib">Log in with your Brown username &amp; password...</h3>
+        <p class="form_pickup_label">Pickup location:</p>
         <select name="pickup_location" id="shib_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
@@ -138,24 +243,26 @@ easyRequest login
     </form>
 
     <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
-        <h3 id="please_barcode">...or via your patron barcode</h3>
+        <!-- <h3 id="please_barcode">...or via your patron barcode</h3> -->
+        <h3 id="please_barcode">...or with your name and library card barcode</h3>
+        <p class="form_pickup_label">Pickup location:</p>
         <select name="pickup_location" id="barcode_location">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
             <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
             <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
             <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
         </select>
+        <p id="name_field_label">First or Last Name:</p>
+        <input id="name_field_input" type="text" name="barcode_login_name" value="{{ barcode_login_name }}">
+        <!-- <br/> -->
+        <!-- <br/> -->
+        <p id="barcode_field_label">Barcode (14-digit barcode, beginning with 21236...):</p>
+        <input id="barcode_field_input" type="text" name="barcode_login_barcode" value="{{ barcode_login_barcode }}">
         {% if barcode_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
         {% endif %}
-        <p id="name_field_label">First or Last Name:</p>
-        <input id="name_field_input" type="text" name="barcode_login_name" value="{{ barcode_login_name }}">
-        <br/>
-        <br/>
-        <p id="barcode_field_label">Barcode (14-digit barcode, beginning with 21236...):</p>
-        <input id="barcode_field_input" type="text" name="barcode_login_barcode" value="{{ barcode_login_barcode }}">
-        <input id="barcode_login_button" type="submit" value="Log in">
+        <br /><input id="barcode_login_button" type="submit" value="Log in">
     </form>
 
 </div>
@@ -163,3 +270,27 @@ easyRequest login
 <hr/>
 
 {% endblock content %}
+
+
+<!--
+//from `http://jsfiddle.net/watson/Gsj27/3/`
+section {
+    width: 80%;
+    height: 200px;
+    background: aqua;
+    margin: auto;
+    padding: 10px;
+}
+div#one {
+    width: 15%;
+    height: 200px;
+    background: red;
+    float: left;
+}
+div#two {
+    margin-left: 15%;
+    height: 200px;
+    background: black;
+}
+ -->
+
