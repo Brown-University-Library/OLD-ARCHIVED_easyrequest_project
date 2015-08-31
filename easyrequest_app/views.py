@@ -29,10 +29,11 @@ def test_multi( request ):
     q = ItemRequest.objects.all()
     s = ''
     for item_request in q:
-        s += '<p>%s</p>' % item_request.item_title
+        s += '<p>%s -- %s</p>' % ( item_request.item_title[0:4], unicode(item_request.create_datetime) )
     now = datetime.datetime.now()
     return HttpResponse( '%s<p>( %s )</p>' % (s, now) )
-    # return HttpResponse( '<p>testing...</p> <p>( %s )</p>' % now )
+
+
 
 
 def info( request ):
