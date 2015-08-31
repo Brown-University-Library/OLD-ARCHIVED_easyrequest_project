@@ -165,7 +165,7 @@ class LoginHelper( object ):
             items = result['items_data']
             for item in items:
                 if item_barcode == item['barcode']:
-                    callnumber = item['callnumber_interpreted']
+                    callnumber = item['callnumber_interpreted'].replace( ' None', '' )
                     item_id = item['item_id'][:-1]  # removes trailing check-digit
         log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
         return ( callnumber, item_id )
