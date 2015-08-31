@@ -24,4 +24,45 @@ class LoginHelperTest( TestCase ):
             '',
             login_helper.get_referrer_host(referrer_url) )
 
+    def test__process_items( self ):
+        """ Tests extract from api lookup on bib. """
+        item_barcode = '31236074994859'
+        api_dct = {
+            'query': {
+                'query_key': 'bib',
+                'query_timestamp': '2015-08-31 15:33:28.988222',
+                'query_value': 'b6150593',
+                'url': 'https://library.brown.edu/availability_service/v2/bib/b6150593/'},
+            'response': {
+                'backend_response': [ {
+                    'bibid': '.b61505936',
+                    'callnumber': 'CT275.P648 R53 2008',
+                    'holdings_data': [ {
+                        'callNumber': 'CT275.P648 R53 2008 ',
+                        'localLocation': 'ANNEX',
+                        'publicNote': 'AVAILABLE'}],
+                    'isbn': '9780307269706',
+                    'issn': 'issn_not_available',
+                    'items_data': [ {
+                        'barcode': '31236074994859',
+                        'callnumber': None,
+                        'callnumber_interpreted': 'CT275.P648 R53 2008 None',
+                        'item_id': 'i165116687',
+                        'itype': '0',
+                        'itype_interpreted': 'coming',
+                        'location': 'qs',
+                        'location_interpreted': 'coming',
+                        'status': '-',
+                        'status_interpreted': 'coming'}],
+                    'josiah_bib_url': 'https://josiah.brown.edu/record=b6150593',
+                    'lccn': '2008017156',
+                    'oclc_brown': 'ocn226308091',
+                    'title': 'Zen and now : on the trail of Robert Pirsig and Zen and the art of motorcycle maintenance /'}],
+                'response_timestamp': '2015-08-31 15:33:29.034138'}
+            }
+        self.assertEqual(
+            ( 'CT275.P648 R53 2008', 'i16511668' ),
+            login_helper.process_items( api_dct, item_barcode )
+            )
+
     # end class class LoginHelperTest
