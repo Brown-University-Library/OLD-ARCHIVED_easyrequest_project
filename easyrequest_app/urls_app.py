@@ -22,10 +22,6 @@ urlpatterns = patterns('',
 
     url( r'^summary/$',  'easyrequest_app.views.summary', name='summary_url' ),
 
-
-    url( r'^test_multi/$',  'easyrequest_app.views.test_multi', name='test_multi_url' ),
-
-
     url( r'^$',  RedirectView.as_view(pattern_name='info_url') ),
 
     )

@@ -20,22 +20,6 @@ barcode_handler_helper = models.BarcodeHandlerHelper()
 pic_loc_helper = models.PickupLocation()
 
 
-
-
-def test_multi( request ):
-    """ Tests issue with display of ItemRequest model data. """
-    log.debug( 'starting test_multi()' )
-    from easyrequest_app.models import ItemRequest
-    q = ItemRequest.objects.all()
-    s = ''
-    for item_request in q:
-        s += '<p>%s -- %s</p>' % ( item_request.item_title[0:4], unicode(item_request.create_datetime) )
-    now = datetime.datetime.now()
-    return HttpResponse( '%s<p>( %s )</p>' % (s, now) )
-
-
-
-
 def info( request ):
     """ Returns info page. """
     log.debug( 'starting info()' )

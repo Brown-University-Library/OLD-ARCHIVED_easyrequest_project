@@ -11,7 +11,6 @@ from __future__ import unicode_literals
         env_ezrqst
      """
 
-try:
 
     import os, pprint, sys
 
@@ -51,7 +50,3 @@ try:
         application = get_wsgi_application()
     except Exception as e:
         print 'passenger_wsgi.py exception...'; print unicode(repr(e))
-
-    print 'pwsgi ok'
-except Exception as e2:
-    print 'passenger_wsgi.py exception e2...'; print unicode(repr(e2))
