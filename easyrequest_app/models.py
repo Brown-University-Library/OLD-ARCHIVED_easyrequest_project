@@ -139,8 +139,8 @@ class LoginHelper( object ):
         ( title, callnumber, item_id ) = ( '', '', '' )
         api_dct = self.hit_availability_api( bibnum )
         title = api_dct['response']['backend_response'][0]['title']
-        log.debug( 'title, `%s`' % title )
         ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
+        log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
         return ( title, callnumber, item_id )
 
     def hit_availability_api( self, bibnum ):
