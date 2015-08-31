@@ -495,7 +495,7 @@ class Processor( object ):
         """ Emails patron confirmation.
             Called by views.processor() """
         try:
-            subject = 'Brown University Library - Item Request Confirmation'
+            subject = 'Brown University Library - Annex Request Confirmation'
             body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode )
             ffrom = self.EMAIL_FROM  # `from` reserved
             to = [ patron_email ]
@@ -518,7 +518,7 @@ This is a confirmation of your request for the item...
 Title: %s
 Call Number: %s
 
-Items are generally available in 1 business day. When available, you'll be notified at this email address.
+Items requested form the Annex are generally available in 1 business day. You will receive an email when the item is available for pickup.
 
 If you have questions, feel free to email %s or call %s, and refer to...
 
