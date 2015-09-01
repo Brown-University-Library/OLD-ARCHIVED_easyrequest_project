@@ -578,11 +578,11 @@ class ShibLogoutHelper( object ):
     def assemble_url( self, scheme, request, item_title, pickup_location_display ):
         """ Format's url.
             Called by build_redirect_url() """
-        redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s&pic_loc=%s' % (
+        redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s&pic_loc=%s&source_url=%s' % (
             scheme, request.get_host(), reverse('summary_url'),
             request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
             request.session['user_full_name'], request.session['user_email'],
-            pickup_location_display
+            pickup_location_display, request.session['source_url']
             )
         return redirect_url
 

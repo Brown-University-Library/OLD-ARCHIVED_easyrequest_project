@@ -45,6 +45,10 @@ easyRequest summary
       font-size: 125%; }
     span#email {
       color: red;}
+    p#return {
+        float: left;
+        margin-top: 2em;
+    }
     hr {
       float:left;
       clear:left;
@@ -77,6 +81,10 @@ easyRequest summary
 <p class="additional_lines">This item will be held for you at the {{ pickup_location_display }}.</p>
 <p class="additional_lines">If you have questions, feel free to email {{ email_general_help|urlize }} or call {{ phone_general_help }}.</p>
 </div>
+
+{% if  source_url %}
+<p id="return">Return to original <a href="{{ source_url }}">library web-page</a>.</p>
+{% endif %}
 
 <hr/>
 

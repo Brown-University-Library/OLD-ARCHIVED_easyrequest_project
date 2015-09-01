@@ -134,4 +134,6 @@ def summary( request ):
         'email_general_help': EMAIL,
         'phone_general_help': PHONE
         }
+    if request.GET['source_url'][0:4] == 'http':
+        context['source_url'] = request.GET['source_url']
     return render( request, 'easyrequest_app_templates/summary.html', context )
