@@ -641,10 +641,10 @@ class PatronApiHelper( object ):
         Used by BarcodeHandlerHelper() and ShibChecker(). """
 
     def __init__( self, patron_barcode ):
-        self.PAPI_URL = os.environ['EZRQST__PAPI_URL']
-        self.PAPI_BASIC_AUTH_USERNAME = os.environ['EZRQST__PAPI_BASIC_AUTH_USERNAME']
-        self.PAPI_BASIC_AUTH_PASSWORD = os.environ['EZRQST__PAPI_BASIC_AUTH_PASSWORD']
-        self.PAPI_LEGIT_PTYPES = json.loads( os.environ['EZRQST__PAPI_LEGIT_PTYPES'] )
+        self.PATRON_API_URL = os.environ['EZRQST__PAPI_URL']
+        self.PATRON_API_BASIC_AUTH_USERNAME = os.environ['EZRQST__PAPI_BASIC_AUTH_USERNAME']
+        self.PATRON_API_BASIC_AUTH_PASSWORD = os.environ['EZRQST__PAPI_BASIC_AUTH_PASSWORD']
+        self.PATRON_API_LEGIT_PTYPES = json.loads( os.environ['EZRQST__PAPI_LEGIT_PTYPES_JSON'] )
         self.ptype_validity = False
         self.patron_name = None  # will be last, first middle
         self.patron_email = None  # will be lower-case
@@ -654,12 +654,16 @@ class PatronApiHelper( object ):
         """ Hits patron-api and populates attributes.
             Called by __init__(); triggered by BarcodeHandlerHelper.enhance_patron_info() and eventually a shib function. """
         api_dct = self.hit_api( patron_barcode )
+        log.debug( 'type(api_dct), `%s`' % type(api_dct) )
+        log.debug( 'api_dct, `%s`' % api_dct )
         if api_dct is False:
             return
         self.ptype_validity = self.check_ptype( api_dct )
         if self.ptype_validity is False:
             return
         self.patron_name = api_dct['response']['patrn_name']['value'],  # last, first middle
+        log.debug( 'type(self.patron_name), `%s`' % type(self.patron_name) )
+        log.debug( 'self.patron_name, `%s`' % self.patron_name )
         self.patron_email = api_dct['response']['e-mail']['value'].lower()
         return
 
@@ -669,6 +673,7 @@ class PatronApiHelper( object ):
         try:
             r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
             r.raise_for_status()  # will raise an http_error if not 200
+            log.debug( 'r.content, `%s`' % unicode(r.content) )
         except Exception as e:
             log.error( 'exception, `%s`' % unicode(repr(e)) )
             return False
@@ -679,7 +684,7 @@ class PatronApiHelper( object ):
             Called by process_barcode() """
         return_val = False
         patron_ptype = api_dct['response']['p_type']['value']
-        if patron_ptype in self.PAPI_LEGIT_PTYPES:
+        if patron_ptype in self.PATRON_API_LEGIT_PTYPES:
             return_val = True
         log.debug( 'ptype check, `%s`' % return_val )
         return return_val

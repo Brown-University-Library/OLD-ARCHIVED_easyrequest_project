@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import pprint
+import os, pprint
 # from django.http import QueryDict
 from django.test import TestCase
 from easyrequest_app.models import LoginHelper, PatronApiHelper
@@ -73,10 +73,12 @@ class PatronApiHelperTest( TestCase ):
 
     def test__instantiation_good( self ):
         """ Tests instantition on good barcode. """
-        TEST_PATRON_BARCODE = os.environ['EZRQST__TEST_PATRON_BARCODE']
+        TEST_PATRON_BARCODE = unicode( os.environ['EZRQST__TEST_PATRON_BARCODE'] )
+        TEST_PATRON_API_NAME = unicode( os.environ['EZRQST__TEST_PATRON_API_NAME'] )
+        print 'TEST_PATRON_API_NAME...'; print TEST_PATRON_API_NAME
         papi_helper = PatronApiHelper( TEST_PATRON_BARCODE )
         self.assertEqual(
-            'foo',
+            TEST_PATRON_API_NAME,
             papi_helper.patron_name
             )
 
