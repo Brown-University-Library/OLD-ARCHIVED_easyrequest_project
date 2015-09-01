@@ -254,20 +254,34 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'barcode login check, `%s`' % return_val )
         return return_val
 
+        papi_helper = models.PatronApiHelper()
+
     def enhance_patron_info( self, patron_barcode ):
-        """ Hits patron-api service; returns patron name and email address.
+        """ Directs call to patron-api service; returns patron name and email address.
             Called by views.barcode_handler() """
-        try:
-            r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
-            r.raise_for_status()  # will raise an http_error
-        except Exception as e:
-            log.error( 'exception, `%s`' % unicode(repr(e)) )
-            return False
-        patron_info_dct = {
-            'patron_name': r.json()['response']['patrn_name']['value'],  # last, first middle,
-            'patron_email': r.json()['response']['e-mail']['value'].lower() }
+        patron_info_dct = False
+        papi_helper = PatronApiHelper( patron_barcode )
+        if papi_helper.ptype_validity is not False:
+            patron_info_dct = {
+                'patron_name': papi_helper.patron_name,  # last, first middle,
+                'patron_email': papi_helper.patron_email }
         log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
         return patron_info_dct
+
+    # def enhance_patron_info( self, patron_barcode ):
+    #     """ Hits patron-api service; returns patron name and email address.
+    #         Called by views.barcode_handler() """
+    #     try:
+    #         r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+    #         r.raise_for_status()  # will raise an http_error
+    #     except Exception as e:
+    #         log.error( 'exception, `%s`' % unicode(repr(e)) )
+    #         return False
+    #     patron_info_dct = {
+    #         'patron_name': r.json()['response']['patrn_name']['value'],  # last, first middle,
+    #         'patron_email': r.json()['response']['e-mail']['value'].lower() }
+    #     log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
+    #     return patron_info_dct
 
     def update_session( self, request, patron_info_dct ):
         """ Updates session before redirecting to views.processor()
@@ -620,3 +634,52 @@ class SummaryHelper( object ):
         return context
 
     # end class SummaryHelper
+
+
+class PatronApiHelper( object ):
+    """ Assists getting and evaluating patron-api data.
+        Used by BarcodeHandlerHelper() and ShibChecker(). """
+
+    def __init__( self, patron_barcode ):
+        self.PAPI_URL = os.environ['EZRQST__PAPI_URL']
+        self.PAPI_BASIC_AUTH_USERNAME = os.environ['EZRQST__PAPI_BASIC_AUTH_USERNAME']
+        self.PAPI_BASIC_AUTH_PASSWORD = os.environ['EZRQST__PAPI_BASIC_AUTH_PASSWORD']
+        self.PAPI_LEGIT_PTYPES = json.loads( os.environ['EZRQST__PAPI_LEGIT_PTYPES'] )
+        self.ptype_validity = False
+        self.patron_name = None  # will be last, first middle
+        self.patron_email = None  # will be lower-case
+        self.process_barcode( patron_barcode )
+
+    def process_barcode( self, patron_barcode ):
+        """ Hits patron-api and populates attributes.
+            Called by __init__(); triggered by BarcodeHandlerHelper.enhance_patron_info() and eventually a shib function. """
+        api_dct = self.hit_api( patron_barcode )
+        if api_dct is False:
+            return
+        self.ptype_validity = self.check_ptype( api_dct )
+        if self.ptype_validity is False:
+            return
+        self.patron_name = api_dct['response']['patrn_name']['value'],  # last, first middle
+        self.patron_email = api_dct['response']['e-mail']['value'].lower()
+        return
+
+    def hit_api( self, patron_barcode ):
+        """ Runs web-query.
+            Called by process_barcode() """
+        try:
+            r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+            r.raise_for_status()  # will raise an http_error if not 200
+        except Exception as e:
+            log.error( 'exception, `%s`' % unicode(repr(e)) )
+            return False
+        return r.json()
+
+    def check_ptype( self, api_dct ):
+        """ Sees if ptype is valid.
+            Called by process_barcode() """
+        return_val = False
+        patron_ptype = api_dct['response']['p_type']['value']
+        if patron_ptype in self.PAPI_LEGIT_PTYPES:
+            return_val = True
+        log.debug( 'ptype check, `%s`' % return_val )
+        return return_val
