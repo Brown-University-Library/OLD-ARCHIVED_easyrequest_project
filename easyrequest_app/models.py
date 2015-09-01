@@ -438,6 +438,7 @@ class Processor( object ):
         self.EMAIL_REPLY_TO = os.environ['EZRQST__EMAIL_REPLY_TO']
         self.EMAIL_GENERAL_HELP = os.environ['EZRQST__EMAIL_GENERAL_HELP']
         self.PHONE_GENERAL_HELP = os.environ['EZRQST__PHONE_GENERAL_HELP']
+        self.email_subject = 'Brown University Library - Annex Request Confirmation'
 
     def check_request( self, request ):
         """ Ensures user has logged in.
@@ -505,23 +506,46 @@ class Processor( object ):
         itmrqst.save()
         return itmrqst
 
-    def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
+    def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_code ):
         """ Emails patron confirmation.
             Called by views.processor() """
         try:
-            subject = 'Brown University Library - Annex Request Confirmation'
-            body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode )
+            pickup_location_display = self.prep_pickup_location_display( pickup_location_code )
+            body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display )
             ffrom = self.EMAIL_FROM  # `from` reserved
             to = [ patron_email ]
             extra_headers = { 'Reply-To': self.EMAIL_REPLY_TO }
-            email = EmailMessage( subject, body, ffrom, to, headers=extra_headers )
+            email = EmailMessage( self.email_subject, body, ffrom, to, headers=extra_headers )
             email.send()
             log.debug( 'mail sent' )
         except Exception as e:
             log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
         return
 
-    def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
+    # def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
+    #     """ Emails patron confirmation.
+    #         Called by views.processor() """
+    #     try:
+    #         subject = 'Brown University Library - Annex Request Confirmation'
+    #         body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode )
+    #         ffrom = self.EMAIL_FROM  # `from` reserved
+    #         to = [ patron_email ]
+    #         extra_headers = { 'Reply-To': self.EMAIL_REPLY_TO }
+    #         email = EmailMessage( subject, body, ffrom, to, headers=extra_headers )
+    #         email.send()
+    #         log.debug( 'mail sent' )
+    #     except Exception as e:
+    #         log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
+    #     return
+
+    def prep_pickup_location_display( self, pickup_location_code ):
+        """ Returns pickup-location-display string.
+            Called by email_patron() """
+        pic_loc = PickupLocation()
+        pickup_location_display = pic_loc.code_to_display_dct[ pickup_location_code ]
+        return pickup_location_display
+
+    def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display ):
         """ Prepares and returns email body.
             Called by email_patron().
             TODO: use render_to_string & template. """
@@ -532,7 +556,7 @@ This is a confirmation of your request for the item...
 Title: %s
 Call Number: %s
 
-Items requested form the Annex are generally available in 1 business day. You will receive an email when the item is available for pickup.
+Items requested form the Annex are generally available in 1 business day. You will receive an email when the item is available for pickup at the %s.
 
 If you have questions, feel free to email %s or call %s, and refer to...
 
@@ -546,6 +570,7 @@ If you have questions, feel free to email %s or call %s, and refer to...
             patron_name,
             item_title,
             item_callnumber,
+            pickup_location_display,
             self.EMAIL_GENERAL_HELP,
             self.PHONE_GENERAL_HELP,
             item_bib,

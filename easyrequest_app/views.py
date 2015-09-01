@@ -101,8 +101,29 @@ def processor( request ):
     except Exception as e:
         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
-    processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode )
+    processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode, request.session['pickup_location'] )
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
+
+# def processor( request ):
+#     """ Handles item request:,
+#         - Ensures user is authenticated.
+#         - Saves request.
+#         - Places hold.
+#         - Emails patron.
+#         - Triggers shib_logout() view.
+#         TODO: add to barcode_handler() required request-parameter of `selected pickup location`,
+#               and put that in the session,
+#               and grab it here from the session. """
+#     if processor_helper.check_request( request ) == False:
+#         return HttpResponseRedirect( reverse('info_url') )
+#     itmrqst = processor_helper.save_data( request )
+#     try:
+#         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
+#     except Exception as e:
+#         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
+#         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
+#     processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode )
+#     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
 
 def shib_logout( request ):
@@ -114,7 +135,7 @@ def shib_logout( request ):
     if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:  # eases local development
         pass
     else:
-        encoded_redirect_url =  urlquote( redirect_url )  # django's urlquote()
+        encoded_redirect_url = urlquote( redirect_url )  # django's urlquote()
         redirect_url = '%s?return=%s' % ( os.environ['EZRQST__SHIB_LOGOUT_URL_ROOT'], encoded_redirect_url )
     log.debug( 'final redirect_url, `%s`' % redirect_url )
     return HttpResponseRedirect( redirect_url )
