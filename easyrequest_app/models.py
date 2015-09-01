@@ -17,7 +17,7 @@ from requests.auth import HTTPBasicAuth
 log = logging.getLogger(__name__)
 
 
-## db models ##
+## db model ##
 
 
 class ItemRequest( models.Model ):
@@ -521,22 +521,6 @@ class Processor( object ):
         except Exception as e:
             log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
         return
-
-    # def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode ):
-    #     """ Emails patron confirmation.
-    #         Called by views.processor() """
-    #     try:
-    #         subject = 'Brown University Library - Annex Request Confirmation'
-    #         body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode )
-    #         ffrom = self.EMAIL_FROM  # `from` reserved
-    #         to = [ patron_email ]
-    #         extra_headers = { 'Reply-To': self.EMAIL_REPLY_TO }
-    #         email = EmailMessage( subject, body, ffrom, to, headers=extra_headers )
-    #         email.send()
-    #         log.debug( 'mail sent' )
-    #     except Exception as e:
-    #         log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
-    #     return
 
     def prep_pickup_location_display( self, pickup_location_code ):
         """ Returns pickup-location-display string.
