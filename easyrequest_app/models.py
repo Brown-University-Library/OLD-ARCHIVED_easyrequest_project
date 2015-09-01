@@ -587,3 +587,25 @@ class ShibLogoutHelper( object ):
         return redirect_url
 
     # end class ShibLogoutHelper
+
+
+class SummaryHelper( object ):
+    """ Assists summary() view. """
+
+    def build_main_context( self, request, EMAIL, PHONE ):
+        """ Builds and returns initial context.
+            Called by views.summary() """
+        context = {
+            'bib': request.GET['bib'],
+            'callnumber': request.GET['callnumber'],
+            'item_id': request.GET['item_id'],
+            'title': request.GET['title'],
+            'user_name': request.GET['user_name'],
+            'user_email': request.GET['user_email'],
+            'pickup_location_display': request.GET['pic_loc'],
+            'email_general_help': EMAIL,
+            'phone_general_help': PHONE
+            }
+        return context
+
+    # end class SummaryHelper

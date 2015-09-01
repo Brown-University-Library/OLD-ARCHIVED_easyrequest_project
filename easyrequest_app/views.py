@@ -18,6 +18,7 @@ processor_helper = models.Processor()
 shib_logout_helper = models.ShibLogoutHelper()
 barcode_handler_helper = models.BarcodeHandlerHelper()
 pic_loc_helper = models.PickupLocation()
+summary_helper = models.SummaryHelper()
 
 
 def info( request ):
@@ -123,17 +124,7 @@ def summary( request ):
     """ Displays final summary screen. """
     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
-    context = {
-        'bib': request.GET['bib'],
-        'callnumber': request.GET['callnumber'],
-        'item_id': request.GET['item_id'],
-        'title': request.GET['title'],
-        'user_name': request.GET['user_name'],
-        'user_email': request.GET['user_email'],
-        'pickup_location_display': request.GET['pic_loc'],
-        'email_general_help': EMAIL,
-        'phone_general_help': PHONE
-        }
+    context = summary_helper.build_main_context( request, EMAIL, PHONE )
     if request.GET['source_url'][0:4] == 'http':
-        context['source_url'] = request.GET['source_url']
+        context['source_url'] = request.GET['source_url']  # template will only show it if it exists
     return render( request, 'easyrequest_app_templates/summary.html', context )
