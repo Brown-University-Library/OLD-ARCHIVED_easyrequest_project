@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import smart_text
+from django.utils.http import urlquote
 from iii_account import IIIAccount
 from requests.auth import HTTPBasicAuth
 
@@ -580,18 +581,19 @@ class ShibLogoutHelper( object ):
         pic_loc = PickupLocation()
         pickup_location_code = request.session['pickup_location']
         pickup_location_display = pic_loc.code_to_display_dct[ pickup_location_code ]
-        redirect_url = self.assemble_url( scheme, request, item_title, pickup_location_display )
+        source_url = urlquote( request.session['source_url'] )  # django's urlquote, imported above
+        redirect_url = self.assemble_url( scheme, request, item_title, pickup_location_display, source_url )
         log.debug( 'initial redirect_url, `%s`' % redirect_url )
         return redirect_url
 
-    def assemble_url( self, scheme, request, item_title, pickup_location_display ):
+    def assemble_url( self, scheme, request, item_title, pickup_location_display, source_url ):
         """ Format's url.
             Called by build_redirect_url() """
         redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s&pic_loc=%s&source_url=%s' % (
-            scheme, request.get_host(), reverse('summary_url'),
-            request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
-            request.session['user_full_name'], request.session['user_email'],
-            pickup_location_display, request.session['source_url']
+            scheme, request.get_host(), reverse('summary_url'),  # beginning stuff
+            request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,  # item stuff
+            request.session['user_full_name'], request.session['user_email'],  # user stuff
+            pickup_location_display, source_url  # other stuff
             )
         return redirect_url
 
