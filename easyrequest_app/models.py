@@ -568,12 +568,22 @@ class ShibLogoutHelper( object ):
         item_title = request.session['item_title']
         if len( item_title ) > 50:
             item_title = '%s...' % item_title[0:45]
-        redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s' % (
+        pic_loc = PickupLocation()
+        pickup_location_code = request.session['pickup_location']
+        pickup_location_display = pic_loc.code_to_display_dct[ pickup_location_code ]
+        redirect_url = self.assemble_url( scheme, request, item_title, pickup_location_display )
+        log.debug( 'initial redirect_url, `%s`' % redirect_url )
+        return redirect_url
+
+    def assemble_url( self, scheme, request, item_title, pickup_location_display ):
+        """ Format's url.
+            Called by build_redirect_url() """
+        redirect_url = '%s://%s%s?bib=%s&callnumber=%s&item_id=%s&title=%s&user_name=%s&user_email=%s&pic_loc=%s' % (
             scheme, request.get_host(), reverse('summary_url'),
             request.session['item_bib'], request.session['item_callnumber'], request.session['item_id'], item_title,
-            request.session['user_full_name'], request.session['user_email']
+            request.session['user_full_name'], request.session['user_email'],
+            pickup_location_display
             )
-        log.debug( 'initial redirect_url, `%s`' % redirect_url )
         return redirect_url
 
     # end class ShibLogoutHelper

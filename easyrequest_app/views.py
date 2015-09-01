@@ -130,6 +130,7 @@ def summary( request ):
         'title': request.GET['title'],
         'user_name': request.GET['user_name'],
         'user_email': request.GET['user_email'],
+        'pickup_location_display': request.GET['pic_loc'],
         'email_general_help': EMAIL,
         'phone_general_help': PHONE
         }
