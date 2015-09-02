@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 import json, logging, os, pprint, time, urlparse
+from urlparse import urlparse
 import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
@@ -689,7 +690,8 @@ class StatsBuilder( object ):
     def __init__( self ):
         self.date_start = None  # set by check_params()
         self.date_end = None  # set by check_params()
-        self.output = None  # set by check_params() or...
+        self.output = None  # set by build_response(
+        self.count_buckets = {}  # populated by _update_count_buckets()
 
     def check_params( self, get_params, server_name ):
         """ Checks parameters; returns boolean.
@@ -715,11 +717,43 @@ class StatsBuilder( object ):
     def process_results( self, requests ):
         """ Extracts desired data from resultset.
             Called by views.stats_v1() """
+        log.debug( 'starting process_results()' )
         data = { 'count_request_for_period': len(requests) }
-        for request in requests:
-            # TODO: add in 'source'
-            pass
+        for item_request in requests:
+            log.debug( 'item_request.source_url, `%s`' % item_request.source_url )
+            url_obj = urlparse( item_request.source_url )
+            partial_path = self._make_partial_path( url_obj )
+            self._update_count_buckets( url_obj, partial_path )
+        data['count_breakdown'] = self.count_buckets
         return data
+
+    def _make_partial_path( self, url_obj ):
+        """ Returns partial url path.
+            Called by process_results() """
+        split_path = url_obj.path.split( '/' )  # from 'http://host:port/aa/bb/cc/?a=1&b=2' yields ['', 'aa', 'bb', 'cc', '']
+        cleaned_split_path = [ element for element in split_path if ( len(element) > 0 ) ]
+        if cleaned_split_path == ['unavailable']:
+            return 'unavailable'
+        partial_path = ''
+        for segment in cleaned_split_path[0:2]:
+            partial_path = partial_path + '/' + segment
+        partial_path = partial_path + '...'
+        log.debug( 'partial_path, `%s`' % partial_path )
+        return partial_path
+
+    def _update_count_buckets( self, url_obj, partial_path ):
+        """ Populates counts of main url-paths.
+            Called by process_results() """
+        if url_obj.scheme == '':
+            partial_url = partial_path
+        else:
+            partial_url = '%s://%s%s' % ( url_obj.scheme, url_obj.netloc, partial_path )
+        if partial_url in self.count_buckets.keys():
+            self.count_buckets[partial_url] += 1
+        else:
+            self.count_buckets[partial_url] = 1
+        log.debug( 'count buckets updated' )
+        return
 
     def build_response( self, data ):
         """ Builds json response.
@@ -728,7 +762,8 @@ class StatsBuilder( object ):
             'request': {
                 'date_begin': self.date_start, 'date_end': self.date_end },
             'response': {
-                'count_total': data['count_request_for_period'] }
+                'count_all': data['count_request_for_period'],
+                'count_breakdown': data['count_breakdown'], }
             }
         self.output = json.dumps( jdict, sort_keys=True, indent=2 )
         return
