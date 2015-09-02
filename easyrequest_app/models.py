@@ -646,24 +646,20 @@ class PatronApiHelper( object ):
         self.PATRON_API_BASIC_AUTH_PASSWORD = os.environ['EZRQST__PAPI_BASIC_AUTH_PASSWORD']
         self.PATRON_API_LEGIT_PTYPES = json.loads( os.environ['EZRQST__PAPI_LEGIT_PTYPES_JSON'] )
         self.ptype_validity = False
-        self.patron_name = None  # will be last, first middle
-        self.patron_email = None  # will be lower-case
+        self.patron_name = None  # will be last, first middle (used only by BarcodeHandler)
+        self.patron_email = None  # will be lower-case (used only by BarcodeHandler)
         self.process_barcode( patron_barcode )
 
     def process_barcode( self, patron_barcode ):
         """ Hits patron-api and populates attributes.
             Called by __init__(); triggered by BarcodeHandlerHelper.enhance_patron_info() and eventually a shib function. """
         api_dct = self.hit_api( patron_barcode )
-        log.debug( 'type(api_dct), `%s`' % type(api_dct) )
-        log.debug( 'api_dct, `%s`' % api_dct )
         if api_dct is False:
             return
         self.ptype_validity = self.check_ptype( api_dct )
         if self.ptype_validity is False:
             return
-        self.patron_name = api_dct['response']['patrn_name']['value'],  # last, first middle
-        log.debug( 'type(self.patron_name), `%s`' % type(self.patron_name) )
-        log.debug( 'self.patron_name, `%s`' % self.patron_name )
+        self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
         self.patron_email = api_dct['response']['e-mail']['value'].lower()
         return
 
@@ -688,3 +684,5 @@ class PatronApiHelper( object ):
             return_val = True
         log.debug( 'ptype check, `%s`' % return_val )
         return return_val
+
+    # end class PatronApiHelper
