@@ -19,6 +19,7 @@ shib_logout_helper = models.ShibLogoutHelper()
 barcode_handler_helper = models.BarcodeHandlerHelper()
 pic_loc_helper = models.PickupLocation()
 summary_helper = models.SummaryHelper()
+stats_builder = models.StatsBuilder()
 
 
 def info( request ):
@@ -128,3 +129,18 @@ def summary( request ):
     if request.GET['source_url'][0:4] == 'http':
         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
     return render( request, 'easyrequest_app_templates/summary.html', context )
+
+
+def stats_v1( request ):
+    """ Prepares stats for given dates; returns json. """
+    log.debug( 'starting stats_v1()' )
+    ## grab & validate params
+    if stats_builder.check_params( request.GET, request.META[u'SERVER_NAME'] ) == False:
+        return HttpResponseBadRequest( stats_builder.output, content_type=u'application/javascript; charset=utf-8' )
+    ## query records for period (parse them via source)
+    requests = stats_builder.run_query()
+    ## process results
+    data = stats_builder.process_results( requests )
+    ## build response
+    stats_builder.build_response( data )
+    return HttpResponse( stats_builder.output, content_type=u'application/javascript; charset=utf-8' )

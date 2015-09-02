@@ -177,7 +177,7 @@ class LoginHelper( object ):
         request.session['item_title'] = title
         request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
-        request.session['source_url'] = request.META.get( 'HTTP_REFERER', u'unavailable' ).strip()
+        request.session['source_url'] = request.META.get( 'HTTP_REFERER', 'unavailable' ).strip()
         log.debug( 'request.session after update, `%s`' % pprint.pformat(request.session.items()) )
         return
 
@@ -426,7 +426,7 @@ class PickupLocation( object ):
         self.process_dct()
 
     def process_dct( self ):
-        """ Creates another dct from the env json like: { u'sci': u'Sciences Library', u'h0001': u'John Hay Library', etc... }.
+        """ Creates another dct from the env json like: { 'sci': 'Sciences Library', 'h0001': 'John Hay Library', etc... }.
             Triggered by __init__() """
         new_dct = {}
         for ( key, val ) in self.pickup_location_dct.items():
@@ -681,3 +681,70 @@ class PatronApiHelper( object ):
         return return_val
 
     # end class PatronApiHelper
+
+
+class StatsBuilder( object ):
+    """ Handles stats-api calls. """
+
+    def __init__( self ):
+        self.date_start = None  # set by check_params()
+        self.date_end = None  # set by check_params()
+        self.output = None  # set by check_params() or...
+
+    def check_params( self, get_params, server_name ):
+        """ Checks parameters; returns boolean.
+            Called by views.stats_v1() """
+        log.debug( 'get_params, `%s`' % get_params )
+        if 'start_date' not in get_params or 'end_date' not in get_params:  # not valid
+            self._handle_bad_params( server_name )
+            return False
+        else:  # valid
+            self.date_start = '%s 00:00:00' % get_params['start_date']
+            self.date_end = '%s 23:59:59' % get_params['end_date']
+            log.debug( 'self.date_start, `%s`' % self.date_start )
+            log.debug( 'self.date_end, `%s`' % self.date_end )
+            return True
+
+    def run_query( self ):
+        """ Queries db.
+            Called by views.stats_v1() """
+        requests = ItemRequest.objects.filter(
+            create_datetime__gte=self.date_start).filter(create_datetime__lte=self.date_end)
+        return requests
+
+    def process_results( self, requests ):
+        """ Extracts desired data from resultset.
+            Called by views.stats_v1() """
+        data = { 'count_request_for_period': len(requests) }
+        for request in requests:
+            # TODO: add in 'source'
+            pass
+        return data
+
+    def build_response( self, data ):
+        """ Builds json response.
+            Called by views.stats_v1() """
+        jdict = {
+            'request': {
+                'date_begin': self.date_start, 'date_end': self.date_end },
+            'response': {
+                'count_total': data['count_request_for_period'] }
+            }
+        self.output = json.dumps( jdict, sort_keys=True, indent=2 )
+        return
+
+    def _handle_bad_params( self, server_name ):
+        """ Prepares bad-parameters data.
+            Called by check_params() """
+        data = {
+          'request': { 'url': reverse( 'stats_v1_url' ) },
+          'response': {
+            'status': '400 / Bad Request',
+            'message': 'example url: https://%s/easyrequest/stats_api/v1/?start_date=2015-09-01&end_date=2015-09-30' % server_name,
+            }
+          }
+        self.output = json.dumps( data, sort_keys=True, indent=2 )
+        return
+
+    # end class StatsBuilder
+
