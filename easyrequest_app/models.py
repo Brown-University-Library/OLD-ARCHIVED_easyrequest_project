@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 import json, logging, os, pprint, time, urlparse
-from urlparse import urlparse
 import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
@@ -721,7 +720,7 @@ class StatsBuilder( object ):
         data = { 'count_request_for_period': len(requests) }
         for item_request in requests:
             log.debug( 'item_request.source_url, `%s`' % item_request.source_url )
-            url_obj = urlparse( item_request.source_url )
+            url_obj = urlparse.urlparse( item_request.source_url )
             partial_path = self._make_partial_path( url_obj )
             self._update_count_buckets( url_obj, partial_path )
         data['count_breakdown'] = self.count_buckets
