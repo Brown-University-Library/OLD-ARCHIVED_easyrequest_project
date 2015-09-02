@@ -78,7 +78,10 @@ def shib_login( request ):
         Redirects user to non-seen processor() view. """
     log.debug( 'starting shib_login()' )
     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
-    return_response = shib_view_helper.build_response( request, validity, shib_dict )
+    if validity is False:
+        return_response = shib_view_helper.prep_login_redirect( request )
+    else:
+        return_response = shib_view_helper.build_response( request, shib_dict )
     log.debug( 'about to return shib response' )
     return return_response
 

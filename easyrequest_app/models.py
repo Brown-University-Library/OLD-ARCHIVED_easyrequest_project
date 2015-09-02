@@ -303,10 +303,20 @@ class ShibViewHelper( object ):
         log.debug( 'returning shib validity `%s`' % validity )
         return ( validity, shib_dict )
 
-    def build_response( self, request, validity, shib_dict ):
+    def prep_login_redirect( self, request ):
+        """ Prepares redirect response-object to views.login() on bad authZ (p-type problem).
+            Called by views.shib_login() """
+        request.session['shib_login_error'] = 'Problem on authorization.'
+        request.session['shib_authorized'] = False
+        redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
+        log.debug( 'ShibViewHelper redirect_url, `%s`' % redirect_url )
+        resp = HttpResponseRedirect( redirect_url )
+        return resp
+
+    def build_response( self, request, shib_dict ):
         """ Sets session vars and redirects to the hidden processor page.
             Called by views.shib_login() """
-        self.update_session( request, validity, shib_dict )
+        self.update_session( request, shib_dict )
         scheme = 'https' if request.is_secure() else 'http'
         redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse('processor_url') )
         return_response = HttpResponseRedirect( redirect_url )
@@ -316,16 +326,39 @@ class ShibViewHelper( object ):
     def update_session( self, request, validity, shib_dict ):
         """ Updates session with shib info.
             Called by build_response() """
-        request.session['shib_login_error'] = validity  # boolean
-        request.session['shib_authorized'] = validity
-        if validity:
-            request.session['user_full_name'] = '%s %s' % ( shib_dict['firstname'], shib_dict['lastname'] )
-            request.session['user_last_name'] = shib_dict['lastname']
-            request.session['user_email'] = shib_dict['email']
-            request.session['shib_login_error'] = False
-            request.session['josiah_api_name'] = shib_dict['firstname']
-            request.session['josiah_api_barcode'] = shib_dict['patron_barcode']
+        request.session['shib_login_error'] = False
+        request.session['shib_authorized'] = True
+        request.session['user_full_name'] = '%s %s' % ( shib_dict['firstname'], shib_dict['lastname'] )
+        request.session['user_last_name'] = shib_dict['lastname']
+        request.session['user_email'] = shib_dict['email']
+        request.session['shib_login_error'] = False
+        request.session['josiah_api_name'] = shib_dict['firstname']
+        request.session['josiah_api_barcode'] = shib_dict['patron_barcode']
         return
+
+    # def build_response( self, request, validity, shib_dict ):
+    #     """ Sets session vars and redirects to the hidden processor page.
+    #         Called by views.shib_login() """
+    #     self.update_session( request, validity, shib_dict )
+    #     scheme = 'https' if request.is_secure() else 'http'
+    #     redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse('processor_url') )
+    #     return_response = HttpResponseRedirect( redirect_url )
+    #     log.debug( 'returning shib response' )
+    #     return return_response
+
+    # def update_session( self, request, validity, shib_dict ):
+    #     """ Updates session with shib info.
+    #         Called by build_response() """
+    #     request.session['shib_login_error'] = validity  # boolean
+    #     request.session['shib_authorized'] = validity
+    #     if validity:
+    #         request.session['user_full_name'] = '%s %s' % ( shib_dict['firstname'], shib_dict['lastname'] )
+    #         request.session['user_last_name'] = shib_dict['lastname']
+    #         request.session['user_email'] = shib_dict['email']
+    #         request.session['shib_login_error'] = False
+    #         request.session['josiah_api_name'] = shib_dict['firstname']
+    #         request.session['josiah_api_barcode'] = shib_dict['patron_barcode']
+    #     return
 
     # end class ShibViewHelper
 
@@ -366,10 +399,19 @@ class ShibChecker( object ):
         """ Returns boolean.
             Called by models.ShibViewHelper.check_shib_headers() """
         validity = False
-        if self.all_values_present(shib_dict) and self.brown_user_confirmed(shib_dict) and self.eresources_allowed(shib_dict):
+        if self.all_values_present(shib_dict) and self.brown_user_confirmed(shib_dict) and self.authorized(shib_dict['patron_barcode']):
             validity = True
         log.debug( 'in models.ShibChecker.evaluate_shib_info(); validity, `%s`' % validity )
         return validity
+
+    # def evaluate_shib_info( self, shib_dict ):
+    #     """ Returns boolean.
+    #         Called by models.ShibViewHelper.check_shib_headers() """
+    #     validity = False
+    #     if self.all_values_present(shib_dict) and self.brown_user_confirmed(shib_dict) and self.eresources_allowed(shib_dict):
+    #         validity = True
+    #     log.debug( 'in models.ShibChecker.evaluate_shib_info(); validity, `%s`' % validity )
+    #     return validity
 
     def all_values_present( self, shib_dict ):
         """ Returns boolean.
@@ -394,14 +436,24 @@ class ShibChecker( object ):
         log.debug( 'in models.ShibChecker.brown_user_confirmed(); brown_check, `%s`' % brown_check )
         return brown_check
 
-    def eresources_allowed( self, shib_dict ):
+    def authorized( self, patron_barcode ):
         """ Returns boolean.
             Called by evaluate_shib_info() """
-        eresources_check = False
-        if self.SHIB_ERESOURCE_PERMISSION in shib_dict['member_of']:
-            eresources_check = True
-        log.debug( 'in models.ShibChecker.eresources_allowed(); eresources_check, `%s`' % eresources_check )
-        return eresources_check
+        authZ_check = False
+        papi_helper = PatronApiHelper( patron_barcode )
+        if papi_helper.ptype_validity is True:
+            authZ_check = True
+        log.debug( 'authZ_check, `%s`' % authZ_check )
+        return authZ_check
+
+    # def eresources_allowed( self, shib_dict ):
+    #     """ Returns boolean.
+    #         Called by evaluate_shib_info() """
+    #     eresources_check = False
+    #     if self.SHIB_ERESOURCE_PERMISSION in shib_dict['member_of']:
+    #         eresources_check = True
+    #     log.debug( 'in models.ShibChecker.eresources_allowed(); eresources_check, `%s`' % eresources_check )
+    #     return eresources_check
 
     # end class ShibChecker
 
