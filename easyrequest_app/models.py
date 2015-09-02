@@ -316,9 +316,11 @@ class ShibViewHelper( object ):
     def build_response( self, request, shib_dict ):
         """ Sets session vars and redirects to the hidden processor page.
             Called by views.shib_login() """
+        log.debug( 'starting ShibViewHelper.build_response()' )
         self.update_session( request, shib_dict )
         scheme = 'https' if request.is_secure() else 'http'
         redirect_url = '%s://%s%s' % ( scheme, request.get_host(), reverse('processor_url') )
+        log.debug( 'leaving ShibViewHelper; redirect_url `%s`' % redirect_url )
         return_response = HttpResponseRedirect( redirect_url )
         log.debug( 'returning shib response' )
         return return_response
@@ -334,6 +336,7 @@ class ShibViewHelper( object ):
         request.session['shib_login_error'] = False
         request.session['josiah_api_name'] = shib_dict['firstname']
         request.session['josiah_api_barcode'] = shib_dict['patron_barcode']
+        log.debug( 'ShibViewHelper.update_session() completed' )
         return
 
     # end class ShibViewHelper
