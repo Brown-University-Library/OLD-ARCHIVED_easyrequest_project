@@ -92,10 +92,7 @@ def processor( request ):
         - Saves request.
         - Places hold.
         - Emails patron.
-        - Triggers shib_logout() view.
-        TODO: add to barcode_handler() required request-parameter of `selected pickup location`,
-              and put that in the session,
-              and grab it here from the session. """
+        - Triggers shib_logout() view. """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
     itmrqst = processor_helper.save_data( request )
