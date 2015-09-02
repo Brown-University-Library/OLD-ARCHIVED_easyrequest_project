@@ -228,11 +228,11 @@ class BarcodeHandlerHelper( object ):
             request.session['pickup_location'] = request.POST['pickup_location']
             if len(request.POST['barcode_login_name']) > 0 and len(request.POST['barcode_login_barcode']) > 13:
                 return_val = True
-        log.debug( 'return_val, `%s`' % return_val )
+        log.debug( 'validate_params return_val, `%s`' % return_val )
         return return_val
 
     def prep_login_redirect( self, request ):
-        """ Prepares redirect response-object to views.login() on bad params.
+        """ Prepares redirect response-object to views.login() on bad source or params or authNZ.
             Called by views.barcode_handler() """
         request.session['barcode_login_error'] = 'Problem with username and password.'
         redirect_url = '%s?bibnum=%s&barcode=%s' % ( reverse('login_url'), request.session['item_bib'], request.session['item_barcode'] )
@@ -251,12 +251,12 @@ class BarcodeHandlerHelper( object ):
             jos_sess.logout()
         except Exception as e:
             log.debug( 'exception on login-try, `%s`' % unicode(repr(e)) )
-        log.debug( 'barcode login check, `%s`' % return_val )
+        log.debug( 'authenticate barcode login check, `%s`' % return_val )
         return return_val
 
         papi_helper = models.PatronApiHelper()
 
-    def enhance_patron_info( self, patron_barcode ):
+    def authorize( self, patron_barcode ):
         """ Directs call to patron-api service; returns patron name and email address.
             Called by views.barcode_handler() """
         patron_info_dct = False
@@ -265,23 +265,8 @@ class BarcodeHandlerHelper( object ):
             patron_info_dct = {
                 'patron_name': papi_helper.patron_name,  # last, first middle,
                 'patron_email': papi_helper.patron_email }
-        log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
+        log.debug( 'authorize patron_info_dct, `%s`' % patron_info_dct )
         return patron_info_dct
-
-    # def enhance_patron_info( self, patron_barcode ):
-    #     """ Hits patron-api service; returns patron name and email address.
-    #         Called by views.barcode_handler() """
-    #     try:
-    #         r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
-    #         r.raise_for_status()  # will raise an http_error
-    #     except Exception as e:
-    #         log.error( 'exception, `%s`' % unicode(repr(e)) )
-    #         return False
-    #     patron_info_dct = {
-    #         'patron_name': r.json()['response']['patrn_name']['value'],  # last, first middle,
-    #         'patron_email': r.json()['response']['e-mail']['value'].lower() }
-    #     log.debug( 'patron_info_dct, `%s`' % patron_info_dct )
-    #     return patron_info_dct
 
     def update_session( self, request, patron_info_dct ):
         """ Updates session before redirecting to views.processor()
@@ -652,7 +637,7 @@ class PatronApiHelper( object ):
 
     def process_barcode( self, patron_barcode ):
         """ Hits patron-api and populates attributes.
-            Called by __init__(); triggered by BarcodeHandlerHelper.enhance_patron_info() and eventually a shib function. """
+            Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and eventually a shib function. """
         api_dct = self.hit_api( patron_barcode )
         if api_dct is False:
             return

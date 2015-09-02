@@ -51,11 +51,11 @@ def barcode_handler( request ):
     log.debug( 'starting barcode_login_handler()' )
     if barcode_handler_helper.validate_params(request) is not True:  # puts param values in session
         return barcode_handler_helper.prep_login_redirect( request )
-    if barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] ) is not True:  # if login fails, redirect user back to login page with error messages that will display
+    if barcode_handler_helper.authenticate( request.session['barcode_login_name'], request.session['barcode_login_barcode'] ) is False:  # if login fails, redirect user back to login page with error messages that will display
         return barcode_handler_helper.prep_login_redirect( request )
-    patron_info_dct = barcode_handler_helper.enhance_patron_info( request.session['barcode_login_barcode'] )
+    patron_info_dct = barcode_handler_helper.authorize( request.session['barcode_login_barcode'] )
     if patron_info_dct is False:
-        return HttpResponseServerError( 'Problem getting required patron info; please try again in a few minutes.' )
+        return barcode_handler_helper.prep_login_redirect( request )
     barcode_handler_helper.update_session( request, patron_info_dct )
     return barcode_handler_helper.prep_processor_redirect( request )
 
