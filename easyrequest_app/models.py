@@ -325,7 +325,7 @@ class ShibViewHelper( object ):
         log.debug( 'returning shib response' )
         return return_response
 
-    def update_session( self, request, validity, shib_dict ):
+    def update_session( self, request, shib_dict ):
         """ Updates session with shib info.
             Called by build_response() """
         request.session['shib_login_error'] = False
