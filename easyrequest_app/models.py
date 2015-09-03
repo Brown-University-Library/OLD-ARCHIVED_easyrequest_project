@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import json, logging, os, pprint, time, urlparse
+import datetime, json, logging, os, pprint, time, urlparse
 import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
@@ -692,22 +692,47 @@ class StatsBuilder( object ):
     def __init__( self ):
         self.date_start = None  # set by check_params()
         self.date_end = None  # set by check_params()
-        self.output = None  # set by build_response(
-        self.count_buckets = {}  # populated by _update_count_buckets()
+        self.output = None  # set by build_response()
+        self.count_buckets = None  # set by process_results() & _update_count_buckets()
 
     def check_params( self, get_params, server_name ):
         """ Checks parameters; returns boolean.
             Called by views.stats_v1() """
+        return_val = False
+        if 'start_date' in get_params and 'end_date' in get_params:
+            if self._validate_date( get_params['start_date'] ) is True and self._validate_date( get_params['end_date'] ) is True:
+                self.date_start = '%s 00:00:00' % get_params['start_date']
+                self.date_end = '%s 23:59:59' % get_params['end_date']
+                return_val = True
+        if return_val == False:
+            self._handle_bad_params( get_params, server_name )
         log.debug( 'get_params, `%s`' % get_params )
-        if 'start_date' not in get_params or 'end_date' not in get_params:  # not valid
-            self._handle_bad_params( server_name )
-            return False
-        else:  # valid
-            self.date_start = '%s 00:00:00' % get_params['start_date']
-            self.date_end = '%s 23:59:59' % get_params['end_date']
-            log.debug( 'self.date_start, `%s`' % self.date_start )
-            log.debug( 'self.date_end, `%s`' % self.date_end )
-            return True
+        log.debug( 'check_params() return_val, `%s`' % return_val )
+        return return_val
+
+    def _validate_date( self, date_string ):
+        """ Checks date-validity; returns boolean.
+            Called by check_params() """
+        return_val = False
+        try:
+            datetime.datetime.strptime( date_string, '%Y-%m-%d' )
+            return_val = True
+        except Exception as e:
+            pass
+        log.debug( '_validate_date() return_val, `%s`' % return_val )
+        return return_val
+
+    # def check_params( self, get_params, server_name ):
+    #     """ Checks parameters; returns boolean.
+    #         Called by views.stats_v1() """
+    #     log.debug( 'get_params, `%s`' % get_params )
+    #     if 'start_date' not in get_params or 'end_date' not in get_params:  # not valid
+    #         self._handle_bad_params( server_name )
+    #         return False
+    #     else:  # valid
+    #         self.date_start = '%s 00:00:00' % get_params['start_date']
+    #         self.date_end = '%s 23:59:59' % get_params['end_date']
+    #         return True
 
     def run_query( self ):
         """ Queries db.
@@ -720,6 +745,7 @@ class StatsBuilder( object ):
         """ Extracts desired data from resultset.
             Called by views.stats_v1() """
         log.debug( 'starting process_results()' )
+        self.count_buckets = {}
         data = { 'count_request_for_period': len(requests) }
         for item_request in requests:
             log.debug( 'item_request.source_url, `%s`' % item_request.source_url )
@@ -770,15 +796,17 @@ class StatsBuilder( object ):
         self.output = json.dumps( jdict, sort_keys=True, indent=2 )
         return
 
-    def _handle_bad_params( self, server_name ):
+    def _handle_bad_params( self, get_params, server_name ):
         """ Prepares bad-parameters data.
             Called by check_params() """
+        self.output = None
         data = {
-          'request': { 'url': reverse( 'stats_v1_url' ) },
+          'request': {
+            'url': reverse( 'stats_v1_url' ),
+            'params': get_params },
           'response': {
             'status': '400 / Bad Request',
-            'message': 'example url: https://%s/easyrequest/stats_api/v1/?start_date=2015-09-01&end_date=2015-09-30' % server_name,
-            }
+            'message': 'example url: https://%s/easyrequest/stats_api/v1/?start_date=2015-09-01&end_date=2015-09-30' % server_name, }
           }
         self.output = json.dumps( data, sort_keys=True, indent=2 )
         return
