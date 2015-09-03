@@ -722,18 +722,6 @@ class StatsBuilder( object ):
         log.debug( '_validate_date() return_val, `%s`' % return_val )
         return return_val
 
-    # def check_params( self, get_params, server_name ):
-    #     """ Checks parameters; returns boolean.
-    #         Called by views.stats_v1() """
-    #     log.debug( 'get_params, `%s`' % get_params )
-    #     if 'start_date' not in get_params or 'end_date' not in get_params:  # not valid
-    #         self._handle_bad_params( server_name )
-    #         return False
-    #     else:  # valid
-    #         self.date_start = '%s 00:00:00' % get_params['start_date']
-    #         self.date_end = '%s 23:59:59' % get_params['end_date']
-    #         return True
-
     def run_query( self ):
         """ Queries db.
             Called by views.stats_v1() """
