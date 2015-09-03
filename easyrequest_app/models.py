@@ -102,7 +102,8 @@ class LoginHelper( object ):
             Called by views.login() """
         self._initialize_session_item_info( request )
         self._initialize_session_user_info( request )
-        request.session['source_url'] = ''
+        source_url = request.META.get( 'HTTP_REFERER', 'unavailable' ).strip()
+        request.session.setdefault( 'source_url', source_url )  # ensures initial valid referrer is stored, and not localhost if there's a server redirect on a login-error
         request.session.setdefault( 'shib_login_error', False )
         request.session['shib_authorized'] = False
         request.session.setdefault( 'barcode_login_error', False)
@@ -177,7 +178,6 @@ class LoginHelper( object ):
         request.session['item_title'] = title
         request.session['item_callnumber'] = callnumber
         request.session['item_id'] = item_id
-        request.session['source_url'] = request.META.get( 'HTTP_REFERER', 'unavailable' ).strip()
         log.debug( 'request.session after update, `%s`' % pprint.pformat(request.session.items()) )
         return
 
