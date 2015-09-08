@@ -1,7 +1,5 @@
 ### overview ###
 
-(under development -- not yet in production)
-
 This code aims to improve the process of requesting _items_ at the [Annex](http://library.brown.edu/about/annex/), the [Library's](http://library.brown.edu/) offsite storage facility. ([Other code](https://github.com/Brown-University-Library/easyscan) handles requesting _scans_ from the Annex.)
 
 The current system involves multiple steps and is confusing.
@@ -40,7 +38,6 @@ detail flow...
 - A stats url offering a basic usage count for a given date-range is available at a url in the format of:
 
         scheme://host/easyrequest/stats_api/v1/?start_date=2015-08-01&end_date=2015-09-01
-
 - Dates are inclusive: as shown in the start and end timestamps, all requests in the start and end date will be counted.
 - Invalid parameters or dates will display a 400/Bad-Request response, with an example of a good url.
 - The 'count_breakdown' part of the counts, which may change, shows totals of partial source-url segments, which should give a sense of the source service using easyRequest, and the type of page users leap from (results-list, item-page, etc.).
