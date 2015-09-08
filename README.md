@@ -1,5 +1,4 @@
-overview
---------
+### overview ###
 
 (under development -- not yet in production)
 
@@ -10,8 +9,7 @@ The current system involves multiple steps and is confusing.
 Note: there is nothing annex-specific about the code, so it could be used to automate requesting of other items in the future.
 
 
-basic flow
-----------
+### basic flow ###
 
 user's experience...
 - user clicks a 'request item' link that lands at this app
@@ -29,8 +27,7 @@ detail flow...
     - sends user confirmation email
     - redirects user to final summary page
 
-urls & params
--------------
+### urls & params ###
 
 - The root `scheme://host/easyrequest` will redirect to the info page at `scheme://host/easyrequest/info/`
 - A typical url may look like: `scheme://host/easyrequest/login?bibnum=b12345678&barcode=31236090031116`
@@ -38,8 +35,17 @@ urls & params
     - `bibnum` -- used to get list of item records
     - `barcode` -- (this is the _item_ barcode) used to identify which item in list user wants
 
-contacts
---------
+### <a id="stats"></a>stats notes ###
+
+- A stats url offering a basic usage count for a given date-range is available at a url in the format of:
+
+        scheme://host/easyrequest/stats_api/v1/?start_date=2015-08-01&end_date=2015-09-01
+
+- Dates are inclusive: as shown in the start and end timestamps, all requests in the start and end date will be counted.
+- Invalid parameters or dates will display a 400/Bad-Request response, with an example of a good url.
+- The 'count_breakdown' part of the counts, which may change, shows totals of partial source-url segments, which should give a sense of the source service using easyRequest, and the type of page users leap from (results-list, item-page, etc.).
+
+### contacts ###
 
 - birkin_diana at brown dot edu
 

@@ -694,6 +694,9 @@ class StatsBuilder( object ):
         self.date_end = None  # set by check_params()
         self.output = None  # set by build_response()
         self.count_buckets = None  # set by process_results() & _update_count_buckets()
+        self.static_info = {
+            'service': 'easyRequest',
+            'stats_documentation': 'https://github.com/birkin/easyrequest_project/blob/master/README.md#stats' }
 
     def check_params( self, get_params, server_name ):
         """ Checks parameters; returns boolean.
@@ -775,8 +778,10 @@ class StatsBuilder( object ):
         """ Builds json response.
             Called by views.stats_v1() """
         jdict = {
+            'info': self.static_info,
             'request': {
-                'date_begin': self.date_start, 'date_end': self.date_end },
+                'date_begin': self.date_start, 'date_end': self.date_end,
+                'date_of_request': unicode( datetime.datetime.now() ) },
             'response': {
                 'count_all': data['count_request_for_period'],
                 'count_breakdown': data['count_breakdown'], }
