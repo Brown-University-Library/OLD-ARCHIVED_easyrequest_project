@@ -562,7 +562,7 @@ If you have questions, feel free to email %s or call %s, and refer to...
 - User barcode: "%s"
 - Item barcode: "%s"
 
-::: easyRequest - a service of the Brown University Library :::
+::: Annex Item-Requesting -- a service of the Brown University Library :::
 ''' % (
             patron_name,
             item_title,
