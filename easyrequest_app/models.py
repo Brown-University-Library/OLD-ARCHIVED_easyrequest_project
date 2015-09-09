@@ -420,7 +420,10 @@ class ShibChecker( object ):
 
 
 class PickupLocation( object ):
-    """ Holds pickup-location info for display, and for placing hold. """
+    """ Holds pickup-location info for display, and for placing hold.
+        Called by models.LoginHelper.__init__(),
+                  models.Processor.prep_pickup_location_display(), and
+                  models.ShibLogoutHelper.build_redirect_url() """
 
     def __init__( self ):
         """ dct structure example: { 'ROCK': {'code': 'r0001', 'display': 'Rockefeller Library'}, etc... } """
@@ -433,7 +436,7 @@ class PickupLocation( object ):
             Triggered by __init__() """
         new_dct = {}
         for ( key, val ) in self.pickup_location_dct.items():
-            log.debug( 'key, `%s`' % key ); log.debug( 'val, `%s`' % val )
+            # log.debug( 'key, `%s`' % key ); log.debug( 'val, `%s`' % val )
             new_key = val['code']
             new_val = val['display']
             new_dct[ new_key ] = new_val
