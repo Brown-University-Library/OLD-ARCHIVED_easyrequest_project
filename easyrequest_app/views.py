@@ -23,6 +23,7 @@ summary_helper = models.SummaryHelper()
 stats_builder = models.StatsBuilder()
 
 
+@csrf_exempt  # temp for migration
 def info( request ):
     """ Returns info page. """
     log.debug( 'starting info()' )
@@ -47,6 +48,7 @@ def login( request ):
     return render( request, 'easyrequest_app_templates/login.html', context )
 
 
+@csrf_exempt  # temp for migration
 def barcode_handler( request ):
     """ Handles barcode login.
         On auth success, redirects user to non-seen views.processor()
@@ -63,6 +65,7 @@ def barcode_handler( request ):
     return barcode_handler_helper.prep_processor_redirect( request )
 
 
+@csrf_exempt  # temp for migration
 def shib_handler( request ):
     """ Stores pickup location to session and redirects to shib_login() """
     log.debug( 'starting shib_handler()' )
@@ -90,6 +93,7 @@ def shib_login( request ):
     return return_response
 
 
+@csrf_exempt  # temp for migration
 def processor( request ):
     """ Handles item request:,
         - Ensures user is authenticated.
@@ -109,6 +113,7 @@ def processor( request ):
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
 
+@csrf_exempt  # temp for migration
 def shib_logout( request ):
     """ Clears session, hits shib logout.
         Redirects user to summary() view. """
@@ -124,6 +129,7 @@ def shib_logout( request ):
     return HttpResponseRedirect( redirect_url )
 
 
+@csrf_exempt  # temp for migration
 def summary( request ):
     """ Displays final summary screen. """
     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
@@ -134,6 +140,7 @@ def summary( request ):
     return render( request, 'easyrequest_app_templates/summary.html', context )
 
 
+@csrf_exempt  # temp for migration
 def stats_v1( request ):
     """ Prepares stats for given dates; returns json. """
     log.debug( 'starting stats_v1()' )
