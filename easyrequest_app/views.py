@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render
 from django.utils.http import urlquote
+from django.views.decorators.csrf import csrf_exempt
 from easyrequest_app import models
 
 
