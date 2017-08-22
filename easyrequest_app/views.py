@@ -32,6 +32,7 @@ def info( request ):
     return render( request, 'easyrequest_app_templates/info.html', context )
 
 
+@csrf_exempt  # temp for migration
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
@@ -74,6 +75,7 @@ def shib_handler( request ):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
 
 
+@csrf_exempt  # temp for migration
 def shib_login( request ):
     """ Examines shib headers, sets session-auth.
         Redirects user to non-seen processor() view. """
