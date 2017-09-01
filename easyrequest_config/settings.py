@@ -141,4 +141,7 @@ LOGGING = {
     }
 }
 
+CSRF_COOKIE_DOMAIN = os.environ['EZRQST__CSRF_COOKIE_DOMAIN']
+
+
 # eof
