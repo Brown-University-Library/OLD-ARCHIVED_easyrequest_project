@@ -27,9 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['EZRQST__SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-temp_DEBUG = os.environ['EZRQST__DEBUG']
-assert temp_DEBUG in [ 'True', '' ], Exception( 'DEBUG env setting is, "%s"; must be either "True" or ""' % temp_DEBUG )
-DEBUG = bool( temp_DEBUG )
+DEBUG = json.loads( os.environ['EZRQST__DEBUG'] )  # boolean
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -137,6 +135,7 @@ LOGGING = {
         'easyrequest_app': {
             'handlers': ['logfile'],
             'level': os.environ.get('EZRQST__LOG_LEVEL'),
+            'propagate': False
         },
     }
 }
