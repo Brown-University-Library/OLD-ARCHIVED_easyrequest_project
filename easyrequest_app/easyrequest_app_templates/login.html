@@ -133,7 +133,7 @@ easyRequest login
 
 <div id="forms">
 
-    <form id="shib_login" action="/easyrequest/shib_handler/" method="POST">{% csrf_token %}
+    <form id="shib_login" action={{ shib_form_action_url }} method="POST">{% csrf_token %}
         <!-- <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3> -->
         <h3 id="please_shib">Log in with your Brown username &amp; password...</h3>
         <p class="form_pickup_label">Pickup location:</p>
@@ -150,7 +150,7 @@ easyRequest login
         <input id="shib_login_button" type="submit" value="Log in">
     </form>
 
-    <form id="barcode_login" action="/easyrequest/barcode_handler/" method="POST">{% csrf_token %}
+    <form id="barcode_login" action={{ barcode_form_action_url }} method="POST">{% csrf_token %}
         <!-- <h3 id="please_barcode">...or via your patron barcode</h3> -->
         <h3 id="please_barcode">...or with your name and library card barcode</h3>
         <p class="form_pickup_label">Pickup location:</p>
