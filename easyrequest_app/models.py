@@ -378,18 +378,6 @@ class ShibChecker( object ):
             'member_of': request.META.get( 'HTTP_SHIBBOLETH_ISMEMBEROF', '' ) }
         return shib_dict
 
-    # def grab_shib_from_meta( self, request ):
-    #     """ Extracts shib values from http-header.
-    #         Called by grab_shib_info() """
-    #     shib_dict = {
-    #         'eppn': request.META.get( 'Shibboleth-eppn', '' ),
-    #         'firstname': request.META.get( 'Shibboleth-givenName', '' ),
-    #         'lastname': request.META.get( 'Shibboleth-sn', '' ),
-    #         'email': request.META.get( 'Shibboleth-mail', '' ).lower(),
-    #         'patron_barcode': request.META.get( 'Shibboleth-brownBarCode', '' ),
-    #         'member_of': request.META.get( 'Shibboleth-isMemberOf', '' ) }
-    #     return shib_dict
-
     def evaluate_shib_info( self, shib_dict ):
         """ Returns boolean.
             Called by models.ShibViewHelper.check_shib_headers() """
@@ -528,9 +516,10 @@ class Processor( object ):
     def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
         """ Coordinates josiah-patron-account calls.
             Called by views.processor() """
-        log.debug( 'pickup_location_code, `%s`' % pickup_location_code )
+        log.debug( 'data for getting josiah session: josiah_api_name, `%s`; itmrqst.patron_barcode, `%s`' % (josiah_api_name, itmrqst.patron_barcode) )
         jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
         jos_sess.login()
+        log.debug( 'data for placing hold: itmrqst.item_bib, `%s`; itmrqst.item_id, `%s`; pickup_location_code, `%s`' % (itmrqst.item_bib, itmrqst.item_id, pickup_location_code) )
         hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
         jos_sess.logout()
         log.debug( 'hold, `%s`' % hold )
