@@ -195,13 +195,16 @@ class LoginHelper( object ):
             'HAY_display': self.pic_loc_helper.pickup_location_dct['HAY']['display'],
             'ORWIG_code': self.pic_loc_helper.pickup_location_dct['ORWIG']['code'],
             'ORWIG_display': self.pic_loc_helper.pickup_location_dct['ORWIG']['display'],
+            'barcode_form_action_url': reverse( 'barcode_handler_url' ),
             'barcode_login_name': request.session['barcode_login_name'],
             'barcode_login_barcode': request.session['barcode_login_barcode'],
             'barcode_login_error': request.session['barcode_login_error'],
+            'shib_form_action_url': reverse( 'shib_handler_url' ),
             'shib_login_error': request.session['shib_login_error'],
             'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
             'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP,
             }
+        log.debug( 'context, ```%s```' % pprint.pformat(context) )
         return context
 
     # end class LoginHelper
