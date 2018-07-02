@@ -68,7 +68,7 @@ class LoginHelper( object ):
         """ Ensures app is accessed from legit source.
             Called by views.login() """
         return_val = False
-        if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:
+        if '127.0.0.1' in request.get_host() and project_settings.DEBUG == True:
             return_val = True
         referrer_host = self.get_referrer_host( request.META.get('HTTP_REFERER', 'unavailable') )
         if referrer_host in self.LEGIT_SOURCES:
