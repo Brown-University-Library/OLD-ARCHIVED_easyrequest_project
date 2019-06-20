@@ -24,6 +24,13 @@ urlpatterns = patterns('',
 
     url( r'^stats_api/v1/$',  'easyrequest_app.views.stats_v1', name=u'stats_v1_url' ),
 
+    # ====================
+    # development support
+    # ====================
+
+    url( r'^version/$', 'easyrequest_app.views.version', name='version_url' ),
+    url( r'^error_check/$', 'easyrequest_app.views.error_check', name='error_check_url' ),
+
     url( r'^$',  RedirectView.as_view(pattern_name='info_url') ),
 
     )
