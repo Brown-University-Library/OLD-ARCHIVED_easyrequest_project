@@ -29,6 +29,8 @@ SECRET_KEY = os.environ['EZRQST__SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = json.loads( os.environ['EZRQST__DEBUG'] )  # boolean
 
+ADMINS = json.loads( os.environ['EZRQST__ADMINS_JSON'] )
+
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = json.loads( os.environ['EZRQST__ALLOWED_HOSTS'] )  # list
@@ -98,6 +100,7 @@ STATIC_URL = os.environ['EZRQST__STATIC_URL']
 STATIC_ROOT = os.environ['EZRQST__STATIC_ROOT']  # needed for collectstatic command
 
 # Email
+SERVER_EMAIL = 'easyrequest@library.brown.edu'
 EMAIL_HOST = os.environ['EZRQST__EMAIL_HOST']
 EMAIL_PORT = int( os.environ['EZRQST__EMAIL_PORT'] )
 
