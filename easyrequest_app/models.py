@@ -683,6 +683,8 @@ class PatronApiHelper( object ):
         self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
         if 'e-mail' in api_dct['response'].keys():
             self.patron_email = api_dct['response']['e-mail']['value'].lower()
+        else:
+            log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
         return
 
     # def process_barcode( self, patron_barcode ):
