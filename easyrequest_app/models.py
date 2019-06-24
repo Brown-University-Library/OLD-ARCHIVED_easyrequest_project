@@ -265,11 +265,24 @@ class BarcodeHandlerHelper( object ):
         patron_info_dct = False
         papi_helper = PatronApiHelper( patron_barcode )
         if papi_helper.ptype_validity is not False:
-            patron_info_dct = {
-                'patron_name': papi_helper.patron_name,  # last, first middle,
-                'patron_email': papi_helper.patron_email }
+            if papi_helper.patron_email is not None:
+                patron_info_dct = {
+                    'patron_name': papi_helper.patron_name,  # last, first middle,
+                    'patron_email': papi_helper.patron_email }
         log.debug( 'authorize patron_info_dct, `%s`' % patron_info_dct )
         return patron_info_dct
+
+    # def authorize( self, patron_barcode ):
+    #     """ Directs call to patron-api service; returns patron name and email address.
+    #         Called by views.barcode_handler() """
+    #     patron_info_dct = False
+    #     papi_helper = PatronApiHelper( patron_barcode )
+    #     if papi_helper.ptype_validity is not False:
+    #         patron_info_dct = {
+    #             'patron_name': papi_helper.patron_name,  # last, first middle,
+    #             'patron_email': papi_helper.patron_email }
+    #     log.debug( 'authorize patron_info_dct, `%s`' % patron_info_dct )
+    #     return patron_info_dct
 
     def update_session( self, request, patron_info_dct ):
         """ Updates session before redirecting to views.processor()
@@ -658,7 +671,9 @@ class PatronApiHelper( object ):
 
     def process_barcode( self, patron_barcode ):
         """ Hits patron-api and populates attributes.
-            Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and eventually a shib function. """
+            Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and ShibChecker.authorized()
+            Note: If patron-api email does not exist, will not block shib-login flow, but will block barcode-login flow.
+            """
         api_dct = self.hit_api( patron_barcode )
         if api_dct is False:
             return
@@ -666,8 +681,22 @@ class PatronApiHelper( object ):
         if self.ptype_validity is False:
             return
         self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
-        self.patron_email = api_dct['response']['e-mail']['value'].lower()
+        if 'e-mail' in api_dct['response'].keys():
+            self.patron_email = api_dct['response']['e-mail']['value'].lower()
         return
+
+    # def process_barcode( self, patron_barcode ):
+    #     """ Hits patron-api and populates attributes.
+    #         Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and eventually a shib function. """
+    #     api_dct = self.hit_api( patron_barcode )
+    #     if api_dct is False:
+    #         return
+    #     self.ptype_validity = self.check_ptype( api_dct )
+    #     if self.ptype_validity is False:
+    #         return
+    #     self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
+    #     self.patron_email = api_dct['response']['e-mail']['value'].lower()
+    #     return
 
     def hit_api( self, patron_barcode ):
         """ Runs web-query.
