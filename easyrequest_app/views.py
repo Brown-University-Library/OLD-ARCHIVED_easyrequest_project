@@ -105,14 +105,34 @@ def processor( request ):
         - Triggers shib_logout() view. """
     if processor_helper.check_request( request ) == False:
         return HttpResponseRedirect( reverse('info_url') )
-    itmrqst = processor_helper.save_data( request )
     try:
+        itmrqst = processor_helper.save_data( request )
         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
     except Exception as e:
         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
     processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode, request.session['pickup_location'] )
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
+
+
+# @csrf_exempt  # temp for migration
+# def processor( request ):
+#     """ Handles item request:,
+#         - Ensures user is authenticated.
+#         - Saves request.
+#         - Places hold.
+#         - Emails patron.
+#         - Triggers shib_logout() view. """
+#     if processor_helper.check_request( request ) == False:
+#         return HttpResponseRedirect( reverse('info_url') )
+#     itmrqst = processor_helper.save_data( request )
+#     try:
+#         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
+#     except Exception as e:
+#         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
+#         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
+#     processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode, request.session['pickup_location'] )
+#     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
 
 @csrf_exempt  # temp for migration
