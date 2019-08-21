@@ -40,7 +40,7 @@ def info( request ):
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
-    log.debug( 'starting login()' )
+    log.info( 'starting login()' )
     if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
     login_helper.initialize_session( request )
@@ -108,9 +108,9 @@ def processor( request ):
     try:
         itmrqst = processor_helper.save_data( request )
         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
-    except Exception as e:
-        log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
-        return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
+    except:
+        log.exception( 'exception placing request; traceback follows, but processing will continue with problem display to user.' )
+        return HttpResponseRedirect( reverse('problem_url') )  # where retry, and contact info message will appear
     processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode, request.session['pickup_location'] )
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
@@ -125,8 +125,8 @@ def processor( request ):
 #         - Triggers shib_logout() view. """
 #     if processor_helper.check_request( request ) == False:
 #         return HttpResponseRedirect( reverse('info_url') )
-#     itmrqst = processor_helper.save_data( request )
 #     try:
+#         itmrqst = processor_helper.save_data( request )
 #         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
 #     except Exception as e:
 #         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
@@ -160,6 +160,17 @@ def summary( request ):
     if request.GET['source_url'][0:4] == 'http':
         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
     return render( request, 'easyrequest_app_templates/summary.html', context )
+
+
+@csrf_exempt  # temp for migration
+def problem( request ):
+    """ Displays problem screen. """
+    context = {
+        'EMAIL': os.environ['EZRQST__EMAIL_GENERAL_HELP'],
+        'PHONE': os.environ['EZRQST__PHONE_GENERAL_HELP']
+        }
+    logout(request)  # from django.contrib.auth import logout
+    return render( request, 'easyrequest_app_templates/problem.html', context )
 
 
 @csrf_exempt  # temp for migration
