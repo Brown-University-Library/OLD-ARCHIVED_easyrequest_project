@@ -75,7 +75,7 @@ class LoginHelper( object ):
             return_val = True
         else:
             log.debug( 'referrer_host, `%s`' % referrer_host )
-        log.debug( 'return_val, `%s`' % return_val )
+        log.info( 'return_val, `%s`' % return_val )
         return return_val
 
     def get_referrer_host( self, referrer_url ):
@@ -83,7 +83,7 @@ class LoginHelper( object ):
             Called by validate_source() """
         output = urlparse.urlparse( referrer_url )
         host = output.netloc
-        log.debug( 'referrer host, `%s`' % host )
+        log.info( 'referrer host, `%s`' % host )
         return host
 
     def validate_params( self, request ):
@@ -94,7 +94,7 @@ class LoginHelper( object ):
         if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
             if len(request.GET['bibnum']) == 8 and len(request.GET['barcode']) == 14:
                 return_val = True
-        log.debug( 'return_val, `%s`' % return_val )
+        log.info( 'return_val, `%s`' % return_val )
         return return_val
 
     def initialize_session( self, request ):
@@ -109,6 +109,7 @@ class LoginHelper( object ):
         request.session.setdefault( 'barcode_login_error', False)
         request.session['barcode_authorized'] = False
         log.debug( 'request.session after initialization, `%s`' % pprint.pformat(request.session.items()) )
+        log.info( 'bib, `%s`' % request.session.get('item_bib', None) )
         return
 
     def _initialize_session_item_info( self, request ):
@@ -134,13 +135,28 @@ class LoginHelper( object ):
         request.session['josiah_api_name'] = ''  # for josiah-patron-accounts call
         return
 
+    # def get_item_info( self, bibnum, item_barcode ):
+    #     """ Hits availability-api for bib-title, and item id and callnumber.
+    #         Bib title and item callnumber are just for user display; item id needed if user proceeds.
+    #         Called by views.login() """
+    #     ( title, callnumber, item_id ) = ( '', '', '' )
+    #     api_dct = self.hit_availability_api( bibnum )
+    #     title = api_dct['response']['backend_response'][0]['title']
+    #     ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
+    #     log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
+    #     return ( title, callnumber, item_id )
+
     def get_item_info( self, bibnum, item_barcode ):
         """ Hits availability-api for bib-title, and item id and callnumber.
             Bib title and item callnumber are just for user display; item id needed if user proceeds.
             Called by views.login() """
         ( title, callnumber, item_id ) = ( '', '', '' )
         api_dct = self.hit_availability_api( bibnum )
-        title = api_dct['response']['backend_response'][0]['title']
+        try:
+            title = api_dct['response']['backend_response'][0]['title']
+        except:
+            log.exception( 'unable to access title; traceback follows, but processing will continue' )
+            title = 'title unavailable'
         ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
         log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
         return ( title, callnumber, item_id )
@@ -151,24 +167,45 @@ class LoginHelper( object ):
         dct = {}
         try:
             availability_api_url = '%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+            log.info( 'availability_api_url, ```%s```' % availability_api_url )
             r = requests.get( availability_api_url )
             dct = r.json()
-            log.debug( 'partial availability-api-response, `%s`' % pprint.pformat(dct)[0:200] )
+            log.info( 'partial availability-api-response, ```%s```' % pprint.pformat(dct)[0:200] )
+            log.debug( 'full availability-api-response, ```%s```' % pprint.pformat(dct) )
         except Exception as e:
             log.error( 'exception, %s' % unicode(repr(e)) )
         return dct
 
+    # def process_items( self, api_dct, item_barcode ):
+    #     """ Extracts the callnumber and item_id from availability-api response.
+    #         Called by get_item_info() """
+    #     log.debug( 'starting process_items()' )
+    #     ( callnumber, item_id ) = ( '', '' )
+    #     results = api_dct['response']['backend_response']
+    #     for result in results:
+    #         items = result['items_data']
+    #         for item in items:
+    #             if item_barcode == item['barcode']:
+    #                 callnumber = item['callnumber_interpreted'].replace( ' None', '' )
+    #                 item_id = item['item_id'][:-1]  # removes trailing check-digit
+    #     log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
+    #     return ( callnumber, item_id )
+
     def process_items( self, api_dct, item_barcode ):
         """ Extracts the callnumber and item_id from availability-api response.
             Called by get_item_info() """
+        log.debug( 'starting process_items()' )
         ( callnumber, item_id ) = ( '', '' )
-        results = api_dct['response']['backend_response']
-        for result in results:
-            items = result['items_data']
-            for item in items:
-                if item_barcode == item['barcode']:
-                    callnumber = item['callnumber_interpreted'].replace( ' None', '' )
-                    item_id = item['item_id'][:-1]  # removes trailing check-digit
+        try:
+            results = api_dct['response']['backend_response']
+            for result in results:
+                items = result['items_data']
+                for item in items:
+                    if item_barcode == item['barcode']:
+                        callnumber = item['callnumber_interpreted'].replace( ' None', '' )
+                        item_id = item['item_id'][:-1]  # removes trailing check-digit
+        except:
+            log.exception( 'unable to process results; traceback follows, but processing continues' )
         log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
         return ( callnumber, item_id )
 
@@ -369,12 +406,16 @@ class ShibChecker( object ):
     def grab_shib_info( self, request ):
         """ Grabs shib values from http-header or dev-settings.
             Called by models.ShibViewHelper.check_shib_headers() """
+        log.debug( 'request.__dict__, ```%s```' % pprint.pformat(request.__dict__) )
         shib_dict = {}
         # if 'Shibboleth-eppn' in request.META:
         if 'HTTP_SHIBBOLETH_EPPN' in request.META:
             shib_dict = self.grab_shib_from_meta( request )
         else:
-            if request.get_host() == '127.0.0.1' and project_settings.DEBUG == True:
+            # log.debug( 'HERE-A' )
+            # log.debug( 'request.get_host(), `%s`' % request.get_host() )
+            # log.debug( 'project_settings.DEBUG, `%s`' % project_settings.DEBUG )
+            if '127.0.0.1' in request.get_host() and project_settings.DEBUG == True:
                 shib_dict = json.loads( self.TEST_SHIB_JSON )
         log.debug( 'in models.ShibChecker.grab_shib_info(); shib_dict is: %s' % pprint.pformat(shib_dict) )
         return shib_dict
