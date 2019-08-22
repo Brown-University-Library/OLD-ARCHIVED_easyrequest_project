@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+
 import datetime, json, logging, os, pprint
 
 from .lib import version_helper
@@ -12,9 +13,12 @@ from django.shortcuts import render
 from django.utils.http import urlquote
 from django.views.decorators.csrf import csrf_exempt
 from easyrequest_app import models
-
+from easyrequest_app.lib.mail import Emailer
+# from easyrequest_app.lib import mail
 
 log = logging.getLogger(__name__)
+
+emailer = Emailer()
 login_helper = models.LoginHelper()
 shib_view_helper = models.ShibViewHelper()
 processor_helper = models.Processor()
@@ -170,6 +174,7 @@ def problem( request ):
         'PHONE': os.environ['EZRQST__PHONE_GENERAL_HELP']
         }
     logout(request)  # from django.contrib.auth import logout
+    emailer.email_admin()
     return render( request, 'easyrequest_app_templates/problem.html', context )
 
 
