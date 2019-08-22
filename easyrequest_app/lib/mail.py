@@ -26,7 +26,7 @@ class Emailer(object):
         """ Emails admin notification of problem.
             Called by views.problem() """
         try:
-            body = self.build_email_body( patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display )
+            body = self.build_email_body()
             ffrom = self.EMAIL_FROM  # `from` reserved
             to = [ patron_email ]
             extra_headers = { 'Reply-To': self.EMAIL_REPLY_TO }
@@ -37,7 +37,7 @@ class Emailer(object):
             log.exception( 'exception sending email; traceback follows, but processing will continue' )
         return
 
-    def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display ):
+    def build_email_body( self ):
         """ Prepares and returns email body.
             Called by email_patron().
             TODO: Send identifiers for the patron and the item. """
