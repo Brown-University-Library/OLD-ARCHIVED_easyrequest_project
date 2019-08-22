@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-""" Helper for kochief/discovery/views.info() """
 
 import datetime, json, logging, os, subprocess
 from django.conf import settings
 
 
 log = logging.getLogger(__name__)
-# log_level = { 'DEBUG': logging.DEBUG, 'INFO': logging.INFO }
-# log.setLevel( log_level[settings.LOG_LEVEL] )
-# if not logging._handlers:
-#     handler = logging.FileHandler( settings.LOG_PATH, mode='a', encoding='utf-8', delay=False )
-#     formatter = logging.Formatter( '[%(asctime)s] %(levelname)s [%(module)s-%(funcName)s()::%(lineno)d] %(message)s' )
-#     handler.setFormatter( formatter )
-#     log.addHandler( handler )
 
 
 def get_commit():
