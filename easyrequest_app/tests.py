@@ -72,7 +72,9 @@ class PatronApiHelperTest( TestCase ):
     """ Tests models.PatronApiHelper() """
 
     def test__instantiation_good( self ):
-        """ Tests instantition on good barcode. """
+        """ Tests instantition on good barcode.
+            Note:  will only work if patron-api is configured to accept incoming request from test-IP,
+                   but if developing locally, that should be done anyway. """
         TEST_PATRON_BARCODE = unicode( os.environ['EZRQST__TEST_PATRON_BARCODE'] )
         TEST_PATRON_API_NAME = unicode( os.environ['EZRQST__TEST_PATRON_API_NAME'] )
         print 'TEST_PATRON_API_NAME...'; print TEST_PATRON_API_NAME
