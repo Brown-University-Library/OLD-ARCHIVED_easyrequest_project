@@ -28,42 +28,66 @@ class LoginHelperTest( TestCase ):
         """ Tests extract from api lookup on bib. """
         item_barcode = '31236074994859'
         api_dct = {
-            'query': {
-                'query_key': 'bib',
-                'query_timestamp': '2015-08-31 15:33:28.988222',
-                'query_value': 'b6150593',
-                'url': 'https://library.brown.edu/availability_service/v2/bib/b6150593/'},
-            'response': {
-                'backend_response': [ {
-                    'bibid': '.b61505936',
-                    'callnumber': 'CT275.P648 R53 2008',
-                    'holdings_data': [ {
-                        'callNumber': 'CT275.P648 R53 2008 ',
-                        'localLocation': 'ANNEX',
-                        'publicNote': 'AVAILABLE'}],
-                    'isbn': '9780307269706',
-                    'issn': 'issn_not_available',
-                    'items_data': [ {
-                        'barcode': '31236074994859',
-                        'callnumber': None,
-                        'callnumber_interpreted': 'CT275.P648 R53 2008 None',
-                        'item_id': 'i165116687',
-                        'itype': '0',
-                        'itype_interpreted': 'coming',
-                        'location': 'qs',
-                        'location_interpreted': 'coming',
-                        'status': '-',
-                        'status_interpreted': 'coming'}],
-                    'josiah_bib_url': 'https://josiah.brown.edu/record=b6150593',
-                    'lccn': '2008017156',
-                    'oclc_brown': 'ocn226308091',
-                    'title': 'Zen and now : on the trail of Robert Pirsig and Zen and the art of motorcycle maintenance /'}],
-                'response_timestamp': '2015-08-31 15:33:29.034138'}
-            }
+         u'query': {u'timestamp': u'2019-09-05 13:22:12.841357',
+                    u'url': u'https://library.brown.edu/availability_api/v2/bib_items/b6150593/'},
+         u'response': {u'bib': {u'author': u'Richardson, Mark, 1962- author',
+                                u'title': u'Zen and now : on the trail of Robert Pirsig and Zen and the art of motorcycle maintenance',
+                                u'url': u'https://search.library.brown.edu/catalog/b6150593'},
+                       u'items': [{u'barcode': u'31236074994859',
+                                   u'callnumber': u'CT275.P648 R53 2008',
+                                   u'item_id': u'i165116687',
+                                   u'location': u'ANNEX',
+                                   u'status': u'AVAILABLE'}],
+                       u'items_count': 1,
+                       u'sierra_api': u'SNIP (irrelevant for test)',
+                       u'sierra_api_query': u'https://catalog.library.brown.edu:443/iii/sierra-api/v5/bibs/?id=6150593',
+                       u'time_taken': u'0:00:00.493448'}
+        }
         self.assertEqual(
             ( 'CT275.P648 R53 2008', 'i16511668' ),
             login_helper.process_items( api_dct, item_barcode )
             )
+
+    # def test__process_items( self ):
+    #     """ Tests extract from api lookup on bib. """
+    #     item_barcode = '31236074994859'
+    #     api_dct = {
+    #         'query': {
+    #             'query_key': 'bib',
+    #             'query_timestamp': '2015-08-31 15:33:28.988222',
+    #             'query_value': 'b6150593',
+    #             'url': 'https://library.brown.edu/availability_service/v2/bib/b6150593/'},
+    #         'response': {
+    #             'backend_response': [ {
+    #                 'bibid': '.b61505936',
+    #                 'callnumber': 'CT275.P648 R53 2008',
+    #                 'holdings_data': [ {
+    #                     'callNumber': 'CT275.P648 R53 2008 ',
+    #                     'localLocation': 'ANNEX',
+    #                     'publicNote': 'AVAILABLE'}],
+    #                 'isbn': '9780307269706',
+    #                 'issn': 'issn_not_available',
+    #                 'items_data': [ {
+    #                     'barcode': '31236074994859',
+    #                     'callnumber': None,
+    #                     'callnumber_interpreted': 'CT275.P648 R53 2008 None',
+    #                     'item_id': 'i165116687',
+    #                     'itype': '0',
+    #                     'itype_interpreted': 'coming',
+    #                     'location': 'qs',
+    #                     'location_interpreted': 'coming',
+    #                     'status': '-',
+    #                     'status_interpreted': 'coming'}],
+    #                 'josiah_bib_url': 'https://josiah.brown.edu/record=b6150593',
+    #                 'lccn': '2008017156',
+    #                 'oclc_brown': 'ocn226308091',
+    #                 'title': 'Zen and now : on the trail of Robert Pirsig and Zen and the art of motorcycle maintenance /'}],
+    #             'response_timestamp': '2015-08-31 15:33:29.034138'}
+    #         }
+    #     self.assertEqual(
+    #         ( 'CT275.P648 R53 2008', 'i16511668' ),
+    #         login_helper.process_items( api_dct, item_barcode )
+    #         )
 
     # end class class LoginHelperTest
 
