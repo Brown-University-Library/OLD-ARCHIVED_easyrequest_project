@@ -141,7 +141,11 @@ class LoginHelper( object ):
     #         Called by views.login() """
     #     ( title, callnumber, item_id ) = ( '', '', '' )
     #     api_dct = self.hit_availability_api( bibnum )
-    #     title = api_dct['response']['backend_response'][0]['title']
+    #     try:
+    #         title = api_dct['response']['backend_response'][0]['title']
+    #     except:
+    #         log.exception( 'unable to access title; traceback follows, but processing will continue' )
+    #         title = 'title unavailable'
     #     ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
     #     log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
     #     return ( title, callnumber, item_id )
@@ -153,7 +157,7 @@ class LoginHelper( object ):
         ( title, callnumber, item_id ) = ( '', '', '' )
         api_dct = self.hit_availability_api( bibnum )
         try:
-            title = api_dct['response']['backend_response'][0]['title']
+            title = api_dct['response']['bib']['title']
         except:
             log.exception( 'unable to access title; traceback follows, but processing will continue' )
             title = 'title unavailable'
@@ -161,19 +165,35 @@ class LoginHelper( object ):
         log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
         return ( title, callnumber, item_id )
 
+    # def hit_availability_api( self, bibnum ):
+    #     """ Returns availability-api dict.
+    #         Called by get_item_info() """
+    #     dct = {}
+    #     try:
+    #         availability_api_url = '%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+    #         log.info( 'availability_api_url, ```%s```' % availability_api_url )
+    #         r = requests.get( availability_api_url )
+    #         dct = r.json()
+    #         log.info( 'partial availability-api-response, ```%s```' % pprint.pformat(dct)[0:200] )
+    #         log.debug( 'full availability-api-response, ```%s```' % pprint.pformat(dct) )
+    #     except Exception as e:
+    #         log.error( 'exception, %s' % unicode(repr(e)) )
+    #     return dct
+
     def hit_availability_api( self, bibnum ):
         """ Returns availability-api dict.
             Called by get_item_info() """
         dct = {}
         try:
-            availability_api_url = '%s/bib/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
+            availability_api_url = '%s/v2/bib_items/%s' % ( self.AVAILABILITY_API_URL_ROOT, bibnum )
             log.info( 'availability_api_url, ```%s```' % availability_api_url )
-            r = requests.get( availability_api_url )
+            r = requests.get( availability_api_url, timeout=15 )
             dct = r.json()
             log.info( 'partial availability-api-response, ```%s```' % pprint.pformat(dct)[0:200] )
-            log.debug( 'full availability-api-response, ```%s```' % pprint.pformat(dct) )
+            # log.debug( 'full availability-api-response, ```%s```' % pprint.pformat(dct) )
         except Exception as e:
-            log.error( 'exception, %s' % unicode(repr(e)) )
+            # log.error( 'exception, %s' % unicode(repr(e)) )
+            log.exception( 'unable to hit availability-api; traceback follows, but processing continues' )
         return dct
 
     # def process_items( self, api_dct, item_barcode ):
@@ -181,13 +201,16 @@ class LoginHelper( object ):
     #         Called by get_item_info() """
     #     log.debug( 'starting process_items()' )
     #     ( callnumber, item_id ) = ( '', '' )
-    #     results = api_dct['response']['backend_response']
-    #     for result in results:
-    #         items = result['items_data']
-    #         for item in items:
-    #             if item_barcode == item['barcode']:
-    #                 callnumber = item['callnumber_interpreted'].replace( ' None', '' )
-    #                 item_id = item['item_id'][:-1]  # removes trailing check-digit
+    #     try:
+    #         results = api_dct['response']['backend_response']
+    #         for result in results:
+    #             items = result['items_data']
+    #             for item in items:
+    #                 if item_barcode == item['barcode']:
+    #                     callnumber = item['callnumber_interpreted'].replace( ' None', '' )
+    #                     item_id = item['item_id'][:-1]  # removes trailing check-digit
+    #     except:
+    #         log.exception( 'unable to process results; traceback follows, but processing continues' )
     #     log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
     #     return ( callnumber, item_id )
 
@@ -197,13 +220,11 @@ class LoginHelper( object ):
         log.debug( 'starting process_items()' )
         ( callnumber, item_id ) = ( '', '' )
         try:
-            results = api_dct['response']['backend_response']
-            for result in results:
-                items = result['items_data']
-                for item in items:
-                    if item_barcode == item['barcode']:
-                        callnumber = item['callnumber_interpreted'].replace( ' None', '' )
-                        item_id = item['item_id'][:-1]  # removes trailing check-digit
+            items = api_dct['response']['items']
+            for item in items:
+                if item_barcode == item['barcode']:
+                    callnumber = item['callnumber']
+                    item_id = item['item_id'][:-1]  # removes trailing check-digit
         except:
             log.exception( 'unable to process results; traceback follows, but processing continues' )
         log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
