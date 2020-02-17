@@ -766,7 +766,7 @@ class PatronApiHelper( object ):
         """ Runs web-query.
             Called by process_barcode() """
         try:
-            r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=5, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
+            r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=10, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
             log.debug( 'full patron-api url, ```%s```' % r.url )
             r.raise_for_status()  # will raise an http_error if not 200
             log.debug( 'r.content, `%s`' % unicode(r.content) )
