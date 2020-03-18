@@ -16,8 +16,18 @@ easyRequest login
     p {
         margin-bottom: .5em;
         font-size: 125%; }
+
+    /*
     div#requested_item {
-        margin-top: 4em; }
+        margin-top: 4em;
+    }
+    */
+
+    div#requested_item {
+        margin-top: 2em;
+        margin-bottom: 6em;
+    }
+
     dt, dd {
         font-family:sans-serif;
         margin-top: .5em; }
@@ -111,9 +121,37 @@ easyRequest login
         width:100%;
         }
 
+    /***** alert *****/
+    div#alert {
+        background-color : #FFE6A0 ;
+        font-family : CircularStd ;
+        padding : 25px ;
+        margin-bottom : .1em ;
+    }
+    h2.alert {
+        /*color : #222 !important ;*/
+        font-size: 2.5em;
+        margin-bottom: .5em;
+    }
+    p.alert {
+        font-weight: bolder;
+        font-size: 2em;
+    }
+    p.alert_nonbold {
+        font-size: 1.75em;
+    }
+
 </style>
 
  <h1>Annex Item Request</h1>
+
+<div id="alert">
+    <h2 class="alert" style="color:darkred;font-weight: bold;">Important Notice</h2>
+    <p class="alert">Physical delivery of items from the Annex offsite-storage facility has been suspended until further notice.</p>
+    <p class="alert_nonbold">In the meantime, you may request scans of up to 50 pages; which you can do by navigating back to the previous page, and clicking the <strong>"scan"</strong> link.</p>
+    <p class="alert_nonbold">We will reassess all Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates about Library services.</p>
+    <hr/>
+</div>
 
  <div id="requested_item">
 
@@ -130,6 +168,8 @@ easyRequest login
     </dl>
 
 </div>
+
+{% comment %}
 
 <div id="forms">
 
@@ -172,6 +212,8 @@ easyRequest login
     </form>
 
 </div>
+
+{% endcomment %}
 
 <hr/>
 
