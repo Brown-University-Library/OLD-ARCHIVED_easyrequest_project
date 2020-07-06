@@ -149,10 +149,19 @@ easyRequest login
 
  <h1>Annex Item Request</h1>
 
+{% comment %}
 <div id="alert">
     <h2 class="alert"><strong>Important Notice</strong></h2>
     <p class="alert"><strong>Physical delivery of items from the Library Annex has been suspended until further notice.</strong></p>
     <p class="alert_nonbold">In the meantime, you may request scans by navigating back to the previous page and clicking the <strong>"scan"</strong> link. We will conduct scans and deliver them to your email address in the order in which they are received, in as timely a manner as possible.</p>
+    <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
+    <hr/>
+</div>
+{% endcomment %}
+
+<div id="alert">
+    <h2 class="alert"><strong>Important Notice</strong></h2>
+    <p class="alert"><strong>The library is providing <a href="https://blogs.brown.edu/libnews/resume-service/">limited, contactless circulation</a> in addition to remote services.</strong></p>
     <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
     <hr/>
 </div>
@@ -173,8 +182,6 @@ easyRequest login
 
 </div>
 
-{% comment %}
-
 <div id="forms">
 
     <form id="shib_login" action={{ shib_form_action_url }} method="POST">{% csrf_token %}
@@ -194,6 +201,7 @@ easyRequest login
         <input id="shib_login_button" type="submit" value="Log in">
     </form>
 
+    {% comment %}
     <form id="barcode_login" action={{ barcode_form_action_url }} method="POST">{% csrf_token %}
         <!-- <h3 id="please_barcode">...or via your patron barcode</h3> -->
         <h3 id="please_barcode">...or with your name and library card barcode</h3>
@@ -214,10 +222,9 @@ easyRequest login
         {% endif %}
         <br /><input id="barcode_login_button" type="submit" value="Log in">
     </form>
+    {% endcomment %}
 
 </div>
-
-{% endcomment %}
 
 <hr/>
 
