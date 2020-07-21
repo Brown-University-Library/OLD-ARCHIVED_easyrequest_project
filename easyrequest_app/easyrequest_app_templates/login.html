@@ -190,9 +190,9 @@ easyRequest login
         <p class="form_pickup_label">Pickup location:</p>
         <select name="pickup_location" id="shib_location" size="3">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
-            <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
+            <!-- <option value="{{ SCI_code }}" >{{ SCI_display }}</option> -->
             <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
-            <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
+            <!-- <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option> -->
         </select>
         {% if shib_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
