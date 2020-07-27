@@ -636,7 +636,7 @@ This is a confirmation of your request for the item...
 Title: %s
 Call Number: %s
 
-Items requested form the Annex are generally available in 1 business day. You will receive an email when the item is available for pickup at the %s.
+Items requested from the Annex are generally available in 96 hours. You will receive an email when the item is available for pickup at the %s.
 
 If you have questions, feel free to email %s or call %s, and refer to...
 
