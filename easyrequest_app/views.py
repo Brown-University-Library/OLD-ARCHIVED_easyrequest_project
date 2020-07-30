@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 
 import datetime, json, logging, os, pprint
 
-from .lib import version_helper
+# from .lib import common, version_helper
+
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
@@ -13,7 +14,9 @@ from django.shortcuts import render
 from django.utils.http import urlquote
 from django.views.decorators.csrf import csrf_exempt
 from easyrequest_app import models
+from easyrequest_app.lib import common, version_helper
 from easyrequest_app.lib.mail import Emailer
+
 # from easyrequest_app.lib import mail
 
 log = logging.getLogger(__name__)
@@ -29,15 +32,33 @@ summary_helper = models.SummaryHelper()
 stats_builder = models.StatsBuilder()
 
 
-@csrf_exempt  # temp for migration
+# @csrf_exempt  # temp for migration
+# def info( request ):
+#     """ Returns info page. """
+#     log.debug( 'starting info()' )
+#     context = {
+#         # 'email_general_help': os.environ['EZRQST__EMAIL_GENERAL_HELP'],
+#         # 'phone_general_help': os.environ['EZRQST__PHONE_GENERAL_HELP']
+#         }
+#     return render( request, 'easyrequest_app_templates/info.html', context )
+
+
+
 def info( request ):
-    """ Returns info page. """
-    log.debug( 'starting info()' )
+    """ Returns basic info about the easyrequest_hay webapp.
+        Triggered by root easyrequest_hay url. """
+    log.debug( '\n\nstarting info(); request.__dict__, ```%s```' % request.__dict__ )
+    start = datetime.datetime.now()
     context = {
-        # 'email_general_help': os.environ['EZRQST__EMAIL_GENERAL_HELP'],
-        # 'phone_general_help': os.environ['EZRQST__PHONE_GENERAL_HELP']
-        }
-    return render( request, 'easyrequest_app_templates/info.html', context )
+        'pattern_header': common.grab_pattern_header(),
+        'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
+    }
+    if request.GET.get('format', '') == 'json':
+        context_json = json.dumps(context, sort_keys=True, indent=2)
+        resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
+    else:
+        resp = render( request, 'easyrequest_app_templates/info.html', context )
+    return resp
 
 
 @csrf_exempt  # temp for migration
