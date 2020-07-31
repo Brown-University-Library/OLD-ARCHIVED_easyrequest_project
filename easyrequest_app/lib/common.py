@@ -25,7 +25,7 @@ def grab_pattern_header():
         header_html = r.content.decode( 'utf8' )
         info_url = reverse( 'info_url' )
         log.debug( 'info_url, ``%s``' % info_url )
-        header_html = header_html.replace( 'DYNAMIC_SITE_URL', info_url ).replace( 'DYNAMIC_INFO_url', info_url )
+        header_html = header_html.replace( 'DYNAMIC_SITE_URL', info_url ).replace( 'DYNAMIC_INFO_URL', info_url )
         cache.set( cache_key, header_html, PATTERN_LIB_CACHE_TIMEOUT )
     return header_html
 

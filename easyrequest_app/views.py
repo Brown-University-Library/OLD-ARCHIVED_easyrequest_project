@@ -57,7 +57,11 @@ def info( request ):
         context_json = json.dumps(context, sort_keys=True, indent=2)
         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
     else:
-        resp = render( request, 'easyrequest_app_templates/info.html', context )
+        if context['pattern_header_active'] == True:
+            template = 'easyrequest_app_templates/info_02.html'
+        else:
+            template = 'easyrequest_app_templates/info.html'
+        resp = render( request, template, context )
     return resp
 
 
