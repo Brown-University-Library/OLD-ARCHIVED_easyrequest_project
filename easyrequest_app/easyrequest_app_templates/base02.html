@@ -14,78 +14,9 @@
 
 <body>
 
-    {% if pattern_header_active %}  {# header #}
-
-        <!-- PATTERN-LIBRARY-HEADER start... -->
-        {{ pattern_header | safe }}
-        <!-- PATTERN-LIBRARY-HEADER end -->
-
-    {% else %}
-
-        <style>
-            div#wrapper {
-                font-size: 2.5em;
-                /*margin-top: 2em;*/
-                text-transform: none;
-                min-height: 0;
-            }
-            div.large-content h3 {
-                font-size: 40%;
-            }
-        </style>
-
-        <div id="wrapper">
-
-            <link href="//library.brown.edu/css_2011/BUL2011.css" rel="stylesheet" type="text/css" />
-            <!-- script below from http://code.google.com/p/css3-mediaqueries-js/ - forces earlier browsers to interpret CSS media queries -->
-            <script type="text/javascript" src="//library.brown.edu/scripts_2011/css3-mediaqueries.js"></script>
-            <!--[if lt IE 9]>
-            <script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
-            <![endif]-->
-            <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css" type="text/css">
-            <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-            <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
-
-            <div id="header">
-                <p class="top_header_links">
-                    <a href="http://library.brown.edu/libweb/proxy.php">Off-Campus Access</a> &nbsp;&nbsp;&#124;&nbsp;&nbsp;
-                    <a href="http://library.brown.edu/libweb/atoz.php">Library A&ndash;Z</a> <!-- &nbsp;&nbsp;&#124;&nbsp;&nbsp; -->
-                    {% if logout_url %}&nbsp;&nbsp;&#124;&nbsp;&nbsp;<a href="{{ logout_url }}">Log-out</a>{% endif %}
-                </p>
-
-                <div class="BUhomelink">
-                    <a href="http://www.brown.edu"><img src="//library.brown.edu/images/spacer.gif" width="50" alt="Brown University Homepage" title="Brown University Homepage" /></a>
-                </div>
-
-                <div class="BULhomelink">
-                    <a href="http://library.brown.edu/"><img src="//library.brown.edu/images/spacer.gif" width="440" height="30" alt="Brown University Library Homepage" title="Brown University Library Homepage" /></a>
-                </div>
-
-            </div> <!-- end div#header -->
-
-            <div class="content-wrapper findit-core">
-
-                <div class="large-content findit-core">
-                    <h3>easyRequest</h3>
-
-                    {% comment %}
-                    <div style="margin:2em;">
-                        {% block content %}
-                        {% endblock content %}
-                    </div>
-                    {% endcomment %}
-
-                </div> <!-- end div.large-content findit-core -->
-
-                <!--
-                <div class="small-content findit-core">
-                </div> -->  <!-- end div.small-content findit-core -->
-
-            </div> <!-- end div.content-wrapper findit-core -->
-
-        </div> <!-- end div#wrapper -->
-
-    {% endif %}
+    <!-- PATTERN-LIBRARY-HEADER start... -->
+    {{ pattern_header | safe }}
+    <!-- PATTERN-LIBRARY-HEADER end -->
 
     <div style="margin:2em;">
         {% block content %}

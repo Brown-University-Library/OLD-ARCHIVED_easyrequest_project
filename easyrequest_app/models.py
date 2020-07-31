@@ -11,6 +11,7 @@ from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import smart_text
 from django.utils.http import urlquote
+from easyrequest_app.lib import common
 from iii_account import IIIAccount
 from requests.auth import HTTPBasicAuth
 
@@ -213,9 +214,37 @@ class LoginHelper( object ):
             'shib_login_error': request.session['shib_login_error'],
             'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
             'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP,
+            'pattern_header': common.grab_pattern_header(),
+            'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] ),
             }
         log.debug( 'context, ```%s```' % pprint.pformat(context) )
         return context
+
+    # def prepare_context( self, request ):
+    #     """ Prepares vars for template.
+    #         Called by views.login() """
+    #     context = {
+    #         'title': request.session['item_title'] ,
+    #         'callnumber': request.session['item_callnumber'],
+    #         'ROCK_code': self.pic_loc_helper.pickup_location_dct['ROCK']['code'],
+    #         'ROCK_display': self.pic_loc_helper.pickup_location_dct['ROCK']['display'],
+    #         'SCI_code': self.pic_loc_helper.pickup_location_dct['SCI']['code'],
+    #         'SCI_display': self.pic_loc_helper.pickup_location_dct['SCI']['display'],
+    #         'HAY_code': self.pic_loc_helper.pickup_location_dct['HAY']['code'],
+    #         'HAY_display': self.pic_loc_helper.pickup_location_dct['HAY']['display'],
+    #         'ORWIG_code': self.pic_loc_helper.pickup_location_dct['ORWIG']['code'],
+    #         'ORWIG_display': self.pic_loc_helper.pickup_location_dct['ORWIG']['display'],
+    #         'barcode_form_action_url': reverse( 'barcode_handler_url' ),
+    #         'barcode_login_name': request.session['barcode_login_name'],
+    #         'barcode_login_barcode': request.session['barcode_login_barcode'],
+    #         'barcode_login_error': request.session['barcode_login_error'],
+    #         'shib_form_action_url': reverse( 'shib_handler_url' ),
+    #         'shib_login_error': request.session['shib_login_error'],
+    #         'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
+    #         'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP,
+    #         }
+    #     log.debug( 'context, ```%s```' % pprint.pformat(context) )
+    #     return context
 
     # end class LoginHelper
 
