@@ -95,6 +95,13 @@ USE_TZ = False
 STATIC_URL = os.environ['EZRQST__STATIC_URL']
 STATIC_ROOT = os.environ['EZRQST__STATIC_ROOT']  # needed for collectstatic command
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.environ['EZRQST__CACHE_DIR_PATH'],
+    }
+}
+
 # Email
 SERVER_EMAIL = 'easyrequest@library.brown.edu'
 EMAIL_HOST = os.environ['EZRQST__EMAIL_HOST']

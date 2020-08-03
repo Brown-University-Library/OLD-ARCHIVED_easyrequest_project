@@ -10,7 +10,9 @@ from django.core.urlresolvers import reverse
 log = logging.getLogger(__name__)
 
 PATTERN_HEADER_URL = os.environ['EZRQST__PATTERN_HEADER_URL']
-PATTERN_LIB_CACHE_TIMEOUT = int( os.environ['EZRQST__PATTERN_HEADER_CACHE_TIMEOUT_IN_HOURS'] )
+PATTERN_LIB_CACHE_TIMEOUT = int( os.environ['EZRQST__PATTERN_HEADER_CACHE_TIMEOUT_IN_HOURS'] ) * 60 * 60
+log.debug( 'cache-timeout, ``%s``' % PATTERN_LIB_CACHE_TIMEOUT )
+log.debug( 'cache-timeout type, ``%s``' % type(PATTERN_LIB_CACHE_TIMEOUT) )
 
 
 def grab_pattern_header():
