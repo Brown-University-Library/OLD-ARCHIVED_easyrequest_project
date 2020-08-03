@@ -46,7 +46,7 @@ class Emailer(object):
             TODO: Send identifiers for the patron and the item. """
         body = '''Problem -- user was just shown the problem message.
 
-::: Item-Requesting -- a service of the Brown University Library :::
+::: easyRequest -- a service of the Brown University Library :::
 '''
         return body
 
