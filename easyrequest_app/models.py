@@ -617,7 +617,7 @@ This is a confirmation of your request for the item...
 Title: %s
 Call Number: %s
 
-Items requested from the Annex are generally available in 96 hours. You will receive an email when the item is available for pickup at the %s.
+Requested items are generally available within 96 hours. You will receive an email when the item is available for pickup at the %s.
 
 If you have questions, feel free to email %s or call %s, and refer to...
 
@@ -626,7 +626,7 @@ If you have questions, feel free to email %s or call %s, and refer to...
 - User barcode: "%s"
 - Item barcode: "%s"
 
-::: Annex Item-Requesting -- a service of the Brown University Library :::
+::: Item-Requesting -- a service of the Brown University Library :::
 ''' % (
             patron_name,
             item_title,
@@ -640,6 +640,41 @@ If you have questions, feel free to email %s or call %s, and refer to...
             item_barcode
             )
         return body
+
+#     def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display ):
+#         """ Prepares and returns email body.
+#             Called by email_patron().
+#             TODO: use render_to_string & template. """
+#         body = '''Greetings %s,
+
+# This is a confirmation of your request for the item...
+
+# Title: %s
+# Call Number: %s
+
+# Items requested from the Annex are generally available in 96 hours. You will receive an email when the item is available for pickup at the %s.
+
+# If you have questions, feel free to email %s or call %s, and refer to...
+
+# - Bibliographic #: "%s"
+# - Item #: "%s"
+# - User barcode: "%s"
+# - Item barcode: "%s"
+
+# ::: Annex Item-Requesting -- a service of the Brown University Library :::
+# ''' % (
+#             patron_name,
+#             item_title,
+#             item_callnumber,
+#             pickup_location_display,
+#             self.EMAIL_GENERAL_HELP,
+#             self.PHONE_GENERAL_HELP,
+#             item_bib,
+#             item_id,
+#             patron_barcode,
+#             item_barcode
+#             )
+#         return body
 
     # end class Processor
 
