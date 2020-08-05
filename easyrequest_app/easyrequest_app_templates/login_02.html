@@ -54,20 +54,25 @@ easyRequest login
     div#requested_item {
         margin-top: 0em;
         margin-bottom: 0em;
+        /*border-bottom: 5px solid red;*/
     }
     dt, dd {
-        font-family:sans-serif;
-        margin-top: 0em; }
+        /*font-family:sans-serif;*/
+        margin-top: 0em;
+        font-style: italic;
+    }
     dt {
         float:left;
         clear:left;
         text-align:right;
         width:15%;
-        font-size: 125%; }
+        font-size: 100%;
+    }
     dd {
         float:left;
         margin-left:2em;
-        font-size: 125%; }
+        font-size: 100%;
+    }
     /***** requested-item-end *****/
 
     div#forms {
@@ -86,10 +91,13 @@ easyRequest login
         /*width: 45%;*/
         height: 250px;
         float: left;
+        margin-top: -1.5em;
         }
     h3#please_shib {
         font-size: 1.5em;
         color: maroon;
+        margin-top: 0;
+        margin-bottom: 0;
         }
     select#shib_location {
         float:left;
@@ -97,7 +105,7 @@ easyRequest login
     input#shib_login_button {
         float:left;
         clear:left;
-        margin-top: 1.5em;
+        margin-top: 2.5em;
         }
 
     /* barcode form */
@@ -136,14 +144,15 @@ easyRequest login
 
     /* other */
     p.form_pickup_label {
-        margin-top: 1.5em;
-        }
+        margin-top: 1em;
+        margin-bottom: 0;
+    }
     p.login_error {
         float: left;
         color: red;
         margin-top: 1em;
         margin-bottom: .25em;
-        }
+    }
 </style>
 
 
@@ -170,6 +179,7 @@ easyRequest login
     </dl>
 
 </div>
+
 
 <div id="forms">
 
