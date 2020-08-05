@@ -1,0 +1,93 @@
+{% extends "easyrequest_app_templates/base02.html" %}
+
+{% block page_title %}
+easyRequest summary
+{% endblock page_title %}
+
+
+{% block content %}
+
+<style>
+    h1 {
+      font-size: 2.5em;
+      margin-top: 2em;
+      text-transform: none }
+    form {
+      margin-top: 2em; }
+    div#requested_item {
+      margin-top: 4em; }
+    h3#main_title {
+      float:left;
+      clear:left;
+      font-size: 1.5em;
+      color: maroon;
+      margin-top: 2.5em; }
+    dt, dd {
+      font-family:sans-serif;
+      margin-top: .5em; }
+    dt {
+      float:left;
+      clear:left;
+      text-align:right;
+      width:15%;
+      font-size: 125%; }
+    dd {
+      float:left;
+      margin-left:2em;
+      font-size: 125%; }
+    div#info {
+      float:left;
+      clear:left;
+      margin-top: 2em; }
+    p.additional_lines {
+      margin-top: 1em; }
+    p {
+      font-size: 125%; }
+    span#email {
+      color: red;}
+    p#return {
+        float: left;
+        clear: left;
+        margin-top: 2em;
+    }
+    hr {
+      float:left;
+      clear:left;
+      margin-top: 2em;
+      width:100%; }
+</style>
+
+<h1>easyRequest &mdash; summary</h1>
+
+ <div id="requested_item">
+
+    <p>{{ user_name }}, you requested the item …</p>
+    <br/>
+    <dl>
+        <dt>title:</dt>
+        <dd>{{ title }}</dd>
+
+        {% if callnumber %}
+        <dt>call number:</dt>
+        <dd>{{ callnumber }}</dd>
+        {% endif %}
+    </dl>
+
+</div>
+
+<h3 id="main_title">All set!</h3>
+
+<div id="info">
+<p>Your request has been submitted, and you will soon receive a confirmation email. In most cases requested items should be available in 96 hours.</p>
+<p class="additional_lines">When your item arrives, you'll be emailed at &lt;<span id="email">{{ user_email }}</span>&gt;.</p>
+<p class="additional_lines">This item will be held for you at the {{ pickup_location_display }}.</p>
+<p class="additional_lines">If you have questions, feel free to email {{ email_general_help|urlize }} or call {{ phone_general_help }}.</p>
+</div>
+
+{% if  source_url %}
+<p id="return">Return to <a href="{{ source_url }}">search results</a>.</p>
+{% endif %}
+
+<hr/>
+
+{% endblock content %}
