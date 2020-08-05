@@ -8,12 +8,52 @@ easyRequest summary
 {% block content %}
 
 <style>
+
     h1 {
-      font-size: 2.5em;
-      margin-top: 2em;
-      text-transform: none }
+        margin-top: 0;
+        text-transform: none
+    }
+
+
+    /***** requested-item-start *****/
+    div#requested_item {
+        margin-top: 0em;
+        margin-bottom: 0em;
+        /*border-bottom: 5px solid red;*/
+    }
+    h3#main_title {
+      float:left;
+      clear:left;
+      font-size: 1.5em;
+      color: maroon;
+      margin-top: 1em;
+      margin-bottom: 0;
+    }
+    dt, dd {
+        /*font-family:sans-serif;*/
+        margin-top: 0em;
+        font-style: italic;
+    }
+    dt {
+        float:left;
+        clear:left;
+        text-align:right;
+        width:15%;
+        font-size: 100%;
+    }
+    dd {
+        float:left;
+        margin-left:2em;
+        font-size: 100%;
+    }
+    /***** requested-item-end *****/
+
+
     form {
-      margin-top: 2em; }
+      margin-top: 2em;
+    }
+
+/*
     div#requested_item {
       margin-top: 4em; }
     h3#main_title {
@@ -35,26 +75,31 @@ easyRequest summary
       float:left;
       margin-left:2em;
       font-size: 125%; }
+*/
     div#info {
       float:left;
       clear:left;
-      margin-top: 2em; }
+      margin-top: 0;
+    }
     p.additional_lines {
       margin-top: 1em; }
     p {
-      font-size: 125%; }
+      font-size: 100%; }
     span#email {
-      color: red;}
+      color: maroon;}
     p#return {
         float: left;
         clear: left;
         margin-top: 2em;
     }
+
     hr {
       float:left;
       clear:left;
-      margin-top: 2em;
+      margin-top: 1em;
       width:100%; }
+
+
 </style>
 
 <h1>easyRequest &mdash; summary</h1>
@@ -62,7 +107,6 @@ easyRequest summary
  <div id="requested_item">
 
     <p>{{ user_name }}, you requested the item …</p>
-    <br/>
     <dl>
         <dt>title:</dt>
         <dd>{{ title }}</dd>
@@ -87,7 +131,5 @@ easyRequest summary
 {% if  source_url %}
 <p id="return">Return to <a href="{{ source_url }}">search results</a>.</p>
 {% endif %}
-
-<hr/>
 
 {% endblock content %}

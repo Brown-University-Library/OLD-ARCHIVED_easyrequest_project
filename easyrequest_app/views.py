@@ -53,20 +53,6 @@ def info( request ):
     return resp
 
 
-# @csrf_exempt  # temp for migration
-# def login( request ):
-#     """ Stores referring url, bib, and item-barcode in session.
-#         Presents shib and manual log in options. """
-#     log.info( 'starting login()' )
-#     if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
-#         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
-#     login_helper.initialize_session( request )
-#     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
-#     login_helper.update_session( request, title, callnumber, item_id )
-#     context = login_helper.prepare_context( request )
-#     return render( request, 'easyrequest_app_templates/login.html', context )
-
-
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
@@ -156,26 +142,6 @@ def processor( request ):
     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
 
 
-# @csrf_exempt  # temp for migration
-# def processor( request ):
-#     """ Handles item request:,
-#         - Ensures user is authenticated.
-#         - Saves request.
-#         - Places hold.
-#         - Emails patron.
-#         - Triggers shib_logout() view. """
-#     if processor_helper.check_request( request ) == False:
-#         return HttpResponseRedirect( reverse('info_url') )
-#     try:
-#         itmrqst = processor_helper.save_data( request )
-#         processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
-#     except Exception as e:
-#         log.error( 'Exception placing request, `%s`' % unicode(repr(e)) )
-#         return HttpResponseServerError( 'Problem placing request; please try again in a few minutes.' )
-#     processor_helper.email_patron( itmrqst.patron_email, itmrqst.patron_name, itmrqst.item_title, itmrqst.item_callnumber, itmrqst.item_bib, itmrqst.item_id, itmrqst.patron_barcode, itmrqst.item_barcode, request.session['pickup_location'] )
-#     return HttpResponseRedirect( reverse('logout_url') )  # shib_logout() view
-
-
 @csrf_exempt  # temp for migration
 def shib_logout( request ):
     """ Clears session, hits shib logout.
@@ -192,15 +158,36 @@ def shib_logout( request ):
     return HttpResponseRedirect( redirect_url )
 
 
-@csrf_exempt  # temp for migration
 def summary( request ):
     """ Displays final summary screen. """
     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
     context = summary_helper.build_main_context( request, EMAIL, PHONE )
+    context['pattern_header'] = common.grab_pattern_header()
+    context['pattern_header_active'] = json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
     if request.GET['source_url'][0:4] == 'http':
         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
-    return render( request, 'easyrequest_app_templates/summary.html', context )
+    if request.GET.get('format', '') == 'json':
+        context_json = json.dumps(context, sort_keys=True, indent=2)
+        resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
+    else:
+        if context['pattern_header_active'] == True:
+            template = 'easyrequest_app_templates/summary_02.html'
+        else:
+            template = 'easyrequest_app_templates/summary.html'
+        resp = render( request, template, context )
+    return resp
+
+
+# @csrf_exempt  # temp for migration
+# def summary( request ):
+#     """ Displays final summary screen. """
+#     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
+#     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
+#     context = summary_helper.build_main_context( request, EMAIL, PHONE )
+#     if request.GET['source_url'][0:4] == 'http':
+#         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
+#     return render( request, 'easyrequest_app_templates/summary.html', context )
 
 
 @csrf_exempt  # temp for migration
