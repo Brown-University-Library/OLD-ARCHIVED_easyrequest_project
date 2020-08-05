@@ -10,6 +10,13 @@
         easyRequest - Brown University Library
         {% endblock page_title %}
     </title>
+    <style>
+        div#content_wrapper {
+            margin-top: 2em;
+            margin-left: 6em;
+            margin-right: 12em;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,11 +25,14 @@
     {{ pattern_header | safe }}
     <!-- PATTERN-LIBRARY-HEADER end -->
 
-    <div style="margin:2em;">
+    <div id="content_wrapper">
+
         {% block content %}
         {% endblock content %}
-    </div>
 
+        <hr/>
+
+    </div>  <!-- end <div id="content_wrapper"> -->
 
 </body>
 

@@ -7,51 +7,13 @@ easyRequest login
 
 {% block content %}
 
-
-<!--
 <style>
-    div#info_text {
-        margin-left: 3em;
-        margin-right: 6em;
-    }
-    h1 {
-        margin-top: 0;
-        text-transform: none
-    }
-    div#rules {
-        margin-top: 3.5em; }
-    hr {
-        margin-top: 2em; }
-    p {
-        /*font-size: 125%;*/
-        margin-top:1.5em;
-    }
-    ul {
-        list-style-type: square;
-        margin-left: 2em;
-        /*font-size: 125%;*/
-    }
-    li {
-        line-height: 120%;
-        /*margin-top: .5em;*/
-        margin-bottom: .5em;
-    }
-</style>
- -->
-
-<style>
-
-    div#content_wrapper {
-        margin-left: 3em;
-        margin-right: 6em;
-    }
-
     h1 {
         margin-top: 0;
         text-transform: none
     }
 
-    /***** alert *****/
+    /***** alert-start *****/
     div#alert {
         background-color : #FFE6A0 ;
         /*font-family : CircularStd ;*/
@@ -78,20 +40,24 @@ easyRequest login
         line-height: 110%;
         margin: 0;
     }
-
+    hr.alert {
+        margin-top: 1em;
+        width:100%;
+        }
+    /***** alert-end *****/
 
     p {
-        /*font-size: 125%;*/
         margin-top:1.5em;
     }
-    div#requested_item {
-        margin-top: 2em;
-        margin-bottom: 6em;
-    }
 
+    /***** requested-item-start *****/
+    div#requested_item {
+        margin-top: 0em;
+        margin-bottom: 0em;
+    }
     dt, dd {
         font-family:sans-serif;
-        margin-top: .5em; }
+        margin-top: 0em; }
     dt {
         float:left;
         clear:left;
@@ -102,6 +68,7 @@ easyRequest login
         float:left;
         margin-left:2em;
         font-size: 125%; }
+    /***** requested-item-end *****/
 
     div#forms {
         width: 80%;
@@ -116,7 +83,7 @@ easyRequest login
     /* shib form */
     form#shib_login {
         /*from `http://jsfiddle.net/watson/Gsj27/3/`*/
-        width: 45%;
+        /*width: 45%;*/
         height: 250px;
         float: left;
         }
@@ -177,100 +144,75 @@ easyRequest login
         margin-top: 1em;
         margin-bottom: .25em;
         }
-    hr {
-        margin-top: 1em;
-        width:100%;
-        }
-
-
 </style>
 
-<div id="content_wrapper">
 
-    <!-- <h1>Annex Item Request</h1> -->
-    <h1>easyRequest &mdash; login</h1>
+<h1>easyRequest &mdash; login</h1>
+
+<div id="alert">
+    <h2 class="alert"><strong>Important Notice</strong></h2>
+    <p class="alert"><strong>The library is providing <a href="https://blogs.brown.edu/libnews/resume-service/">limited, contactless circulation</a> in addition to remote services.</strong></p>
+    <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
+    <hr class="alert"></hr>
+</div>
+
+ <div id="requested_item">
+
+    <p>You're requesting the item …</p>
+    <dl>
+        <dt>title:</dt>
+        <dd>{{ title }}</dd>
+
+        {% if callnumber %}
+        <dt>call number:</dt>
+        <dd>{{ callnumber }}</dd>
+        {% endif %}
+    </dl>
+
+</div>
+
+<div id="forms">
+
+    <form id="shib_login" action={{ shib_form_action_url }} method="POST">{% csrf_token %}
+        <!-- <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3> -->
+        <h3 id="please_shib">Log in with your Brown username &amp; password...</h3>
+        <p class="form_pickup_label">Pickup location:</p>
+        <select name="pickup_location" id="shib_location" size="3">
+            <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
+            <!-- <option value="{{ SCI_code }}" >{{ SCI_display }}</option> -->
+            <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
+            <!-- <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option> -->
+        </select>
+        {% if shib_login_error %}
+        <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
+        <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
+        {% endif %}
+        <input id="shib_login_button" type="submit" value="Log in">
+    </form>
 
     {% comment %}
-    <!--
-    <div id="alert">
-        <h2 class="alert"><strong>Important Notice</strong></h2>
-        <p class="alert"><strong>Physical delivery of items from the Library Annex has been suspended until further notice.</strong></p>
-        <p class="alert_nonbold">In the meantime, you may request scans by navigating back to the previous page and clicking the <strong>"scan"</strong> link. We will conduct scans and deliver them to your email address in the order in which they are received, in as timely a manner as possible.</p>
-        <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
-        <hr/>
-    </div>
-    -->
+    <form id="barcode_login" action={{ barcode_form_action_url }} method="POST">{% csrf_token %}
+        <!-- <h3 id="please_barcode">...or via your patron barcode</h3> -->
+        <h3 id="please_barcode">...or with your name and library card barcode</h3>
+        <p class="form_pickup_label">Pickup location:</p>
+        <select name="pickup_location" id="barcode_location" size="3">
+            <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
+            <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
+            <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
+            <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
+        </select>
+        <p id="name_field_label">First or Last Name:</p>
+        <input id="name_field_input" type="text" name="barcode_login_name" value="{{ barcode_login_name }}">
+        <p id="barcode_field_label">Barcode (14-digit barcode, beginning with 21236...):</p>
+        <input id="barcode_field_input" type="text" name="barcode_login_barcode" value="{{ barcode_login_barcode }}">
+        {% if barcode_login_error %}
+        <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
+        <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
+        {% endif %}
+        <br /><input id="barcode_login_button" type="submit" value="Log in">
+    </form>
     {% endcomment %}
 
-    <div id="alert">
-        <h2 class="alert"><strong>Important Notice</strong></h2>
-        <p class="alert"><strong>The library is providing <a href="https://blogs.brown.edu/libnews/resume-service/">limited, contactless circulation</a> in addition to remote services.</strong></p>
-        <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
-        <hr/>
-    </div>
-
-     <div id="requested_item">
-
-        <p>You're requesting the item …</p>
-        <br/>
-        <dl>
-            <dt>title:</dt>
-            <dd>{{ title }}</dd>
-
-            {% if callnumber %}
-            <dt>call number:</dt>
-            <dd>{{ callnumber }}</dd>
-            {% endif %}
-        </dl>
-
-    </div>
-
-    <div id="forms">
-
-        <form id="shib_login" action={{ shib_form_action_url }} method="POST">{% csrf_token %}
-            <!-- <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3> -->
-            <h3 id="please_shib">Log in with your Brown username &amp; password...</h3>
-            <p class="form_pickup_label">Pickup location:</p>
-            <select name="pickup_location" id="shib_location" size="3">
-                <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
-                <!-- <option value="{{ SCI_code }}" >{{ SCI_display }}</option> -->
-                <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
-                <!-- <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option> -->
-            </select>
-            {% if shib_login_error %}
-            <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
-            <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
-            {% endif %}
-            <input id="shib_login_button" type="submit" value="Log in">
-        </form>
-
-        {% comment %}
-        <form id="barcode_login" action={{ barcode_form_action_url }} method="POST">{% csrf_token %}
-            <!-- <h3 id="please_barcode">...or via your patron barcode</h3> -->
-            <h3 id="please_barcode">...or with your name and library card barcode</h3>
-            <p class="form_pickup_label">Pickup location:</p>
-            <select name="pickup_location" id="barcode_location" size="3">
-                <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
-                <option value="{{ SCI_code }}" >{{ SCI_display }}</option>
-                <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
-                <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option>
-            </select>
-            <p id="name_field_label">First or Last Name:</p>
-            <input id="name_field_input" type="text" name="barcode_login_name" value="{{ barcode_login_name }}">
-            <p id="barcode_field_label">Barcode (14-digit barcode, beginning with 21236...):</p>
-            <input id="barcode_field_input" type="text" name="barcode_login_barcode" value="{{ barcode_login_barcode }}">
-            {% if barcode_login_error %}
-            <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
-            <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
-            {% endif %}
-            <br /><input id="barcode_login_button" type="submit" value="Log in">
-        </form>
-        {% endcomment %}
-
-    </div>
-
-</div>  <!-- end of `<div id="content_wrapper">` -->
-
-<hr/>
+</div>  <!-- end <div id="forms"> -->
 
 {% endblock content %}
