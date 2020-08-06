@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 import os, pprint
-# from django.http import QueryDict
+from django.http import QueryDict
 from django.test import TestCase
 from easyrequest_app.models import LoginHelper, PatronApiHelper
 
@@ -48,46 +48,29 @@ class LoginHelperTest( TestCase ):
             login_helper.process_items( api_dct, item_barcode )
             )
 
-    # def test__process_items( self ):
-    #     """ Tests extract from api lookup on bib. """
-    #     item_barcode = '31236074994859'
-    #     api_dct = {
-    #         'query': {
-    #             'query_key': 'bib',
-    #             'query_timestamp': '2015-08-31 15:33:28.988222',
-    #             'query_value': 'b6150593',
-    #             'url': 'https://library.brown.edu/availability_service/v2/bib/b6150593/'},
-    #         'response': {
-    #             'backend_response': [ {
-    #                 'bibid': '.b61505936',
-    #                 'callnumber': 'CT275.P648 R53 2008',
-    #                 'holdings_data': [ {
-    #                     'callNumber': 'CT275.P648 R53 2008 ',
-    #                     'localLocation': 'ANNEX',
-    #                     'publicNote': 'AVAILABLE'}],
-    #                 'isbn': '9780307269706',
-    #                 'issn': 'issn_not_available',
-    #                 'items_data': [ {
-    #                     'barcode': '31236074994859',
-    #                     'callnumber': None,
-    #                     'callnumber_interpreted': 'CT275.P648 R53 2008 None',
-    #                     'item_id': 'i165116687',
-    #                     'itype': '0',
-    #                     'itype_interpreted': 'coming',
-    #                     'location': 'qs',
-    #                     'location_interpreted': 'coming',
-    #                     'status': '-',
-    #                     'status_interpreted': 'coming'}],
-    #                 'josiah_bib_url': 'https://josiah.brown.edu/record=b6150593',
-    #                 'lccn': '2008017156',
-    #                 'oclc_brown': 'ocn226308091',
-    #                 'title': 'Zen and now : on the trail of Robert Pirsig and Zen and the art of motorcycle maintenance /'}],
-    #             'response_timestamp': '2015-08-31 15:33:29.034138'}
-    #         }
-    #     self.assertEqual(
-    #         ( 'CT275.P648 R53 2008', 'i16511668' ),
-    #         login_helper.process_items( api_dct, item_barcode )
-    #         )
+    def test_validate_bibnum_params_A( self ):
+        """ Checks for missing bibnum param. """
+        querydict = QueryDict( 'barcode=12345678901234' )
+        login_helper.validate_params( querydict )
+        self.assertEqual( ['no item-bib-number submitted'], login_helper.problems )
+
+    def test_validate_bibnum_params_B( self ):
+        """ Checks for invalid bibnum param. """
+        querydict = QueryDict( 'bibnum=bad&barcode=12345678901234' )
+        login_helper.validate_params( querydict )
+        self.assertEqual( ['invalid item-bib-number submitted'], login_helper.problems )
+
+    def test_validate_barcode_params_A( self ):
+        """ Checks for missing barcode param. """
+        querydict = QueryDict( 'bibnum=b3060263' )
+        login_helper.validate_params( querydict )
+        self.assertEqual( ['no item-barcode submitted'], login_helper.problems )
+
+    def test_validate_barcode_params_B( self ):
+        """ Checks for invalid barcode param. """
+        querydict = QueryDict( 'bibnum=b3060263&barcode=bad' )
+        login_helper.validate_params( querydict )
+        self.assertEqual( ['invalid item-barcode submitted'], login_helper.problems )
 
     # end class class LoginHelperTest
 
