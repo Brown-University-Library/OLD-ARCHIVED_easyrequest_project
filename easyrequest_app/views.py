@@ -52,12 +52,14 @@ def info( request ):
         resp = render( request, template, context )
     return resp
 
-
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
     log.info( 'starting login()' )
-    if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
+    log.debug( 'rquest.GET, ``%s``' % request.GET )
+    if not login_helper.validate_source(request):
+        return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+    if not login_helper.validate_params( request.GET ):
         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
@@ -74,6 +76,28 @@ def login( request ):
             template = 'easyrequest_app_templates/login.html'
         resp = render( request, template, context )
     return resp
+
+# def login( request ):
+#     """ Stores referring url, bib, and item-barcode in session.
+#         Presents shib and manual log in options. """
+#     log.info( 'starting login()' )
+#     if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
+#         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+#     login_helper.initialize_session( request )
+#     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
+#     login_helper.update_session( request, title, callnumber, item_id )
+#     context = login_helper.prepare_context( request )
+#     # return render( request, 'easyrequest_app_templates/login.html', context )
+#     if request.GET.get('format', '') == 'json':
+#         context_json = json.dumps(context, sort_keys=True, indent=2)
+#         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
+#     else:
+#         if context['pattern_header_active'] == True:
+#             template = 'easyrequest_app_templates/login_02.html'
+#         else:
+#             template = 'easyrequest_app_templates/login.html'
+#         resp = render( request, template, context )
+#     return resp
 
 
 

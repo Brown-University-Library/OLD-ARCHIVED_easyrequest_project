@@ -48,29 +48,35 @@ class LoginHelperTest( TestCase ):
             login_helper.process_items( api_dct, item_barcode )
             )
 
-    def test_validate_bibnum_params_A( self ):
+    def test_validate_problem_bibnum_params_A( self ):
         """ Checks for missing bibnum param. """
         querydict = QueryDict( 'barcode=12345678901234' )
         login_helper.validate_params( querydict )
         self.assertEqual( ['no item-bib-number submitted'], login_helper.problems )
 
-    def test_validate_bibnum_params_B( self ):
+    def test_validate_problem_bibnum_params_B( self ):
         """ Checks for invalid bibnum param. """
         querydict = QueryDict( 'bibnum=bad&barcode=12345678901234' )
         login_helper.validate_params( querydict )
         self.assertEqual( ['invalid item-bib-number submitted'], login_helper.problems )
 
-    def test_validate_barcode_params_A( self ):
+    def test_validate_problem_barcode_params_A( self ):
         """ Checks for missing barcode param. """
         querydict = QueryDict( 'bibnum=b3060263' )
         login_helper.validate_params( querydict )
         self.assertEqual( ['no item-barcode submitted'], login_helper.problems )
 
-    def test_validate_barcode_params_B( self ):
+    def test_validate_problem_barcode_params_B( self ):
         """ Checks for invalid barcode param. """
         querydict = QueryDict( 'bibnum=b3060263&barcode=bad' )
         login_helper.validate_params( querydict )
         self.assertEqual( ['invalid item-barcode submitted'], login_helper.problems )
+
+    def test_validate_good_params( self ):
+        """ Checks for good params. """
+        querydict = QueryDict( 'bibnum=b3187026&barcode=31236016284724' )
+        login_helper.validate_params( querydict )
+        self.assertEqual( [], login_helper.problems )
 
     # end class class LoginHelperTest
 
