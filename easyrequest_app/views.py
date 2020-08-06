@@ -58,9 +58,18 @@ def login( request ):
     log.info( 'starting login()' )
     log.debug( 'rquest.GET, ``%s``' % request.GET )
     if not login_helper.validate_source(request):
-        return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+        message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at <https://search.library.brown.edu/>. Please start there and try again. If you need help, please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
+        login_helper.EMAIL_AUTH_HELP,
+        login_helper.PHONE_AUTH_HELP
+        )
+        return HttpResponseBadRequest( message )
     if not login_helper.validate_params( request.GET ):
-        return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+        message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
+        ', '.join( login_helper.problems ),
+        login_helper.EMAIL_AUTH_HELP,
+        login_helper.PHONE_AUTH_HELP
+        )
+        return HttpResponseBadRequest( message )
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     login_helper.update_session( request, title, callnumber, item_id )
