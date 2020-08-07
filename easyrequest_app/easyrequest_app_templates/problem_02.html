@@ -1,0 +1,38 @@
+{% extends "easyrequest_app_templates/base02.html" %}
+
+{% block page_title %}
+easyRequest summary
+{% endblock page_title %}
+
+
+{% block content %}
+
+<style>
+
+    h1 {
+        margin-top: 0;
+        text-transform: none
+    }
+
+    hr {
+      float:left;
+      clear:left;
+      margin-top: 1em;
+      width:100%; }
+
+
+</style>
+
+<h1>easyRequest &mdash; problem</h1>
+
+ <div id="problem">
+
+    <p>{{ message }}</p>
+
+</div>
+
+{% if  source_url %}
+<p id="return">Return to <a href="{{ source_url }}">search results</a>.</p>
+{% endif %}
+
+{% endblock content %}

@@ -52,26 +52,28 @@ def info( request ):
         resp = render( request, template, context )
     return resp
 
+
 def login( request ):
     """ Stores referring url, bib, and item-barcode in session.
         Presents shib and manual log in options. """
     log.info( 'starting login()' )
     log.debug( 'rquest.GET, ``%s``' % request.GET )
+    context = {
+        'pattern_header': common.grab_pattern_header(),
+        'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
+    }
     if not login_helper.validate_source(request):
-        # message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
-        # login_helper.EMAIL_AUTH_HELP,
-        # login_helper.PHONE_AUTH_HELP
-        # )
-        message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
-        login_helper.EMAIL_AUTH_HELP,
-        )
-        return HttpResponseBadRequest( message )
+        if context['pattern_header_active'] == True:
+            context['message'] = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you. """
+            template = 'easyrequest_app_templates/problem_02.html'
+            resp = render( request, template, context )
+        else:
+            message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
+            login_helper.EMAIL_AUTH_HELP,
+            )
+            resp = HttpResponseBadRequest( message )
+        return resp
     if not login_helper.validate_params( request.GET ):
-        # message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
-        # ', '.join( login_helper.problems ),
-        # login_helper.EMAIL_AUTH_HELP,
-        # login_helper.PHONE_AUTH_HELP
-        # )
         message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
         ', '.join( login_helper.problems ),
         login_helper.EMAIL_AUTH_HELP,
@@ -93,12 +95,32 @@ def login( request ):
         resp = render( request, template, context )
     return resp
 
+
 # def login( request ):
 #     """ Stores referring url, bib, and item-barcode in session.
 #         Presents shib and manual log in options. """
 #     log.info( 'starting login()' )
-#     if not ( login_helper.validate_source(request) and login_helper.validate_params(request) ):
-#         return HttpResponseBadRequest( "This web-application supports Josiah, the Library's search web-application. If you think you should be able to access this url, please contact '%s'." % login_helper.EMAIL_AUTH_HELP )
+#     log.debug( 'rquest.GET, ``%s``' % request.GET )
+#     if not login_helper.validate_source(request):
+#         # message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
+#         # login_helper.EMAIL_AUTH_HELP,
+#         # login_helper.PHONE_AUTH_HELP
+#         # )
+#         message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
+#         login_helper.EMAIL_AUTH_HELP,
+#         )
+#         return HttpResponseBadRequest( message )
+#     if not login_helper.validate_params( request.GET ):
+#         # message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
+#         # ', '.join( login_helper.problems ),
+#         # login_helper.EMAIL_AUTH_HELP,
+#         # login_helper.PHONE_AUTH_HELP
+#         # )
+#         message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
+#         ', '.join( login_helper.problems ),
+#         login_helper.EMAIL_AUTH_HELP,
+#         )
+#         return HttpResponseBadRequest( message )
 #     login_helper.initialize_session( request )
 #     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
 #     login_helper.update_session( request, title, callnumber, item_id )
@@ -114,7 +136,6 @@ def login( request ):
 #             template = 'easyrequest_app_templates/login.html'
 #         resp = render( request, template, context )
 #     return resp
-
 
 
 @csrf_exempt  # temp for migration
