@@ -642,7 +642,7 @@ Call Number: %s
 
 Requested items are generally available within 96 hours. You will receive an email when the item is available for pickup at the %s.
 
-If you have questions, feel free to email %s or call %s, and refer to...
+If you have questions, feel free to email %s, and refer to...
 
 - Bibliographic #: "%s"
 - Item #: "%s"
@@ -656,7 +656,6 @@ If you have questions, feel free to email %s or call %s, and refer to...
             item_callnumber,
             pickup_location_display,
             self.EMAIL_GENERAL_HELP,
-            self.PHONE_GENERAL_HELP,
             item_bib,
             item_id,
             patron_barcode,
@@ -675,7 +674,7 @@ If you have questions, feel free to email %s or call %s, and refer to...
 # Title: %s
 # Call Number: %s
 
-# Items requested from the Annex are generally available in 96 hours. You will receive an email when the item is available for pickup at the %s.
+# Requested items are generally available within 96 hours. You will receive an email when the item is available for pickup at the %s.
 
 # If you have questions, feel free to email %s or call %s, and refer to...
 
@@ -684,7 +683,7 @@ If you have questions, feel free to email %s or call %s, and refer to...
 # - User barcode: "%s"
 # - Item barcode: "%s"
 
-# ::: Annex Item-Requesting -- a service of the Brown University Library :::
+# ::: easyRequest -- a service of the Brown University Library :::
 # ''' % (
 #             patron_name,
 #             item_title,
