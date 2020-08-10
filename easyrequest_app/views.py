@@ -73,12 +73,28 @@ def login( request ):
             )
             resp = HttpResponseBadRequest( message )
         return resp
+    # if not login_helper.validate_params( request.GET ):
+    #     message = """This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
+    #     ', '.join( login_helper.problems ),
+    #     login_helper.EMAIL_AUTH_HELP,
+    #     )
+    #     return HttpResponseBadRequest( message )
     if not login_helper.validate_params( request.GET ):
-        message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
-        ', '.join( login_helper.problems ),
-        login_helper.EMAIL_AUTH_HELP,
-        )
-        return HttpResponseBadRequest( message )
+        if context['pattern_header_active'] == True:
+            context['message'] = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you.""" % (
+            '' if len(login_helper.problems) < 2 else 's',
+            ', '.join( login_helper.problems ),
+            )
+            template = 'easyrequest_app_templates/problem_02.html'
+            resp = render( request, template, context )
+        else:
+            message = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
+            '' if len(login_helper.problems) < 2 else 's',
+            ', '.join( login_helper.problems ),
+            login_helper.EMAIL_AUTH_HELP,
+            )
+            resp = HttpResponseBadRequest( message )
+        return resp
     login_helper.initialize_session( request )
     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
     login_helper.update_session( request, title, callnumber, item_id )
