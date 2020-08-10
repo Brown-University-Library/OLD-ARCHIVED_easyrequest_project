@@ -64,7 +64,7 @@ def login( request ):
     }
     if not login_helper.validate_source(request):
         if context['pattern_header_active'] == True:
-            context['message'] = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you. """
+            context['message'] = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at <a href="https://search.library.brown.edu/">https://search.library.brown.edu/</a>. Please start there and try again. If you need help, please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you. """
             template = 'easyrequest_app_templates/problem_02.html'
             resp = render( request, template, context )
         else:
