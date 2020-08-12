@@ -12,6 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import smart_text
 from django.utils.http import urlquote
 from easyrequest_app.lib import common
+from easyrequest_app.lib.sierra import SierraHelper
 # from iii_account import IIIAccount
 from requests.auth import HTTPBasicAuth
 
@@ -594,19 +595,32 @@ class Processor( object ):
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
-    def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
-        """ Coordinates josiah-patron-account calls.
-            Called by views.processor() """
-        log.debug( 'data for getting josiah session: josiah_api_name, `%s`; itmrqst.patron_barcode, `%s`' % (josiah_api_name, itmrqst.patron_barcode) )
-        jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
-        jos_sess.login()
-        log.debug( 'data for placing hold: itmrqst.item_bib, `%s`; itmrqst.item_id, `%s`; pickup_location_code, `%s`' % (itmrqst.item_bib, itmrqst.item_id, pickup_location_code) )
-        hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
-        jos_sess.logout()
-        log.debug( 'hold, `%s`' % hold )
+    def place_request( self, item_id, pickup_location_code, patron_sierra_id ):
+        """ Coordinates sierra-api call.
+            Called by views.processor()
+            TODO: think about good problem-handling. """
+        log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}``' )
+        sierra_helper = SierraHelper()
+        data_dct = sierra_helper.build_data( item_id, pickup_location_code )
+        hold_result = sierra_helper.manage_place_hold( data_dct )
+        log.debug( f'hold_result, `%s`' % holdhold_result )
         itmrqst.status = 'request_placed'
         itmrqst.save()
         return itmrqst
+
+    # def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
+    #     """ Coordinates josiah-patron-account calls.
+    #         Called by views.processor() """
+    #     log.debug( 'data for getting josiah session: josiah_api_name, `%s`; itmrqst.patron_barcode, `%s`' % (josiah_api_name, itmrqst.patron_barcode) )
+    #     jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
+    #     jos_sess.login()
+    #     log.debug( 'data for placing hold: itmrqst.item_bib, `%s`; itmrqst.item_id, `%s`; pickup_location_code, `%s`' % (itmrqst.item_bib, itmrqst.item_id, pickup_location_code) )
+    #     hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
+    #     jos_sess.logout()
+    #     log.debug( 'hold, `%s`' % hold )
+    #     itmrqst.status = 'request_placed'
+    #     itmrqst.save()
+    #     return itmrqst
 
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_code ):
         """ Emails patron confirmation.

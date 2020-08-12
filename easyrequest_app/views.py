@@ -167,7 +167,7 @@ def barcode_handler( request ):
     patron_info_dct = barcode_handler_helper.authorize( request.session['barcode_login_barcode'] )
     if patron_info_dct is False:
         return barcode_handler_helper.prep_login_redirect( request )
-    barcode_handler_helper.update_session( request, patron_info_dct )
+    barcode_handler_helper.update_session( request, patron_info_dct )  # TODO: like easyrequest-hay, grab the user's sierra-patron-id and store it to the session
     return barcode_handler_helper.prep_processor_redirect( request )
 
 
@@ -211,7 +211,8 @@ def processor( request ):
         return HttpResponseRedirect( reverse('info_url') )
     try:
         itmrqst = processor_helper.save_data( request )
-        processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
+        # processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
+        processor_helper.place_request( itmrqst.item_id, request.session['pickup_location'] )
     except:
         log.exception( 'exception placing request; traceback follows, but processing will continue with problem display to user.' )
         return HttpResponseRedirect( reverse('problem_url') )  # where retry, and contact info message will appear
