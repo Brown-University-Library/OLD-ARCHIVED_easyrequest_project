@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import datetime, json, logging, os, pprint, time, urlparse
+import datetime, json, logging, os, pprint, time, urllib
 import requests
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import smart_text
 from django.utils.http import urlquote
 from easyrequest_app.lib import common
-from iii_account import IIIAccount
+# from iii_account import IIIAccount
 from requests.auth import HTTPBasicAuth
 
 
@@ -83,7 +83,8 @@ class LoginHelper( object ):
     def get_referrer_host( self, referrer_url ):
         """ Extracts host from referrer_url.
             Called by validate_source() """
-        output = urlparse.urlparse( referrer_url )
+        # output = urlparse.urlparse( referrer_url )
+        output = urllib.parse.urlparse( referrer_url )
         host = output.netloc
         log.info( 'referrer host, `%s`' % host )
         return host
@@ -203,7 +204,8 @@ class LoginHelper( object ):
                     item_id = item['item_id'][:-1]  # removes trailing check-digit
         except:
             log.exception( 'unable to process results; traceback follows, but processing continues' )
-        log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
+        # log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
+        log.debug( 'process_items result, `%s`' % repr((callnumber, item_id)) )
         return ( callnumber, item_id )
 
     def update_session( self, request, title, callnumber, item_id ):
@@ -787,19 +789,6 @@ class PatronApiHelper( object ):
             log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
         return
 
-    # def process_barcode( self, patron_barcode ):
-    #     """ Hits patron-api and populates attributes.
-    #         Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and eventually a shib function. """
-    #     api_dct = self.hit_api( patron_barcode )
-    #     if api_dct is False:
-    #         return
-    #     self.ptype_validity = self.check_ptype( api_dct )
-    #     if self.ptype_validity is False:
-    #         return
-    #     self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
-    #     self.patron_email = api_dct['response']['e-mail']['value'].lower()
-    #     return
-
     def hit_api( self, patron_barcode ):
         """ Runs web-query.
             Called by process_barcode() """
@@ -807,9 +796,11 @@ class PatronApiHelper( object ):
             r = requests.get( self.PATRON_API_URL, params={'patron_barcode': patron_barcode}, timeout=10, auth=(self.PATRON_API_BASIC_AUTH_USERNAME, self.PATRON_API_BASIC_AUTH_PASSWORD) )
             log.debug( 'full patron-api url, ```%s```' % r.url )
             r.raise_for_status()  # will raise an http_error if not 200
-            log.debug( 'r.content, `%s`' % unicode(r.content) )
+            # log.debug( 'r.content, `%s`' % unicode(r.content) )
+            log.debug( f'r.content, ``{r.content}``' )
         except Exception as e:
-            log.error( 'exception, `%s`' % unicode(repr(e)) )
+            # log.error( 'exception, `%s`' % unicode(repr(e)) )
+            log.exception( 'problem hitting patron-api; traceback follows, but processing will continue' )
             return False
         return r.json()
 
@@ -880,7 +871,8 @@ class StatsBuilder( object ):
         data = { 'count_request_for_period': len(requests) }
         for item_request in requests:
             log.debug( 'item_request.source_url, `%s`' % item_request.source_url )
-            url_obj = urlparse.urlparse( item_request.source_url )
+            # url_obj = urlparse.urlparse( item_request.source_url )
+            url_obj = urllib.parse.urlparse( item_request.source_url )
             partial_path = self._make_partial_path( url_obj )
             self._update_count_buckets( url_obj, partial_path )
         data['count_breakdown'] = self.count_buckets
