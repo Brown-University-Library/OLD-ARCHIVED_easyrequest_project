@@ -1,7 +1,8 @@
-beautifulsoup4==4.8.0
+# git+https://github.com/Brown-University-Library/josiah-patron-accounts@e3ec4352b7c122244f175736dcd67a10f4f6e0ec
+
+beautifulsoup4==4.9.1
 Django==1.11.29
 git+https://github.com/birkin/shellvars-py.git@a9208f837c819fec6291b6e2b36aae6d6fb2c59d
-git+https://github.com/Brown-University-Library/josiah-patron-accounts@e3ec4352b7c122244f175736dcd67a10f4f6e0ec
-PyMySQL==0.9.3
-pytz==2015.4
-requests==2.22.0
+PyMySQL==0.10.0
+pytz==2020.1
+requests==2.24.0
