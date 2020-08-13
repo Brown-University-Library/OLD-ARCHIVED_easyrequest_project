@@ -322,7 +322,7 @@ class BarcodeHandlerHelper( object ):
         log.debug( 'authenticate barcode login check, `%s`' % return_val )
         return return_val
 
-        papi_helper = models.PatronApiHelper()
+        # papi_helper = models.PatronApiHelper()
 
     def authorize( self, patron_barcode ):
         """ Directs call to patron-api service; returns patron name and email address.
@@ -783,6 +783,7 @@ class PatronApiHelper( object ):
         self.ptype_validity = False
         self.patron_name = None  # will be last, first middle (used only by BarcodeHandler)
         self.patron_email = None  # will be lower-case (used only by BarcodeHandler)
+        self.sierra_patron_id = None # will be extracted by self.extract_sierra_patron_id()
         self.process_barcode( patron_barcode )
 
     def process_barcode( self, patron_barcode ):
@@ -794,6 +795,7 @@ class PatronApiHelper( object ):
         if api_dct is False:
             return
         self.ptype_validity = self.check_ptype( api_dct )
+        self.sierra_patron_id = self.self.extract_sierra_patron_id( api_dct )
         if self.ptype_validity is False:
             return
         self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
@@ -802,6 +804,24 @@ class PatronApiHelper( object ):
         else:
             log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
         return
+
+    # def process_barcode( self, patron_barcode ):
+    #     """ Hits patron-api and populates attributes.
+    #         Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and ShibChecker.authorized()
+    #         Note: If patron-api email does not exist, will not block shib-login flow, but will block barcode-login flow.
+    #         """
+    #     api_dct = self.hit_api( patron_barcode )
+    #     if api_dct is False:
+    #         return
+    #     self.ptype_validity = self.check_ptype( api_dct )
+    #     if self.ptype_validity is False:
+    #         return
+    #     self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
+    #     if 'e-mail' in api_dct['response'].keys():
+    #         self.patron_email = api_dct['response']['e-mail']['value'].lower()
+    #     else:
+    #         log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
+    #     return
 
     def hit_api( self, patron_barcode ):
         """ Runs web-query.
@@ -827,6 +847,19 @@ class PatronApiHelper( object ):
             return_val = True
         log.debug( 'ptype check, `%s`' % return_val )
         return return_val
+
+    def extract_sierra_patron_id( self, api_dct ):
+        """ Extracts and saves sierra-patron-id if possible.
+            Called by process_barcode() """
+        log.debug( f'patron-api-dct, ``{pprint.pformat(api_dct)}``' )
+        try:
+            self.sierra_patron_id = papi_dct['response']['record_']['value'][1:]  # strips initial character from, eg, '=1234567'
+            log.debug( f'sierra_patron_id, `{self.sierra_patron_id}`' )
+        except:
+            log.exception( 'problem extracting sierra-patron-id; traceback follows; returning `False`' )
+            self.sierra_patron_id = False
+        log.debug( f'self.sierra_patron_id, `{self.sierra_patron_id}`' )
+        return self.sierra_patron_id
 
     # end class PatronApiHelper
 
