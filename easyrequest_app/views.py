@@ -194,6 +194,7 @@ def shib_login( request ):
     if validity is False:
         return_response = shib_view_helper.prep_login_redirect( request )
     else:
+        request.session['sierra_patron_id'] = shib_view_helper.sierra_patron_id
         return_response = shib_view_helper.build_response( request, shib_dict )
     log.debug( 'about to return shib response' )
     return return_response
@@ -212,7 +213,7 @@ def processor( request ):
     try:
         itmrqst = processor_helper.save_data( request )
         # processor_helper.place_request( itmrqst, request.session['josiah_api_name'], request.session['pickup_location'] )
-        processor_helper.place_request( itmrqst.item_id, request.session['pickup_location'] )
+        processor_helper.place_request( itmrqst.item_id, request.session['pickup_location'], request.session['sierra_patron_id'] )
     except:
         log.exception( 'exception placing request; traceback follows, but processing will continue with problem display to user.' )
         return HttpResponseRedirect( reverse('problem_url') )  # where retry, and contact info message will appear

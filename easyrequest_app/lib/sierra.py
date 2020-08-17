@@ -48,7 +48,7 @@ class SierraHelper( object ):
         """ Gets token and places hold.
             Called by models.Processor.place_request() """
         token = self.get_token()
-        self.place_hold( token, data_dct )
+        self.place_hold( token, data_dct, patron_sierra_id )
         log.debug( 'manage_place_hold() done.' )
         return
 
@@ -86,7 +86,6 @@ class SierraHelper( object ):
             log.info( f'r.url, `{r.url}`' )
             log.info( f'r.content, `{r.content}`' )
             if r.status_code in [ 200, 204 ]:
-            # if r.status_code == 200:
                 self.hold_status = 'hold_placed'
         except:
             log.exception( 'problem hitting api to request item; traceback follows; processing will continue' )

@@ -375,12 +375,16 @@ class BarcodeHandlerHelper( object ):
 class ShibViewHelper( object ):
     """ Contains helpers for views.shib_login() """
 
+    def __init__( self ):
+        self.sierra_patron_id = None
+
     def check_shib_headers( self, request ):
         """ Grabs and checks shib headers, returns boolean.
             Called by views.shib_login() """
         shib_checker = ShibChecker()
         shib_dict = shib_checker.grab_shib_info( request )
         validity = shib_checker.evaluate_shib_info( shib_dict )
+        self.sierra_patron_id = shib_checker.sierra_patron_id
         log.debug( 'returning shib validity `%s`' % validity )
         return ( validity, shib_dict )
 
@@ -430,6 +434,7 @@ class ShibChecker( object ):
     def __init__( self ):
         self.TEST_SHIB_JSON = os.environ.get( 'EZRQST__TEST_SHIB_JSON', '' )
         self.SHIB_ERESOURCE_PERMISSION = os.environ['EZRQST__SHIB_ERESOURCE_PERMISSION']
+        self.sierra_patron_id = None  # will be populated by self.authorized()
 
     def grab_shib_info( self, request ):
         """ Grabs shib values from http-header or dev-settings.
@@ -497,6 +502,7 @@ class ShibChecker( object ):
             Called by evaluate_shib_info() """
         authZ_check = False
         papi_helper = PatronApiHelper( patron_barcode )
+        self.sierra_patron_id = papi_helper.sierra_patron_id
         if papi_helper.ptype_validity is True:
             authZ_check = True
         log.debug( 'authZ_check, `%s`' % authZ_check )
@@ -595,18 +601,16 @@ class Processor( object ):
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
-    def place_request( self, item_id, pickup_location_code, patron_sierra_id ):
+    def place_request( self, item_id, pickup_location_code, patron_sierra_id ) -> None:
         """ Coordinates sierra-api call.
             Called by views.processor()
             TODO: think about good problem-handling. """
-        log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}``' )
+        log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}`` and patron_sierra_id, ``{patron_sierra_id}``' )
         sierra_helper = SierraHelper()
         data_dct = sierra_helper.build_data( item_id, pickup_location_code )
-        hold_result = sierra_helper.manage_place_hold( data_dct )
-        log.debug( f'hold_result, `%s`' % holdhold_result )
-        itmrqst.status = 'request_placed'
-        itmrqst.save()
-        return itmrqst
+        sierra_helper.manage_place_hold( data_dct, patron_sierra_id )
+        log.debug( f'hold_result, `%s`' % sierra_helper.hold_status )
+        return
 
     # def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
     #     """ Coordinates josiah-patron-account calls.
@@ -635,7 +639,7 @@ class Processor( object ):
             email.send()
             log.debug( 'mail sent' )
         except Exception as e:
-            log.error( 'Exception sending email, `%s`' % unicode(repr(e)) )
+            log.exception( 'Problem sending email; exception follows; processing will continue.' )
         return
 
     def prep_pickup_location_display( self, pickup_location_code ):
@@ -795,7 +799,7 @@ class PatronApiHelper( object ):
         if api_dct is False:
             return
         self.ptype_validity = self.check_ptype( api_dct )
-        self.sierra_patron_id = self.self.extract_sierra_patron_id( api_dct )
+        self.sierra_patron_id = self.extract_sierra_patron_id( api_dct )
         if self.ptype_validity is False:
             return
         self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
@@ -853,7 +857,7 @@ class PatronApiHelper( object ):
             Called by process_barcode() """
         log.debug( f'patron-api-dct, ``{pprint.pformat(api_dct)}``' )
         try:
-            self.sierra_patron_id = papi_dct['response']['record_']['value'][1:]  # strips initial character from, eg, '=1234567'
+            self.sierra_patron_id = api_dct['response']['record_']['value'][1:]  # strips initial character from, eg, '=1234567'
             log.debug( f'sierra_patron_id, `{self.sierra_patron_id}`' )
         except:
             log.exception( 'problem extracting sierra-patron-id; traceback follows; returning `False`' )
