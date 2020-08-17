@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 import datetime, json, logging, os, pprint, time, urllib
 import requests
 from django.conf import settings as project_settings
@@ -39,7 +38,10 @@ class ItemRequest( models.Model ):
     create_datetime = models.DateTimeField( auto_now_add=True, blank=True )  # blank=True for backward compatibility
     admin_notes = models.TextField( blank=True )
 
-    def __unicode__(self):
+    # def __unicode__(self):
+    #     return smart_text( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
+
+    def __str__(self):
         return smart_text( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
 
     def jsonify(self):
@@ -318,7 +320,7 @@ class BarcodeHandlerHelper( object ):
             return_val = True
             jos_sess.logout()
         except Exception as e:
-            log.debug( 'exception on login-try, `%s`' % unicode(repr(e)) )
+            log.debug( 'exception on login-try, `%s`' % repr(e) )
         log.debug( 'authenticate barcode login check, `%s`' % return_val )
         return return_val
 
@@ -584,7 +586,7 @@ class Processor( object ):
             itmrqst.save()
         except Exception as e:
             log.debug( 'Exception; session, `%s`' % pprint.pformat(request.session.items()) )
-            log.error( 'Exception, `%s`' % unicode(repr(e)) )
+            log.error( 'Exception, `%s`' % repr(e) )
             raise Exception( 'Unable to save item-data.' )
         return itmrqst
 
@@ -597,7 +599,7 @@ class Processor( object ):
             itmrqst.patron_email = request.session['user_email']
             itmrqst.save()
         except Exception as e:
-            log.error( 'Exception, `%s`' % unicode(repr(e)) )
+            log.error( 'Exception, `%s`' % repr(e) )
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
@@ -964,7 +966,7 @@ class StatsBuilder( object ):
             'info': self.static_info,
             'request': {
                 'date_begin': self.date_start, 'date_end': self.date_end,
-                'date_of_request': unicode( datetime.datetime.now() ) },
+                'date_of_request': str( datetime.datetime.now() ) },
             'response': {
                 'count_all': data['count_request_for_period'],
                 'count_breakdown': data['count_breakdown'], }

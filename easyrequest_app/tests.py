@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 import logging, os, pprint
 from django.http import QueryDict
 from django.test import TestCase
