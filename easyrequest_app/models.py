@@ -248,32 +248,6 @@ class LoginHelper( object ):
         log.debug( 'context, ```%s```' % pprint.pformat(context) )
         return context
 
-    # def prepare_context( self, request ):
-    #     """ Prepares vars for template.
-    #         Called by views.login() """
-    #     context = {
-    #         'title': request.session['item_title'] ,
-    #         'callnumber': request.session['item_callnumber'],
-    #         'ROCK_code': self.pic_loc_helper.pickup_location_dct['ROCK']['code'],
-    #         'ROCK_display': self.pic_loc_helper.pickup_location_dct['ROCK']['display'],
-    #         'SCI_code': self.pic_loc_helper.pickup_location_dct['SCI']['code'],
-    #         'SCI_display': self.pic_loc_helper.pickup_location_dct['SCI']['display'],
-    #         'HAY_code': self.pic_loc_helper.pickup_location_dct['HAY']['code'],
-    #         'HAY_display': self.pic_loc_helper.pickup_location_dct['HAY']['display'],
-    #         'ORWIG_code': self.pic_loc_helper.pickup_location_dct['ORWIG']['code'],
-    #         'ORWIG_display': self.pic_loc_helper.pickup_location_dct['ORWIG']['display'],
-    #         'barcode_form_action_url': reverse( 'barcode_handler_url' ),
-    #         'barcode_login_name': request.session['barcode_login_name'],
-    #         'barcode_login_barcode': request.session['barcode_login_barcode'],
-    #         'barcode_login_error': request.session['barcode_login_error'],
-    #         'shib_form_action_url': reverse( 'shib_handler_url' ),
-    #         'shib_login_error': request.session['shib_login_error'],
-    #         'PHONE_AUTH_HELP': self.PHONE_AUTH_HELP,
-    #         'EMAIL_AUTH_HELP': self.EMAIL_AUTH_HELP,
-    #         }
-    #     log.debug( 'context, ```%s```' % pprint.pformat(context) )
-    #     return context
-
     # end class LoginHelper
 
 
@@ -338,18 +312,6 @@ class BarcodeHandlerHelper( object ):
                     'patron_email': papi_helper.patron_email }
         log.debug( 'authorize patron_info_dct, `%s`' % patron_info_dct )
         return patron_info_dct
-
-    # def authorize( self, patron_barcode ):
-    #     """ Directs call to patron-api service; returns patron name and email address.
-    #         Called by views.barcode_handler() """
-    #     patron_info_dct = False
-    #     papi_helper = PatronApiHelper( patron_barcode )
-    #     if papi_helper.ptype_validity is not False:
-    #         patron_info_dct = {
-    #             'patron_name': papi_helper.patron_name,  # last, first middle,
-    #             'patron_email': papi_helper.patron_email }
-    #     log.debug( 'authorize patron_info_dct, `%s`' % patron_info_dct )
-    #     return patron_info_dct
 
     def update_session( self, request, patron_info_dct ):
         """ Updates session before redirecting to views.processor()
@@ -614,20 +576,6 @@ class Processor( object ):
         log.debug( f'hold_result, `%s`' % sierra_helper.hold_status )
         return
 
-    # def place_request( self, itmrqst, josiah_api_name, pickup_location_code ):
-    #     """ Coordinates josiah-patron-account calls.
-    #         Called by views.processor() """
-    #     log.debug( 'data for getting josiah session: josiah_api_name, `%s`; itmrqst.patron_barcode, `%s`' % (josiah_api_name, itmrqst.patron_barcode) )
-    #     jos_sess = IIIAccount( name=josiah_api_name, barcode=itmrqst.patron_barcode )
-    #     jos_sess.login()
-    #     log.debug( 'data for placing hold: itmrqst.item_bib, `%s`; itmrqst.item_id, `%s`; pickup_location_code, `%s`' % (itmrqst.item_bib, itmrqst.item_id, pickup_location_code) )
-    #     hold = jos_sess.place_hold( bib=itmrqst.item_bib, item=itmrqst.item_id, pickup_location=pickup_location_code )
-    #     jos_sess.logout()
-    #     log.debug( 'hold, `%s`' % hold )
-    #     itmrqst.status = 'request_placed'
-    #     itmrqst.save()
-    #     return itmrqst
-
     def email_patron( self, patron_email, patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_code ):
         """ Emails patron confirmation.
             Called by views.processor() """
@@ -684,41 +632,6 @@ If you have questions, feel free to email %s, and refer to...
             item_barcode
             )
         return body
-
-#     def build_email_body( self,  patron_name, item_title, item_callnumber, item_bib, item_id, patron_barcode, item_barcode, pickup_location_display ):
-#         """ Prepares and returns email body.
-#             Called by email_patron().
-#             TODO: use render_to_string & template. """
-#         body = '''Greetings %s,
-
-# This is a confirmation of your request for the item...
-
-# Title: %s
-# Call Number: %s
-
-# Requested items are generally available within 96 hours. You will receive an email when the item is available for pickup at the %s.
-
-# If you have questions, feel free to email %s or call %s, and refer to...
-
-# - Bibliographic #: "%s"
-# - Item #: "%s"
-# - User barcode: "%s"
-# - Item barcode: "%s"
-
-# ::: easyRequest -- a service of the Brown University Library :::
-# ''' % (
-#             patron_name,
-#             item_title,
-#             item_callnumber,
-#             pickup_location_display,
-#             self.EMAIL_GENERAL_HELP,
-#             self.PHONE_GENERAL_HELP,
-#             item_bib,
-#             item_id,
-#             patron_barcode,
-#             item_barcode
-#             )
-#         return body
 
     # end class Processor
 
@@ -810,24 +723,6 @@ class PatronApiHelper( object ):
         else:
             log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
         return
-
-    # def process_barcode( self, patron_barcode ):
-    #     """ Hits patron-api and populates attributes.
-    #         Called by __init__(); triggered by BarcodeHandlerHelper.authorize() and ShibChecker.authorized()
-    #         Note: If patron-api email does not exist, will not block shib-login flow, but will block barcode-login flow.
-    #         """
-    #     api_dct = self.hit_api( patron_barcode )
-    #     if api_dct is False:
-    #         return
-    #     self.ptype_validity = self.check_ptype( api_dct )
-    #     if self.ptype_validity is False:
-    #         return
-    #     self.patron_name = api_dct['response']['patrn_name']['value']  # last, first middle
-    #     if 'e-mail' in api_dct['response'].keys():
-    #         self.patron_email = api_dct['response']['e-mail']['value'].lower()
-    #     else:
-    #         log.warning( 'no email found in patron-api response; a shib-login will proceed, but a barcode-login will fail' )
-    #     return
 
     def hit_api( self, patron_barcode ):
         """ Runs web-query.
@@ -990,4 +885,3 @@ class StatsBuilder( object ):
         return
 
     # end class StatsBuilder
-
