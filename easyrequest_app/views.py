@@ -71,12 +71,6 @@ def login( request ):
             )
             resp = HttpResponseBadRequest( message )
         return resp
-    # if not login_helper.validate_params( request.GET ):
-    #     message = """This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
-    #     ', '.join( login_helper.problems ),
-    #     login_helper.EMAIL_AUTH_HELP,
-    #     )
-    #     return HttpResponseBadRequest( message )
     if not login_helper.validate_params( request.GET ):
         if context['pattern_header_active'] == True:
             context['message'] = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you.""" % (
@@ -108,48 +102,6 @@ def login( request ):
             template = 'easyrequest_app_templates/login.html'
         resp = render( request, template, context )
     return resp
-
-
-# def login( request ):
-#     """ Stores referring url, bib, and item-barcode in session.
-#         Presents shib and manual log in options. """
-#     log.info( 'starting login()' )
-#     log.debug( 'rquest.GET, ``%s``' % request.GET )
-#     if not login_helper.validate_source(request):
-#         # message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
-#         # login_helper.EMAIL_AUTH_HELP,
-#         # login_helper.PHONE_AUTH_HELP
-#         # )
-#         message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
-#         login_helper.EMAIL_AUTH_HELP,
-#         )
-#         return HttpResponseBadRequest( message )
-#     if not login_helper.validate_params( request.GET ):
-#         # message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at either ``%s``, or at ``%s`` and they'll assist you. """ % (
-#         # ', '.join( login_helper.problems ),
-#         # login_helper.EMAIL_AUTH_HELP,
-#         # login_helper.PHONE_AUTH_HELP
-#         # )
-#         message = """ This request could not be submitted for the following reason: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
-#         ', '.join( login_helper.problems ),
-#         login_helper.EMAIL_AUTH_HELP,
-#         )
-#         return HttpResponseBadRequest( message )
-#     login_helper.initialize_session( request )
-#     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
-#     login_helper.update_session( request, title, callnumber, item_id )
-#     context = login_helper.prepare_context( request )
-#     # return render( request, 'easyrequest_app_templates/login.html', context )
-#     if request.GET.get('format', '') == 'json':
-#         context_json = json.dumps(context, sort_keys=True, indent=2)
-#         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
-#     else:
-#         if context['pattern_header_active'] == True:
-#             template = 'easyrequest_app_templates/login_02.html'
-#         else:
-#             template = 'easyrequest_app_templates/login.html'
-#         resp = render( request, template, context )
-#     return resp
 
 
 @csrf_exempt  # temp for migration
@@ -254,17 +206,6 @@ def summary( request ):
             template = 'easyrequest_app_templates/summary.html'
         resp = render( request, template, context )
     return resp
-
-
-# @csrf_exempt  # temp for migration
-# def summary( request ):
-#     """ Displays final summary screen. """
-#     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
-#     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
-#     context = summary_helper.build_main_context( request, EMAIL, PHONE )
-#     if request.GET['source_url'][0:4] == 'http':
-#         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
-#     return render( request, 'easyrequest_app_templates/summary.html', context )
 
 
 @csrf_exempt  # temp for migration
