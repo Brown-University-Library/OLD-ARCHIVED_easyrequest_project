@@ -92,17 +92,29 @@ class LoginHelper( object ):
         log.info( 'referrer host, `%s`' % host )
         return host
 
+    # def validate_params( self, request ):
+    #     """ Checks params.
+    #         Called by views.login()
+    #         Note: `barcode` here is the item-barcode. """
+    #     return_val = False
+    #     if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
+    #         if len(request.GET['bibnum']) == 8 and len(request.GET['barcode']) == 14:
+    #             return_val = True
+    #     log.info( 'return_val, `%s`' % return_val )
+    #     return return_val
+
     def validate_params( self, querydict ):
         """ Checks params.
-            Called by views.login()
-            Note: `barcode` here is the item-barcode. """
+            Called by views.login() """
         return_val = False
         self.problems = []
-        if 'barcode' not in querydict.keys():
-            self.problems.append( 'no item-barcode submitted' )
-        else:
-            if len( querydict['barcode'] ) != 14:
-                self.problems.append( 'invalid item-barcode submitted' )
+        if 'itemnum' not in querydict.keys():
+            self.problems.append( 'no item-number submitted' )
+        # if 'barcode' not in querydict.keys():
+        #     self.problems.append( 'no item-barcode submitted' )
+        # else:
+        #     if len( querydict['barcode'] ) != 14:
+        #         self.problems.append( 'invalid item-barcode submitted' )
         if 'bibnum' not in querydict.keys():
             self.problems.append( 'no item-bib-number submitted' )
         else:
@@ -114,16 +126,20 @@ class LoginHelper( object ):
         log.info( 'self.problems, ``%s``' % self.problems )
         return return_val
 
-    # def validate_params( self, request ):
-    #     """ Checks params.
-    #         Called by views.login()
-    #         Note: `barcode` here is the item-barcode. """
-    #     return_val = False
-    #     if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
-    #         if len(request.GET['bibnum']) == 8 and len(request.GET['barcode']) == 14:
-    #             return_val = True
-    #     log.info( 'return_val, `%s`' % return_val )
-    #     return return_val
+    # def initialize_session( self, request ):
+    #     """ Initializes session.
+    #         Called by views.login() """
+    #     self._initialize_session_item_info( request )
+    #     self._initialize_session_user_info( request )
+    #     source_url = request.META.get( 'HTTP_REFERER', 'unavailable' ).strip()
+    #     request.session.setdefault( 'source_url', source_url )  # ensures initial valid referrer is stored, and not localhost if there's a server redirect on a login-error
+    #     request.session.setdefault( 'shib_login_error', False )
+    #     request.session['shib_authorized'] = False
+    #     request.session.setdefault( 'barcode_login_error', False)
+    #     request.session['barcode_authorized'] = False
+    #     log.debug( 'request.session after initialization, `%s`' % pprint.pformat(request.session.items()) )
+    #     log.info( 'bib, `%s`' % request.session.get('item_bib', None) )
+    #     return
 
     def initialize_session( self, request ):
         """ Initializes session.
@@ -145,8 +161,9 @@ class LoginHelper( object ):
             Called by initialize_session() """
         request.session.setdefault( 'item_title', '' )
         request.session['item_bib'] = request.GET['bibnum']
-        request.session.setdefault( 'item_id', '' )
-        request.session['item_barcode'] = request.GET['barcode']
+        # request.session.setdefault( 'item_id', '' )
+        request.session['item_id'] = request.GET['itemnum']
+        # request.session['item_barcode'] = request.GET['barcode']
         request.session.setdefault( 'item_callnumber', '' )
         request.session.setdefault( 'pickup_location', '' )
         return
@@ -163,18 +180,33 @@ class LoginHelper( object ):
         request.session['josiah_api_name'] = ''  # for josiah-patron-accounts call
         return
 
-    def get_item_info( self, bibnum, item_barcode ):
+    # def get_item_info( self, bibnum, item_barcode ):
+    #     """ Hits availability-api for bib-title, and item id and callnumber.
+    #         Bib title and item callnumber are just for user display; item id needed if user proceeds.
+    #         Called by views.login() """
+    #     ( title, callnumber, item_id ) = ( '', '', '' )
+    #     api_dct = self.hit_availability_api( bibnum )
+    #     try:
+    #         title = api_dct['response']['bib']['title']
+    #     except:
+    #         log.exception( 'unable to access title; traceback follows, but processing will continue' )
+    #         title = 'title unavailable'
+    #     ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
+    #     log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
+    #     return ( title, callnumber, item_id )
+
+    def get_item_info( self, bibnum, item_id ):
         """ Hits availability-api for bib-title, and item id and callnumber.
             Bib title and item callnumber are just for user display; item id needed if user proceeds.
             Called by views.login() """
-        ( title, callnumber, item_id ) = ( '', '', '' )
+        ( title, callnumber ) = ( '', '' )
         api_dct = self.hit_availability_api( bibnum )
         try:
             title = api_dct['response']['bib']['title']
         except:
             log.exception( 'unable to access title; traceback follows, but processing will continue' )
             title = 'title unavailable'
-        ( callnumber, item_id ) = self.process_items( api_dct, item_barcode )
+        callnumber = self.process_items( api_dct, item_id )
         log.debug( 'title, `%s`; callnumber, `%s`; item_id, `%s`' % (title, callnumber, item_id) )
         return ( title, callnumber, item_id )
 
@@ -194,22 +226,39 @@ class LoginHelper( object ):
             log.exception( 'unable to hit availability-api; traceback follows, but processing continues' )
         return dct
 
-    def process_items( self, api_dct, item_barcode ):
-        """ Extracts the callnumber and item_id from availability-api response.
+    # def process_items( self, api_dct, item_barcode ):
+    #     """ Extracts the callnumber and item_id from availability-api response.
+    #         Called by get_item_info() """
+    #     log.debug( 'starting process_items()' )
+    #     ( callnumber, item_id ) = ( '', '' )
+    #     try:
+    #         items = api_dct['response']['items']
+    #         for item in items:
+    #             if item_barcode == item['barcode']:
+    #                 callnumber = item['callnumber']
+    #                 item_id = item['item_id'][:-1]  # removes trailing check-digit
+    #     except:
+    #         log.exception( 'unable to process results; traceback follows, but processing continues' )
+    #     # log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
+    #     log.debug( 'process_items result, `%s`' % repr((callnumber, item_id)) )
+    #     return ( callnumber, item_id )
+
+    def process_items( self, api_dct, item_id ):
+        """ Extracts the callnumber from availability-api response.
             Called by get_item_info() """
         log.debug( 'starting process_items()' )
-        ( callnumber, item_id ) = ( '', '' )
+        callnumber = ''
         try:
             items = api_dct['response']['items']
             for item in items:
-                if item_barcode == item['barcode']:
+                if item_id == item['item_id']:
                     callnumber = item['callnumber']
-                    item_id = item['item_id'][:-1]  # removes trailing check-digit
+                    # item_id = item['item_id'][:-1]  # removes trailing check-digit
         except:
             log.exception( 'unable to process results; traceback follows, but processing continues' )
         # log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
-        log.debug( 'process_items result, `%s`' % repr((callnumber, item_id)) )
-        return ( callnumber, item_id )
+        log.debug( f'extracted callnumber, ``{callnumber}``' )
+        return callnumber
 
     def update_session( self, request, title, callnumber, item_id ):
         """ Updates session.
@@ -543,7 +592,8 @@ class Processor( object ):
             itmrqst.item_title = request.session['item_title']
             itmrqst.item_bib = request.session['item_bib']
             itmrqst.item_id = request.session['item_id']
-            itmrqst.item_barcode = request.session['item_barcode']
+            # itmrqst.item_barcode = request.session['item_barcode']
+            itmrqst.item_barcode = request.session.get('item_barcode', '' )
             itmrqst.item_callnumber = request.session['item_callnumber']
             itmrqst.save()
         except Exception as e:
@@ -565,13 +615,26 @@ class Processor( object ):
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
 
+    # def place_request( self, item_id, pickup_location_code, patron_sierra_id ) -> None:
+    #     """ Coordinates sierra-api call.
+    #         Called by views.processor()
+    #         TODO: think about good problem-handling. """
+    #     log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}`` and patron_sierra_id, ``{patron_sierra_id}``' )
+    #     sierra_helper = SierraHelper()
+    #     data_dct = sierra_helper.build_data( item_id, pickup_location_code )
+    #     sierra_helper.manage_place_hold( data_dct, patron_sierra_id )
+    #     log.debug( f'hold_result, `%s`' % sierra_helper.hold_status )
+    #     return
+
     def place_request( self, item_id, pickup_location_code, patron_sierra_id ) -> None:
         """ Coordinates sierra-api call.
             Called by views.processor()
             TODO: think about good problem-handling. """
         log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}`` and patron_sierra_id, ``{patron_sierra_id}``' )
+        modified_item_id = item_id[:-1]  # removes trailing check-digit for Sierra API
+        log.debug( f'modified_item_id, ``{modified_item_id}``' )
         sierra_helper = SierraHelper()
-        data_dct = sierra_helper.build_data( item_id, pickup_location_code )
+        data_dct = sierra_helper.build_data( modified_item_id, pickup_location_code )
         sierra_helper.manage_place_hold( data_dct, patron_sierra_id )
         log.debug( f'hold_result, `%s`' % sierra_helper.hold_status )
         return
