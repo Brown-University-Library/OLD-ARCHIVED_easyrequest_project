@@ -559,7 +559,7 @@ class Processor( object ):
         self.EMAIL_REPLY_TO = os.environ['EZRQST__EMAIL_REPLY_TO']
         self.EMAIL_GENERAL_HELP = os.environ['EZRQST__EMAIL_GENERAL_HELP']
         self.PHONE_GENERAL_HELP = os.environ['EZRQST__PHONE_GENERAL_HELP']
-        self.email_subject = 'Brown University Library - Annex Request Confirmation'
+        self.email_subject = 'Brown University Library - Request Confirmation'
 
     def check_request( self, request ):
         """ Ensures user has logged in.
