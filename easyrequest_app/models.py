@@ -92,15 +92,27 @@ class LoginHelper( object ):
         log.info( 'referrer host, `%s`' % host )
         return host
 
-    # def validate_params( self, request ):
+    # def validate_params( self, querydict ):
     #     """ Checks params.
-    #         Called by views.login()
-    #         Note: `barcode` here is the item-barcode. """
+    #         Called by views.login() """
     #     return_val = False
-    #     if sorted( request.GET.keys() ) == ['barcode', 'bibnum']:
-    #         if len(request.GET['bibnum']) == 8 and len(request.GET['barcode']) == 14:
-    #             return_val = True
+    #     self.problems = []
+    #     if 'itemnum' not in querydict.keys():
+    #         self.problems.append( 'no item-number submitted' )
+    #     # if 'barcode' not in querydict.keys():
+    #     #     self.problems.append( 'no item-barcode submitted' )
+    #     # else:
+    #     #     if len( querydict['barcode'] ) != 14:
+    #     #         self.problems.append( 'invalid item-barcode submitted' )
+    #     if 'bibnum' not in querydict.keys():
+    #         self.problems.append( 'no item-bib-number submitted' )
+    #     else:
+    #         if len( querydict['bibnum'] ) != 8:
+    #             self.problems.append( 'invalid item-bib-number submitted' )
+    #     if len( self.problems ) == 0:
+    #         return_val = True
     #     log.info( 'return_val, `%s`' % return_val )
+    #     log.info( 'self.problems, ``%s``' % self.problems )
     #     return return_val
 
     def validate_params( self, querydict ):
@@ -110,11 +122,8 @@ class LoginHelper( object ):
         self.problems = []
         if 'itemnum' not in querydict.keys():
             self.problems.append( 'no item-number submitted' )
-        # if 'barcode' not in querydict.keys():
-        #     self.problems.append( 'no item-barcode submitted' )
-        # else:
-        #     if len( querydict['barcode'] ) != 14:
-        #         self.problems.append( 'invalid item-barcode submitted' )
+        elif len( querydict['itemnum'] ) == 0:
+            self.problems.append( 'empty item-number submitted' )
         if 'bibnum' not in querydict.keys():
             self.problems.append( 'no item-bib-number submitted' )
         else:

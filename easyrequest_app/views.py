@@ -51,9 +51,76 @@ def info( request ):
     return resp
 
 
+def login( request ):
+    """ Stores referring url, bib, and item-id in session.
+        Presents shib (and in non-COVID times manual) login. """
+    log.info( 'starting login()' )
+    log.debug( 'rquest.GET, ``%s``' % request.GET )
+    context = {
+        'pattern_header': common.grab_pattern_header(),
+        'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
+    }
+    if not login_helper.validate_source(request):
+        if context['pattern_header_active'] == True:
+            context['message'] = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at <a href="https://search.library.brown.edu/">https://search.library.brown.edu/</a>. Please start there and try again. If you need help, please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you. """
+            template = 'easyrequest_app_templates/problem_02.html'
+            resp = render( request, template, context )
+        else:
+            message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
+            login_helper.EMAIL_AUTH_HELP,
+            )
+            resp = HttpResponseBadRequest( message )
+        return resp
+    if not login_helper.validate_params( request.GET ):
+        if context['pattern_header_active'] == True:
+            log.debug( 'here01' )
+            log.debug( f'log.problems, ``{login_helper.problems}``' )
+            if 'empty item-number submitted' in login_helper.problems and len( request.GET.get('itemnum') ) == 0 and len( request.GET.get('bibnum') ) > 0:
+                bib_url = f'https://search.library.brown.edu/catalog/{request.GET["bibnum"]}'
+                problem_text = ', '.join( login_helper.problems )
+                log.debug( f'bib_url, ``{bib_url}``' )
+                context['message'] = f"""Requesting problem (we're working on this): ``{problem_text}``. Please go back and try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
+            else:
+                context['message'] = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you.""" % (
+                    '' if len(login_helper.problems) < 2 else 's',
+                    ', '.join( login_helper.problems ),
+                )
+            template = 'easyrequest_app_templates/problem_02.html'
+            resp = render( request, template, context )
+        else:
+            if 'empty item-number submitted' in login_helper.problems and len( request.GET.get('itemnum') ) == 0 and len( request.GET.get('bibnum') ) > 0:
+                bib_url = f'https://search.library.brown.edu/catalog/{request.GET["bibnum"]}'
+                problem_text = ', '.join( login_helper.problems )
+                message = f"""Requesting problem (we're working on this): ``{problem_text}``. Please go back and try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
+            else:
+                message = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
+                    '' if len(login_helper.problems) < 2 else 's',
+                    ', '.join( login_helper.problems ),
+                    login_helper.EMAIL_AUTH_HELP,
+                )
+            resp = HttpResponseBadRequest( message )
+        return resp
+    login_helper.initialize_session( request )
+    # ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
+    ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['itemnum'] )
+    login_helper.update_session( request, title, callnumber, item_id )
+    context = login_helper.prepare_context( request )
+    # return render( request, 'easyrequest_app_templates/login.html', context )
+    if request.GET.get('format', '') == 'json':
+        context_json = json.dumps(context, sort_keys=True, indent=2)
+        resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
+    else:
+        if context['pattern_header_active'] == True:
+            template = 'easyrequest_app_templates/login_02.html'
+        else:
+            template = 'easyrequest_app_templates/login.html'
+        resp = render( request, template, context )
+    return resp
+
+
 # def login( request ):
-#     """ Stores referring url, bib, and item-barcode in session.
-#         Presents shib and manual log in options. """
+#     """ Stores referring url, bib, and item-id in session.
+#         Presents shib (and in non-COVID times manual) login. """
 #     log.info( 'starting login()' )
 #     log.debug( 'rquest.GET, ``%s``' % request.GET )
 #     context = {
@@ -89,7 +156,7 @@ def info( request ):
 #         return resp
 #     login_helper.initialize_session( request )
 #     # ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
-#     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
+#     ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['itemnum'] )
 #     login_helper.update_session( request, title, callnumber, item_id )
 #     context = login_helper.prepare_context( request )
 #     # return render( request, 'easyrequest_app_templates/login.html', context )
@@ -103,60 +170,6 @@ def info( request ):
 #             template = 'easyrequest_app_templates/login.html'
 #         resp = render( request, template, context )
 #     return resp
-
-
-def login( request ):
-    """ Stores referring url, bib, and item-id in session.
-        Presents shib (and in non-COVID times manual) login. """
-    log.info( 'starting login()' )
-    log.debug( 'rquest.GET, ``%s``' % request.GET )
-    context = {
-        'pattern_header': common.grab_pattern_header(),
-        'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
-    }
-    if not login_helper.validate_source(request):
-        if context['pattern_header_active'] == True:
-            context['message'] = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at <a href="https://search.library.brown.edu/">https://search.library.brown.edu/</a>. Please start there and try again. If you need help, please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you. """
-            template = 'easyrequest_app_templates/problem_02.html'
-            resp = render( request, template, context )
-        else:
-            message = """You seem to have attempted to get to this login page without having started from Josiah, the Library's search web-application at ``https://search.library.brown.edu/``. Please start there and try again. If you need help, please contact Library staff at ``%s``, and they'll assist you. """ % (
-            login_helper.EMAIL_AUTH_HELP,
-            )
-            resp = HttpResponseBadRequest( message )
-        return resp
-    if not login_helper.validate_params( request.GET ):
-        if context['pattern_header_active'] == True:
-            context['message'] = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you.""" % (
-            '' if len(login_helper.problems) < 2 else 's',
-            ', '.join( login_helper.problems ),
-            )
-            template = 'easyrequest_app_templates/problem_02.html'
-            resp = render( request, template, context )
-        else:
-            message = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
-            '' if len(login_helper.problems) < 2 else 's',
-            ', '.join( login_helper.problems ),
-            login_helper.EMAIL_AUTH_HELP,
-            )
-            resp = HttpResponseBadRequest( message )
-        return resp
-    login_helper.initialize_session( request )
-    # ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['barcode'] )
-    ( title, callnumber, item_id ) = login_helper.get_item_info( request.GET['bibnum'], request.GET['itemnum'] )
-    login_helper.update_session( request, title, callnumber, item_id )
-    context = login_helper.prepare_context( request )
-    # return render( request, 'easyrequest_app_templates/login.html', context )
-    if request.GET.get('format', '') == 'json':
-        context_json = json.dumps(context, sort_keys=True, indent=2)
-        resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
-    else:
-        if context['pattern_header_active'] == True:
-            template = 'easyrequest_app_templates/login_02.html'
-        else:
-            template = 'easyrequest_app_templates/login.html'
-        resp = render( request, template, context )
-    return resp
 
 
 @csrf_exempt  # temp for migration
