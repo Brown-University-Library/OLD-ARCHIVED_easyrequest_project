@@ -79,7 +79,7 @@ def login( request ):
                 bib_url = f'https://search.library.brown.edu/catalog/{request.GET["bibnum"]}'
                 problem_text = ', '.join( login_helper.problems )
                 log.debug( f'bib_url, ``{bib_url}``' )
-                context['message'] = f"""Requesting problem (we're working on this): ``{problem_text}``. Please go back and try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
+                context['message'] = f"""Requesting problem (we're working on this): ``{problem_text}``. Please try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
             else:
                 context['message'] = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at the "Feedback" or "Help" link above, and they'll assist you.""" % (
                     '' if len(login_helper.problems) < 2 else 's',
@@ -91,7 +91,7 @@ def login( request ):
             if 'empty item-number submitted' in login_helper.problems and len( request.GET.get('itemnum') ) == 0 and len( request.GET.get('bibnum') ) > 0:
                 bib_url = f'https://search.library.brown.edu/catalog/{request.GET["bibnum"]}'
                 problem_text = ', '.join( login_helper.problems )
-                message = f"""Requesting problem (we're working on this): ``{problem_text}``. Please go back and try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
+                message = f"""Requesting problem (we're working on this): ``{problem_text}``. Please try requesting from the record-view directly (as opposed to the search-results-view), which should be at the url <a href="{bib_url}">{bib_url}</a>."""
             else:
                 message = """This request could not be submitted for the following reason%s: ``%s``. Please contact Library staff at ``%s``, and they'll assist you. """ % (
                     '' if len(login_helper.problems) < 2 else 's',
