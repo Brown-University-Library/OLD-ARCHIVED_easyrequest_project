@@ -682,7 +682,7 @@ This is a confirmation of your request for the item...
 Title: %s
 Call Number: %s
 
-Requested items are generally available within 96 hours. You will receive an email when the item is available for pickup at the %s.
+Requested items are generally available within 72 hours. You will receive an email when the item is available for pickup at the %s.
 
 If you have questions, feel free to email %s, and refer to...
 
