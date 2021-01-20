@@ -131,6 +131,8 @@ class LoginHelper( object ):
                 self.problems.append( 'invalid item-bib-number submitted' )
         if len( self.problems ) == 0:
             return_val = True
+        else:
+            self.problems.sort()  # makes tests easier
         log.info( 'return_val, `%s`' % return_val )
         log.info( 'self.problems, ``%s``' % self.problems )
         return return_val

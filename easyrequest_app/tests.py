@@ -54,13 +54,14 @@ class LoginHelperTest( TestCase ):
         """ Checks for missing bibnum param. """
         querydict = QueryDict( 'barcode=12345678901234' )
         login_helper.validate_params( querydict )
-        self.assertEqual( ['no item-bib-number submitted'], login_helper.problems )
+        self.assertEqual( ['no item-bib-number submitted', 'no item-number submitted'], login_helper.problems )
 
     def test_validate_problem_bibnum_params_B( self ):
         """ Checks for invalid bibnum param. """
         querydict = QueryDict( 'bibnum=bad&barcode=12345678901234' )
         login_helper.validate_params( querydict )
-        self.assertEqual( ['invalid item-bib-number submitted'], login_helper.problems )
+        # self.assertEqual( ['invalid item-bib-number submitted'], login_helper.problems )
+        self.assertEqual( ['invalid item-bib-number submitted', 'no item-number submitted'], login_helper.problems )
 
     def test_validate_problem_barcode_params_A( self ):
         """ Checks for missing barcode param. """
