@@ -264,10 +264,8 @@ class LoginHelper( object ):
             for item in items:
                 if item_id == item['item_id']:
                     callnumber = item['callnumber']
-                    # item_id = item['item_id'][:-1]  # removes trailing check-digit
         except:
             log.exception( 'unable to process results; traceback follows, but processing continues' )
-        # log.debug( 'process_items result, `%s`' % unicode(repr((callnumber, item_id))) )
         log.debug( f'extracted callnumber, ``{callnumber}``' )
         return callnumber
 

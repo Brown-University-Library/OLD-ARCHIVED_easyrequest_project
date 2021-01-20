@@ -28,7 +28,7 @@ class LoginHelperTest( TestCase ):
 
     def test__process_items( self ):
         """ Tests extract from api lookup on bib. """
-        item_barcode = '31236074994859'
+        itemnum = 'i165116687'  # requires check-digit
         api_dct = {
          u'query': {u'timestamp': u'2019-09-05 13:22:12.841357',
                     u'url': u'https://library.brown.edu/availability_api/v2/bib_items/b6150593/'},
@@ -46,8 +46,8 @@ class LoginHelperTest( TestCase ):
                        u'time_taken': u'0:00:00.493448'}
         }
         self.assertEqual(
-            ( 'CT275.P648 R53 2008', 'i16511668' ),
-            login_helper.process_items( api_dct, item_barcode )
+            'CT275.P648 R53 2008',
+            login_helper.process_items( api_dct, itemnum )
             )
 
     def test_validate_problem_bibnum_params_A( self ):
