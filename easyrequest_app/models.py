@@ -38,9 +38,6 @@ class ItemRequest( models.Model ):
     create_datetime = models.DateTimeField( auto_now_add=True, blank=True )  # blank=True for backward compatibility
     admin_notes = models.TextField( blank=True )
 
-    # def __unicode__(self):
-    #     return smart_text( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
-
     def __str__(self):
         return smart_text( 'id: %s || title: %s' % (self.id, self.item_title) , 'utf-8', 'replace' )
 
@@ -598,12 +595,13 @@ class Processor( object ):
             Called by save_data() """
         # log.debug( 'starting save_item_data() request.session, `%s`' % pprint.pformat(request.session.items()) )
         try:
-            itmrqst.item_title = request.session['item_title']
+            # itmrqst.item_title = request.session['item_title']
+            itmrqst.item_title = request.session['item_title'][0:200]
             itmrqst.item_bib = request.session['item_bib']
             itmrqst.item_id = request.session['item_id']
-            # itmrqst.item_barcode = request.session['item_barcode']
             itmrqst.item_barcode = request.session.get('item_barcode', '' )
-            itmrqst.item_callnumber = request.session['item_callnumber']
+            # itmrqst.item_callnumber = request.session['item_callnumber']
+            itmrqst.item_callnumber = request.session['item_callnumber'][0:200]
             itmrqst.save()
         except Exception as e:
             log.debug( 'Exception; session, `%s`' % pprint.pformat(request.session.items()) )
@@ -623,17 +621,6 @@ class Processor( object ):
             log.error( 'Exception, `%s`' % repr(e) )
             raise Exception( 'Unable to save user-data.' )
         return itmrqst
-
-    # def place_request( self, item_id, pickup_location_code, patron_sierra_id ) -> None:
-    #     """ Coordinates sierra-api call.
-    #         Called by views.processor()
-    #         TODO: think about good problem-handling. """
-    #     log.debug( f'starting place_request() with item_id, ``{item_id}`` and pickup_location_code, ``{pickup_location_code}`` and patron_sierra_id, ``{patron_sierra_id}``' )
-    #     sierra_helper = SierraHelper()
-    #     data_dct = sierra_helper.build_data( item_id, pickup_location_code )
-    #     sierra_helper.manage_place_hold( data_dct, patron_sierra_id )
-    #     log.debug( f'hold_result, `%s`' % sierra_helper.hold_status )
-    #     return
 
     def place_request( self, item_id, pickup_location_code, patron_sierra_id ) -> None:
         """ Coordinates sierra-api call.
