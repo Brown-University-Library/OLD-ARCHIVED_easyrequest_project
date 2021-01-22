@@ -2,8 +2,6 @@
 
 import datetime, json, logging, os, pprint
 
-# from .lib import common, version_helper
-
 from django.conf import settings as project_settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
@@ -14,8 +12,6 @@ from django.views.decorators.csrf import csrf_exempt
 from easyrequest_app import models
 from easyrequest_app.lib import common, version_helper
 from easyrequest_app.lib.mail import Emailer
-
-# from easyrequest_app.lib import mail
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +50,7 @@ def info( request ):
 def login( request ):
     """ Stores referring url, bib, and item-id in session.
         Presents shib (and in non-COVID times manual) login. """
-    log.info( 'starting login()' )
+    log.info( '\n\nstarting login()' )
     log.debug( 'rquest.GET, ``%s``' % request.GET )
     context = {
         'pattern_header': common.grab_pattern_header(),
@@ -192,7 +188,7 @@ def barcode_handler( request ):
 @csrf_exempt  # temp for migration
 def shib_handler( request ):
     """ Stores pickup location to session and redirects to shib_login() """
-    log.debug( 'starting shib_handler()' )
+    log.debug( '\n\nstarting shib_handler()' )
     if request.method == 'POST':  # from login.html
         log.debug( 'post detected' )
         request.session['pickup_location'] = request.POST['pickup_location']
@@ -207,7 +203,7 @@ def shib_handler( request ):
 def shib_login( request ):
     """ Examines shib headers, sets session-auth.
         Redirects user to non-seen processor() view. """
-    log.debug( 'starting shib_login()' )
+    log.debug( '\n\nstarting shib_login()' )
     ( validity, shib_dict ) = shib_view_helper.check_shib_headers( request )
     if validity is False:
         return_response = shib_view_helper.prep_login_redirect( request )
