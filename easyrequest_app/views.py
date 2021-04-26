@@ -243,19 +243,36 @@ def summary( request ):
     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
     context = summary_helper.build_main_context( request, EMAIL, PHONE )
     context['pattern_header'] = common.grab_pattern_header()
-    context['pattern_header_active'] = json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
     if request.GET['source_url'][0:4] == 'http':
         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
     if request.GET.get('format', '') == 'json':
         context_json = json.dumps(context, sort_keys=True, indent=2)
         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
     else:
-        if context['pattern_header_active'] == True:
-            template = 'easyrequest_app_templates/summary_02.html'
-        else:
-            template = 'easyrequest_app_templates/summary.html'
+        template = 'easyrequest_app_templates/summary.html'
         resp = render( request, template, context )
     return resp
+
+
+# def summary( request ):
+#     """ Displays final summary screen. """
+#     EMAIL = os.environ['EZRQST__EMAIL_GENERAL_HELP']
+#     PHONE = os.environ['EZRQST__PHONE_GENERAL_HELP']
+#     context = summary_helper.build_main_context( request, EMAIL, PHONE )
+#     context['pattern_header'] = common.grab_pattern_header()
+#     context['pattern_header_active'] = json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
+#     if request.GET['source_url'][0:4] == 'http':
+#         context['source_url'] = request.GET['source_url']  # template will only show it if it exists
+#     if request.GET.get('format', '') == 'json':
+#         context_json = json.dumps(context, sort_keys=True, indent=2)
+#         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
+#     else:
+#         if context['pattern_header_active'] == True:
+#             template = 'easyrequest_app_templates/summary_02.html'
+#         else:
+#             template = 'easyrequest_app_templates/summary.html'
+#         resp = render( request, template, context )
+#     return resp
 
 
 @csrf_exempt  # temp for migration
