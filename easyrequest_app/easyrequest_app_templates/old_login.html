@@ -1,4 +1,4 @@
-{% extends "easyrequest_app_templates/base02.html" %}
+{% extends "easyrequest_app_templates/base.html" %}
 
 {% block page_title %}
 easyRequest login
@@ -8,146 +8,69 @@ easyRequest login
 {% block content %}
 
 <style>
+
     h1 {
-        margin-top: 0;
-        text-transform: none
-    }
-
-    /***** alert-start *****/
-    div#alert {
-        background-color : #FFE6A0 ;
-        /*font-family : CircularStd ;*/
-        /*padding : 25px ;*/
-        padding : 10px ;
-        /*margin-bottom : .1em ;*/
-        margin-bottom : 0;
-    }
-    h2.alert {
-        /*color : #222 !important ;*/
-        font-size: 120%;
-        /*margin-bottom: .7em;*/
-        font-weight: bolder;
-        color:darkred;
-        margin: 0;
-    }
-    p.alert {
-        font-weight: bolder;
-        /*font-size: 100%;*/
-        font-size: 80%;
-        line-height: 110%;
-        margin-top: .5em;
-        /*margin-bottom: .7em;*/
-    }
-    p.alert_nonbold {
-        /*font-size: 100%;*/
-        font-size: 80%;
-        line-height: 110%;
-        margin: 0;
-    }
-/*
-    hr.alert {
-        margin-top: 1em;
-        width:100%;
-        }
-        */
-    /***** alert-end *****/
-
+        font-size: 2.5em;
+        margin-top: 2em;
+        text-transform: none }
     p {
-        margin-top:1.5em;
+        margin-bottom: .5em;
+        font-size: 125%; }
+
+    /*
+    div#requested_item {
+        margin-top: 4em;
+    }
+    */
+
+    div#requested_item {
+        margin-top: 2em;
+        margin-bottom: 6em;
     }
 
-    /***** requested-item-start *****/
-    div#requested_item {
-        margin-top: 0em;
-        margin-bottom: 0em;
-        /*border-bottom: 5px solid red;*/
-    }
-    p#you_are_requesting {
-        font-size: 80%;
-        margin-top: 1.5em;
-        margin-bottom: 0;
-    }
-    dl {
-        margin: 0;
-    }
     dt, dd {
-        /*font-family:sans-serif;*/
-        margin-top: 0em;
-        font-style: italic;
-    }
+        font-family:sans-serif;
+        margin-top: .5em; }
     dt {
         float:left;
         clear:left;
         text-align:right;
         width:15%;
-        font-size: 80%;
-    }
+        font-size: 125%; }
     dd {
         float:left;
         margin-left:2em;
-        font-size: 80%;
-    }
-    /***** requested-item-end *****/
+        font-size: 125%; }
 
     div#forms {
         width: 80%;
-        /*height: 250px;*/
+        height: 250px;
         /*background: aqua;*/
         margin: auto;
         margin-left: 0;
-        margin-top: 5em;
+        margin-top: 6em;
         padding: 10px;
-        margin-bottom: 0;
         }
 
-    /***** shib-form-start *****/
+    /* shib form */
     form#shib_login {
         /*from `http://jsfiddle.net/watson/Gsj27/3/`*/
-        /*width: 45%;*/
-        /*height: 250px;*/
+        width: 45%;
+        height: 250px;
         float: left;
-        margin-top: -1.5em;
-        margin-bottom: 0;
         }
     h3#please_shib {
-        font-size: 120%;
+        font-size: 1.5em;
         color: maroon;
-        margin-top: 0;
-        margin-bottom: 0;
         }
-/*
     select#shib_location {
         float:left;
         }
-
-*/
-
-    p.form_pickup_label {
-        clear:left;
-        float:left;
-        /*margin-top: 1em;*/
-        margin-top: .5em;
-        font-size: 80%;
-    }
-    select#shib_location{
-        /*clear:left;*/
-        margin-top: 1em;
-        margin-left: 1em;
-
-    }
     input#shib_login_button {
-        /*float:left;*/
-        /*clear:left;*/
-        margin-top: 2.5em;
-        width: 10em;
-    }
-    input#shib_login_button:active {
-      /*border: 2px solid #4CAF50;*/
-      border: 2px solid maroon;
-    }
-
-    /***** shib-form-end *****/
-
+        float:left;
+        clear:left;
+        margin-top: 1.5em;
+        }
 
     /* barcode form */
     form#barcode_login {
@@ -184,35 +107,69 @@ easyRequest login
         }
 
     /* other */
+    p.form_pickup_label {
+        margin-top: 1.5em;
+        }
     p.login_error {
         float: left;
         color: red;
         margin-top: 1em;
         margin-bottom: .25em;
-    }
-
+        }
     hr {
-      float:left;
-      clear:left;
-      margin-top: 1em;
-      width:100%;
+        margin-top: 2em;
+        width:100%;
+        }
+
+    /***** alert *****/
+    div#alert {
+        background-color : #FFE6A0 ;
+        /*font-family : CircularStd ;*/
+        padding : 25px ;
+        margin-bottom : .1em ;
+    }
+    h2.alert {
+        /*color : #222 !important ;*/
+        font-size: 2.25em;
+        margin-bottom: .7em;
+        font-weight: bolder;
+        color:darkred;
+    }
+    p.alert {
+        font-weight: bolder;
+        font-size: 1.75em;
+        margin-bottom: .7em;
+    }
+    p.alert_nonbold {
+        font-size: 1.5em;
+        line-height: 120%;
     }
 
 </style>
 
+ <h1>Item Requesting</h1>
 
-<h1>easyRequest &mdash; login</h1>
+{% comment %}
+<div id="alert">
+    <h2 class="alert"><strong>Important Notice</strong></h2>
+    <p class="alert"><strong>Physical delivery of items from the Library Annex has been suspended until further notice.</strong></p>
+    <p class="alert_nonbold">In the meantime, you may request scans by navigating back to the previous page and clicking the <strong>"scan"</strong> link. We will conduct scans and deliver them to your email address in the order in which they are received, in as timely a manner as possible.</p>
+    <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
+    <hr/>
+</div>
+{% endcomment %}
 
 <div id="alert">
     <h2 class="alert"><strong>Important Notice</strong></h2>
     <p class="alert"><strong>The library is providing <a href="https://blogs.brown.edu/libnews/resume-service/">limited, contactless circulation</a> in addition to remote services.</strong></p>
     <p class="alert_nonbold">We are assessing Library services on an ongoing basis. Check <a href="https://blogs.brown.edu/libnews/covid/">the Library's COVID-19 announcements page</a> frequently for updates on Library services.</p>
-    <!-- <hr class="alert"></hr> -->
+    <hr/>
 </div>
 
  <div id="requested_item">
 
-    <p id="you_are_requesting">You're requesting the item …</p>
+    <p>You're requesting the item …</p>
+    <br/>
     <dl>
         <dt>title:</dt>
         <dd>{{ title }}</dd>
@@ -225,13 +182,11 @@ easyRequest login
 
 </div>
 
-
 <div id="forms">
 
     <form id="shib_login" action={{ shib_form_action_url }} method="POST">{% csrf_token %}
         <!-- <h3 id="please_shib">Select pickup-location, &amp; log in via Shib...</h3> -->
         <h3 id="please_shib">Log in with your Brown username &amp; password...</h3>
-        <!-- <p class="form_pickup_label">Pickup location:</p> -->
         <p class="form_pickup_label">Pickup location:</p>
         <select name="pickup_location" id="shib_location" size="3">
             <option value="{{ ROCK_code }}" selected="selected">{{ ROCK_display }}</option>
@@ -239,14 +194,11 @@ easyRequest login
             <!-- <option value="{{ HAY_code }}" >{{ HAY_display }}</option> -->
             <!-- <option value="{{ ORWIG_code }}" >{{ ORWIG_display }}</option> -->
         </select>
-
         {% if shib_login_error %}
         <p class="login_error">Problem: based on your login, it appears you're not authorized to use this requesting service.</p>
         <p class="login_error">If you believe you should be able to request this item, please contact Library staff for assistance, either at {{ PHONE_AUTH_HELP }}, or at {{ EMAIL_AUTH_HELP|urlize }}.</p>
         {% endif %}
-        <div>
         <input id="shib_login_button" type="submit" value="Log in">
-        </div>
     </form>
 
     {% comment %}
@@ -272,6 +224,8 @@ easyRequest login
     </form>
     {% endcomment %}
 
-</div>  <!-- end <div id="forms"> -->
+</div>
+
+<hr/>
 
 {% endblock content %}

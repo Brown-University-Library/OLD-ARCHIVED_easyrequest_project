@@ -1,65 +1,38 @@
 {% extends "easyrequest_app_templates/base.html" %}
 
-
 {% block page_title %}
-easyrequest problem
+easyRequest summary
 {% endblock page_title %}
-
 
 
 {% block content %}
 
 <style>
+
     h1 {
-        font-size: 2.5em;
-        margin-top: 2em;
-        text-transform: none }
-    div#rules {
-        margin-top: 3.5em; }
+        margin-top: 0;
+        text-transform: none
+    }
+
     hr {
-        margin-top: 2em; }
-    dt, dd {
-        font-family:sans-serif;
-        margin-top: .5em; }
-    dt {
-       float:left;
-       clear:left;
-       text-align:right;
-       width:15%;
-       color:#bbb;
-       font-size: 125%; }
-    dd {
-       float:left;
-       margin-left:2em;
-       color:#999;
-       font-size: 125%; }
-    p {
-        font-size: 125%;
-        margin-top:1.5em; }
-    ul {
-        list-style-type: square;
-        margin-left: 2em;
-        font-size: 125%; }
-    li {
-        margin-top: .5em; }
+      float:left;
+      clear:left;
+      margin-top: 1em;
+      width:100%; }
+
+
 </style>
 
-<h1>easyRequest problem</h1>
+<h1>easyRequest &mdash; problem</h1>
 
-<div id="info_text">
-    <p>
-        Problem placing request; please try again in a few minutes.
-    </p>
-    <p>
-        If this problem persists, please email <a href="mailto:{{ EMAIL }}">{{ EMAIL }}</a>.
-    </p>
-    <hr/>
+ <div id="problem">
+
+    <p>{{ message | safe }}</p>
+
 </div>
 
-{% comment %}
-<pre id="info">
-{{ context_handle }}
-</pre>
-{% endcomment %}
+{% if  source_url %}
+<p id="return">Return to <a href="{{ source_url }}">search results</a>.</p>
+{% endif %}
 
 {% endblock content %}
