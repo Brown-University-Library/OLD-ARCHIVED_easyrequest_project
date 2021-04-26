@@ -33,16 +33,12 @@ def info( request ):
     start = datetime.datetime.now()
     context = {
         'pattern_header': common.grab_pattern_header(),
-        'pattern_header_active': json.loads( os.environ['EZRQST__PATTERN_HEADER_ACTIVE_JSON'] )
     }
     if request.GET.get('format', '') == 'json':
         context_json = json.dumps(context, sort_keys=True, indent=2)
         resp = HttpResponse( context_json, content_type='application/javascript; charset=utf-8' )
     else:
-        if context['pattern_header_active'] == True:
-            template = 'easyrequest_app_templates/info_02.html'
-        else:
-            template = 'easyrequest_app_templates/info.html'
+        template = 'easyrequest_app_templates/info.html'
         resp = render( request, template, context )
     return resp
 
