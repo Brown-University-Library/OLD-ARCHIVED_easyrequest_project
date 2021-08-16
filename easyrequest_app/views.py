@@ -109,7 +109,7 @@ def login( request ):
         if context['pattern_header_active'] == True:
             template = 'easyrequest_app_templates/login_02.html'
         else:
-            template = 'easyrequest_app_templates/login.html'
+            template = 'easyrequest_app_templates/login_paused.html'
         resp = render( request, template, context )
     return resp
 
